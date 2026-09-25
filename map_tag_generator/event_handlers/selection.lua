@@ -6,6 +6,7 @@ local detection = require("map_tag_generator.entity_detection")
 local positions = require("map_tag_generator.positions")
 local tag_util = require("map_tag_generator.tags")
 local util = require("__core__.lualib.util")
+local selection = require("map_tag_generator.selection")
 
 local export = { events = {} }
 
@@ -18,13 +19,20 @@ end
 ---Handle selection for the tag-generation case (as opposed to tag-deletion case).
 ---@param e EventData.on_player_selected_area | EventData.on_player_alt_selected_area
 ---@param force_open_gui boolean
-local function main_selection(e, force_open_gui)
+local function main_selection(e, force_open_gui, mode)
+    if e.item ~= "map_tag_generator_selection_tool" then return end
     local player = game.get_player(e.player_index)
     if not player then return end
     local player_table = storage.player_table[player.index]
+    if player_table.gui.edit_icon then return end
+    mode = mode or "replace"
+    local previous = player_table.gui.add_tags and player_table.selection_event
+    local editing = mode ~= "replace" and previous and previous.surface.valid and previous.surface.index == e.surface.index
+    e = selection.update(previous, e, mode)
+    if mode ~= "replace" then force_open_gui = true end
 
-    -- if a GUI is already open, close it first (to give the effect of "refreshing" with the new selection)
-    if player_table.gui.add_tags then
+    -- Keep the current dialog and its choices while refining the selection.
+    if player_table.gui.add_tags and not editing then
         gui_add_tags.close_window(player)
     end
     if player_table.gui.delete_tags then
@@ -62,7 +70,9 @@ local function main_selection(e, force_open_gui)
             local tag_package = tag_packages.new({player = player, surface = e.surface})
 
             for category, entities in pairs(player_table.matching_entities) do
-                tag_packages.concat(tag_package, selection_handlers[category].get_tag_package(entities, player_table))
+                local package = selection_handlers[category].get_tag_package(entities, player_table)
+                for _, tag in pairs(package.tag_tables) do tag.source_category = category end
+                tag_packages.concat(tag_package, package)
             end
 
             tag_packages.remove_duplicates(tag_package)
@@ -73,9 +83,6 @@ local function main_selection(e, force_open_gui)
                     player_table.current_tag_package = tag_package
 
                     -- open add_tags dialog window
-                    if player.cursor_stack and player.cursor_stack.name == "map_tag_generator_selection_tool" then
-                        player.clear_cursor()
-                    end
                     gui_add_tags.build_window(player)
                 else
                     -- create tags with default settings
@@ -136,9 +143,6 @@ local function main_selection(e, force_open_gui)
                     player_table.current_tag_package = tag_package
 
                     -- open add_tags dialog window
-                    if player.cursor_stack and player.cursor_stack.name == "map_tag_generator_selection_tool" then
-                        player.clear_cursor()
-                    end
                     gui_add_tags.build_window(player)
                 else
                     player_table.matching_entities = nil
@@ -152,9 +156,6 @@ local function main_selection(e, force_open_gui)
                 player_table.current_tag_package = tag_packages.new({player = player, surface = e.surface})
 
                 -- open add_tags dialog window
-                if player.cursor_stack and player.cursor_stack.name == "map_tag_generator_selection_tool" then
-                    player.clear_cursor()
-                end
                 gui_add_tags.build_window(player)
             else
                 player_table.matching_entities = nil
@@ -171,7 +172,9 @@ export.events[defines.events.on_player_selected_area] = function(e)
     local player_table = storage.player_table[player.index]
     main_selection(e, (player_table.add_tags_dialog and player_table.always_add_tags_dialog))
 end
-export.events[defines.events.on_player_alt_selected_area] = export.events[defines.events.on_player_selected_area]
+export.events[defines.events.on_player_alt_selected_area] = function(e)
+    main_selection(e, true, "add")
+end
 
 export.events[defines.events.on_player_super_forced_selected_area] = function(e)
     -- force open GUI
@@ -182,6 +185,7 @@ export.events[defines.events.on_player_super_forced_selected_area] = function(e)
 end
 
 export.events[defines.events.on_player_reverse_selected_area] = function(e)
+    if e.item ~= "map_tag_generator_selection_tool" then return end
     local player = game.get_player(e.player_index)
     if not player then return end
     local player_table = storage.player_table[player.index]
@@ -227,6 +231,8 @@ export.events[defines.events.on_player_reverse_selected_area] = function(e)
         end
     end
 end
-export.events[defines.events.on_player_alt_reverse_selected_area] = export.events[defines.events.on_player_reverse_selected_area]
+export.events[defines.events.on_player_alt_reverse_selected_area] = function(e)
+    main_selection(e, true, "remove")
+end
 
 return export

@@ -3,6 +3,7 @@ local signals = require("map_tag_generator.signals")
 local positions = require("map_tag_generator.positions")
 local tag_util = require("map_tag_generator.tags")
 local flib_gui = require("__flib__.gui")
+local util = require("__core__.lualib.util")
 
 local gui_util = {}
 
@@ -117,6 +118,7 @@ gui_util.update_addtags_preview = function(player)
         end
     end
     local position_list = positions.multi_tag_positions(center, enabled_count_ex_train, player_table.layout_style_temp)
+    player_table.gui.add_tags.preview_minimap.position = center
 
     player_table.gui.add_tags.preview_icons_container.clear()
     local sprite_size = 30
@@ -265,7 +267,9 @@ end
 gui_util.icon_buttons_from_package = function(tag_package, player_table, on_click_callback)
     local buttons = {}
     for _, tag_table in pairs(tag_package.tag_tables) do
-        table.insert(buttons, gui_util.icon_button_from_table(tag_table, player_table, on_click_callback))
+        local button = gui_util.icon_button_from_table(tag_table, player_table, on_click_callback)
+        button.tags.source_tag = util.copy(tag_table)
+        table.insert(buttons, button)
     end
     return buttons
 end

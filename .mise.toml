@@ -1,0 +1,6 @@
+[tools]
+bun = "1.4.2"
+
+[tasks.test]
+description = "Run real-engine selection and dialog regressions with FactorioTest"
+run = "bunx --no-install factorio-test run --factorio-path \"$FACTORIO\""

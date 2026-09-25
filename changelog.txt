@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.0.2
+Date: 26 September 2026
+  Features:
+    - Shift-left-drag adds entities to the pending selection without counting overlaps twice.
+    - Shift-right-drag removes entities from the pending selection. Plain right-drag still erases map tags.
+  Changes:
+    - Keep the selection tool in the cursor and the tag dialog non-modal while refining a selection.
+    - Refresh generated icons, resource totals, and preview position without losing remaining icon edits, manual tags, or layout choices.
+    - Clearing the selection tool or changing surfaces cancels the pending selection.
+---------------------------------------------------------------------------------------------------
 Version: 3.0.1
 Date: 29 August 2026
   Changes:

@@ -1,0 +1,6 @@
+{
+  "dependencies": {},
+  "devDependencies": {
+    "factorio-test-cli": "3.6.0"
+  }
+}

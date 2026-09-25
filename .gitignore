@@ -1,0 +1,5 @@
+.mise.local.toml
+*.zip
+.DS_Store
+node_modules/
+.factorio-test/

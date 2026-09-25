@@ -11,12 +11,13 @@ export.events["map_tag_generator_confirm_gui_linked"] = function(e)
     local player_table = storage.player_table[player.index]
     local opened = player.opened
 
-    if opened and player.opened_gui_type == defines.gui_type.custom then
-        if player_table.gui.add_tags and
-        opened == player_table.gui.add_tags.map_tag_generator_add_tags_window then
+    if player_table.gui.add_tags and not player_table.gui.edit_icon and not opened then
+        if player_table.gui.add_tags.confirm_button.enabled then
             gui_add_tags.confirm_window(player)
-
-        elseif player_table.gui.edit_icon and
+            gui_add_tags.close_window(player)
+        end
+    elseif opened and player.opened_gui_type == defines.gui_type.custom then
+        if player_table.gui.edit_icon and
         opened == player_table.gui.edit_icon.map_tag_generator_edit_icon_window then
             gui_edit_icon.confirm_window(player)
 
@@ -25,6 +26,24 @@ export.events["map_tag_generator_confirm_gui_linked"] = function(e)
             gui_delete_tags.confirm_window(player)
         end
     end
+end
+
+export.events[defines.events.on_player_cursor_stack_changed] = function(e)
+    local player = game.get_player(e.player_index)
+    if not player then return end
+    local player_table = storage.player_table[player.index]
+    if not player_table or not player_table.gui.add_tags or player_table.gui.edit_icon then return end
+    local cursor = player.cursor_stack
+    if not cursor or not cursor.valid_for_read or cursor.name ~= "map_tag_generator_selection_tool" then
+        gui_add_tags.close_window(player)
+    end
+end
+
+export.events[defines.events.on_player_changed_surface] = function(e)
+    local player = game.get_player(e.player_index)
+    if not player then return end
+    local player_table = storage.player_table[player.index]
+    if player_table and player_table.gui.add_tags then gui_add_tags.close_window(player) end
 end
 
 ---@param e EventData.CustomInputEvent

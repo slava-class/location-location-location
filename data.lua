@@ -14,8 +14,8 @@ end
 
 data:extend({
     {
-        -- selection and alt_selection are for generating tags
-        -- reverse_selection is for deleting tags
+        -- select replaces entities, alt_select adds, alt_reverse_select removes
+        -- reverse_select deletes existing map tags
         type = "selection-tool",
         name = pref.."selection_tool",
         draw_label_for_cursor_render = true,
@@ -50,8 +50,9 @@ data:extend({
         ---@diagnostic disable-next-line: missing-fields
         alt_reverse_select = {
             border_color = deletion_color,
-            cursor_box_type = "copy",
-            mode = {"nothing"},
+            cursor_box_type = "not-allowed",
+            mode = {"any-entity"},
+            entity_type_filters = entity_type_filters,
         },
 
         hidden = true,
@@ -74,6 +75,8 @@ data:extend({
             {order = 2, name = "", value = {"map-tag-generator.instruction_to_create_tags"}},
             {order = 3, name = "", value = {"map-tag-generator.instruction_to_force_create_tags"}},
             {order = 4, name = "", value = {"map-tag-generator.instruction_to_delete_tags"}},
+            {order = 5, name = "", value = {"map-tag-generator.instruction_to_add_entities"}},
+            {order = 6, name = "", value = {"map-tag-generator.instruction_to_remove_entities"}},
         },
     },
 

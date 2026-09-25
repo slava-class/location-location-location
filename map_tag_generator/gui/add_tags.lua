@@ -7,6 +7,8 @@ local tag_tables = require("map_tag_generator.structs.tag_table")
 local mtg = require("map_tag_generator.constants")
 local positions = require("map_tag_generator.positions")
 local flib_gui = require("__flib__.gui")
+local signals = require("map_tag_generator.signals")
+local util = require("__core__.lualib.util")
 
 local gui_add_tags = {}
 
@@ -67,17 +69,6 @@ local function disable_window(player)
     gui_util.deep_disable(player_table.gui.add_tags.inner_flow)
     player_table.gui.add_tags.cancel_button.enabled = false
     player_table.gui.add_tags.confirm_button.enabled = false
-end
-
----@param e EventData.on_gui_closed
-local function on_gui_closed(e)
-    local player = game.get_player(e.player_index)
-    if player == nil then return end
-    local player_table = storage.player_table[e.player_index]
-    -- don't close if the event was triggered by an auxilary window opening
-    if not player_table.gui.edit_icon then
-        gui_add_tags.close_window(player)
-    end
 end
 
 ---@param e EventData.on_gui_click
@@ -264,7 +255,6 @@ local function on_confirm_click(e)
 end
 
 flib_gui.add_handlers({
-    add_tags_on_gui_closed=on_gui_closed,
     add_tags_on_add_icon_click=on_add_icon_click,
     add_tags_on_reorder_tags_click=on_reorder_tags_click,
     add_tags_on_toggle_all_click=on_toggle_all_click,
@@ -279,11 +269,67 @@ flib_gui.add_handlers({
     add_tags_on_confirm_click=on_confirm_click,
 })
 
+local function source_key(tag)
+    local signal = tag.signal or {}
+    return (tag.source_category or "")..":"..(signal.type or "item")..":"..(signal.name or "")..":"
+        ..signals.get_quality_from_signal(signal, "normal")..":"..tostring(tag.train_stop or "")
+        ..":"..tag.position.x..":"..tag.position.y
+end
+
+---@param player LuaPlayer
+local function refresh_window(player)
+    local player_table = storage.player_table[player.index]
+    local generated = {}
+    for _, tag in pairs(player_table.current_tag_package.tag_tables) do
+        generated[source_key(tag)] = tag
+    end
+
+    local buttons = player_table.gui.add_tags.icon_button_table
+    local entries = {}
+    for _, button in ipairs(buttons.children) do
+        local tags = button.tags
+        if tags.source_tag then
+            local key = source_key(tags.source_tag)
+            local tag = generated[key]
+            if tag then
+                local original = util.copy(tag)
+                tag.enabled = tags.tag_table.enabled
+                if tags.tag_table.text ~= tags.source_tag.text then tag.text = tags.tag_table.text end
+                if source_key(tags.tag_table) ~= key then tag.signal = tags.tag_table.signal end
+                table.insert(entries, {tag_table = tag, source_tag = original})
+                generated[key] = nil
+            end
+        else
+            -- Manually added tags are independent of the entity selection.
+            table.insert(entries, tags)
+        end
+    end
+    for _, tag in pairs(generated) do
+        table.insert(entries, {tag_table = tag, source_tag = util.copy(tag)})
+    end
+
+    if player_table.is_reordering_tags then on_reorder_tags_click({player_index = player.index}) end
+    buttons.clear()
+    player_table.selected_icon_count = 0
+    player_table.selected_icon_count_ex_train = 0
+    for _, entry in ipairs(entries) do
+        local button = gui_util.icon_button_from_table(entry.tag_table, player_table, on_icon_button_click)
+        button.tags.source_tag = entry.source_tag
+        flib_gui.add(buttons, button)
+    end
+    update_toggle_all_button(player)
+    gui_util.update_addtags_enabled_states(player)
+    gui_util.update_addtags_preview(player)
+end
+
 ---@param player LuaPlayer
 function gui_add_tags.build_window(player)
     local player_table = storage.player_table[player.index]
 
-    if player_table.gui.add_tags then return end
+    if player_table.gui.add_tags then
+        refresh_window(player)
+        return
+    end
 
     -- initialize temp variables
     player_table.position_style_temp = next(player_table.matching_entities) and player_table.position_style or mtg.position_styles.center_of_selection -- if no matching entities were selected, can only use center-of-selection
@@ -297,7 +343,6 @@ function gui_add_tags.build_window(player)
             type = "frame",
             name = "map_tag_generator_add_tags_window",
             direction = "vertical",
-            handler = { [defines.events.on_gui_closed] = on_gui_closed },
             children = {
                 {
                     -- header
@@ -641,7 +686,7 @@ function gui_add_tags.build_window(player)
     gui_util.update_addtags_preview(player)
     gui_util.update_addtags_enabled_states(player)
 
-    player.opened = elems.map_tag_generator_add_tags_window
+    -- Non-modal: world drags must not close the dialog and discard its selection.
 end
 
 

@@ -197,7 +197,6 @@ gui_edit_icon.close_window = function(player)
     -- re-enable add_tags window
     if player_table.gui.add_tags then
         gui_util.deep_enable(player_table.gui.add_tags.map_tag_generator_add_tags_window)
-        player.opened = player_table.gui.add_tags.map_tag_generator_add_tags_window
     end
 
     -- make button_to_edit visible (only needed if it's a new button, but if it's already visible, this doesn't do any harm)

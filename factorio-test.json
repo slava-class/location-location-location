@@ -1,0 +1,9 @@
+{
+  "modPath": ".",
+  "dataDirectory": ".factorio-test",
+  "outputFile": ".factorio-test/results.json",
+  "test": {
+    "default_timeout": 120,
+    "log_passed_tests": true
+  }
+}
