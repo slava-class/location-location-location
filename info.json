@@ -1,0 +1,12 @@
+{
+    "name": "map-tag-generator",
+    "version": "3.0.1",
+    "title": "Map Tag Generator",
+    "author": "Majoca",
+    "factorio_version": "2.1",
+    "dependencies": ["base >= 2.1.13", "flib >= 0.17.2"],
+    "description": "Select entities and the generator will intelligently create map tags representing their purpose, with perfect layout and positioning. Can also be used to erase map tags.",
+    "package": {
+        "ignore": ["README.md", "tests/*", "graphics/raw/*"]
+    }
+}

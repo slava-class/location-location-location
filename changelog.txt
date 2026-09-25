@@ -1,0 +1,213 @@
+---------------------------------------------------------------------------------------------------
+Version: 3.0.1
+Date: 29 August 2026
+  Changes:
+    - Alt-selection now behaves the same as regular-selection. Super-forced-selection now behaves how alt-selection used to behave (opens the tag generation GUI even if no relevant entities were selected).
+---------------------------------------------------------------------------------------------------
+Version: 3.0.0
+Date: 27 June 2026
+  Major Features:
+    - Updated to be compatible with Factorio 2.1
+  Changes:
+    - Updated minimum Factorio Library version
+---------------------------------------------------------------------------------------------------
+Version: 2.1.2
+Date: 2 March 2026
+  Changes:
+    - Reworked agricultural tower logic to be more compatible with modded plants
+---------------------------------------------------------------------------------------------------
+Version: 2.1.1
+Date: 28 February 2026
+  Bugfixes:
+    - Fixed a crash caused by other mods adding trees with no tile restrictions (thanks Kjorn for report)
+---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 28 February 2026
+  Features:
+    - Added a preview to the add-tags GUI
+    - Agricultural towers now generate smart tags based on the harvests of trees they are able to plant
+    - Icon buttons in the GUI now support smart pipette
+  Changes:
+    - Updated selection tool description to explain force selecting
+    - Tag position buttons in the GUI are now restricted to center-of-selection when no relevant entities were selected
+  Bugfixes:
+    - Corrected logic for disabling lower-quality assembler product tags
+---------------------------------------------------------------------------------------------------
+Version: 2.0.5
+Date: 17 February 2026
+  Changes:
+    - Improved selection tool description formatting
+  Bugfixes:
+    - Fixed edge case where select/deselect all button could be enabled when no tags were present
+---------------------------------------------------------------------------------------------------
+Version: 2.0.4
+Date: 12 May 2025
+  Features:
+    - Improved support for quality: Quality icons now appear in the GUIs and quality will be detected from assembling machine recipes.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.3
+Date: 18 March 2025
+  Features:
+    - Added the ability to reorder tags in the add-tags GUI
+  Gui:
+    - Improved consistency by always reserving space for vertical scroll bars
+---------------------------------------------------------------------------------------------------
+Version: 2.0.2
+Date: 15 March 2025
+  Features:
+    - Generating tags for resources now includes combined yield for infinite resources
+---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 19 December 2024
+  Bugfixes:
+    - Fixed crash when a setting is changed during the on_player_created event (thanks arighteousgod for report)
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 26 October 2024
+  Major Features:
+    - Updated to be compatible with Factorio 2.0
+  Features:
+    - Mod can now generate tags for agricultural towers and cargo landing pads
+  Changes:
+    - Updated minimum Factorio Library version
+  Gui:
+    - Tag text editor now supports rich text icon selection
+  Bugfixes:
+    - Fixed edge case where GUI elements were being enabled when they shouldn't be
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.9
+Date: 13 July 2024
+  Features:
+    - Added a setting to generate tag labels along with their icons
+  Changes:
+    - Updated minimum Factorio Library version
+  Optimisations:
+    - Improved performance when selecting a large amount of entities/generating a large amount of tags
+  Bugfixes:
+    - Added a fallback when generating tags from assemblers and the mod fails to find an appropriate icon
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.8
+Date: 6 July 2024
+  Changes:
+    - The selection tool is now cleared from the player's cursor when the GUI opens, to be more consistent with similar tools
+    - Turrets and train stops are now ignored by default (can be re-enabled in per-player settings)
+    - Removed "hide in future" checkboxes from the add-tags and delete-tags GUIs. Use per-player settings to toggle the GUIs
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.7
+Date: 29 June 2024
+  Features:
+    - Added a select/deselect all button to the add-tags and delete-tags GUIs
+  Changes:
+    - Slight changes to some description wordings
+  Bugfixes:
+    - Fixed a crash when trying to create a tag with the "?" icon
+    - Fixed that removing the icon from a tag wouldn't also update the main add-tags GUI
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.6
+Date: 29 October 2023
+  Features:
+    - Holding shift while selecting an area will force the add-tags GUI to open even if it wouldn't otherwise
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.5
+Date: 31 December 2022
+  Bugfixes:
+    - Improved support for Industrial Revolution 3 gas resources (will no longer generate "?" icons) (thanks cacomixl8 for report)
+    - Fixed a crash when trying to remove "?" map tags (thanks cacomixl8 for report)
+    - Removed extra info icons from mod settings names
+    - Removed unused internal name from mod-gui button
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.4
+Date: 21 July 2022
+  Bugfixes:
+    - Fixed a crash on startup caused by 1.2.3 update (thanks Baisius for report)
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.3
+Date: 21 July 2022
+  Bugfixes:
+    - Fixed a potential crash when changing a runtime setting (thanks kustkust for report)
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.2
+Date: 31 May 2022
+  Changes:
+    - Combined the generator and eraser tools into a single tool - left-click to generate tags, or right-click to erase them
+  Gui:
+    - Added an optional shortcut button in the upper-left corner of the screen
+  Bugfixes:
+    - Fixed a crash that would sometimes occur when deleting tags generated by other mods (thanks Dominiquini for report)
+    - Fixed another potential crash when deleting tags
+    - Fixed that the delete-tags GUI would not always update when selecting a new region with the GUI open
+    - Fixed a crash when selecting a region while the GUI to add an additional icon is open
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 6 December 2021
+  Bugfixes:
+    - Fixed that manually adding a new tag in the generate-tags dialog window would sometimes enable layout selection when it shouldn't
+
+---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 27 October 2021
+  Major Features:
+    - Added a dialog window to select which tags to delete before deletion
+  Features:
+    - Added a setting to open the generate-tags dialog window even when no tags would be created by default
+  Graphics:
+    - Updated thumbnail
+
+---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 14 October 2021
+  Changes:
+    - Updated to use the newest version of Factorio Library
+
+---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: 4 September 2021
+  Features:
+    - Resource amounts are now added to tags generated from non-infinite resources
+  Gui:
+    - Windows now close without confirming when closing them with a keyboard shortcut such as ESC (but still confirm when using the confirm-window shortcut)
+  Bugfixes:
+    - Fixed that worms were being detected as turrets (thanks Impatient for report)
+    - NOTE: This fix could potentially cause some modded turrets to go undetected, so let me know if that happens
+    - Improved support for Angel's Infinite Ores (will no longer generate "?" icons)
+
+---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 3 July 2021
+  Optimisations:
+    - Improved performance when selecting a large amount of entities
+  Bugfixes:
+    - Layout style can no longer be selected if there are fewer than 2 non-train-stop tags selected
+    - Fixed a crash when tag position depends on entity position but no entities are there (or they are all train stops)
+
+---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 27 June 2021
+  Bugfixes:
+    - Fixed a bug where the layout style selection in the dialog window would not actually affect the tag layout
+
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 25 June 2021
+  Major Features:
+    - Added a dialog window to adjust the settings of a map tag before its creation
+  Features:
+    - Added settings to control the layout of map tags when multiple are created
+  Changes:
+    - Mod now depends on Factorio Library
+    - Multiple tags generated from a single selection will now form one group, instead of separate groups for each entity category
+
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 15 June 2021
+  Major Features:
+    - Mod released
