@@ -16,6 +16,8 @@ Date: 26 September 2026
     - Rename the product to Location Location Location, with mod ID location-location-location and subtitle "Recipe-based map tags for factory surveying and build planning."
     - The new mod ID is a separate Factorio mod; storage from the old map-tag-generator ID does not migrate automatically.
     - Namespace prototypes, styles, controls, GUI roots, locale keys, modules, and storage independently of Map Tag Generator; both mods can remain enabled.
+    - Complete the standalone repository identity as slava-class/location-location-location and rewrite the mod guide around surveying, site selection, and shared plans; preserve original MIT attribution.
+    - Replace the text-only thumbnail with a staged in-game survey: three ingredient producers, the engineer, and the advanced-circuit site icon.
     - Use Control-Shift-L by default so the old fork's Control-Shift-T binding remains independent.
     - Open the product/recipe picker immediately from New, retaining the private draft in a fixed-size modal with stable search and footer positions.
     - Show Apply N changes in amber using a net diff of recipe, custom name, label visibility, marker placement, and ingredient source sets; reverted edits reduce the count.
