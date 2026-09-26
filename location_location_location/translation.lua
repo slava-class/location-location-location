@@ -1,5 +1,5 @@
 local dictionary = require("__flib__.dictionary")
-local gui = require("map_tag_generator.gui.planner")
+local gui = require("location_location_location.gui.planner")
 
 local function build()
     for _, kind in ipairs({"recipe", "item", "fluid"}) do

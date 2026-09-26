@@ -1,13 +1,13 @@
 {
-    "name": "map-tag-generator",
+    "name": "location-location-location",
     "version": "3.3.0",
-    "title": "Map Tag Generator",
+    "title": "Location Location Location",
     "author": "Majoca",
     "factorio_version": "2.1",
     "dependencies": ["base >= 2.1.19", "flib >= 0.17.2", "? factorio-test >= 3.1.0"],
-    "description": "Plan recipe locations from ingredient sources. Find nearby producers, save shared plans, and highlight active sources on the map.",
+    "description": "Recipe-based map tags for factory surveying and build planning.",
     "homepage": "https://github.com/slava-class/map-tag-generator",
     "package": {
-        "ignore": ["README.md", "graphics/raw/*", ".mise*.toml", ".gitignore", "node_modules/*", ".factorio-test/*", "mise-tasks/*", "package.json", "bun.lock", "factorio-test.json"]
+        "ignore": ["README.md", "AGENTS.md", ".mise*.toml", ".gitignore", "node_modules/*", ".factorio-test/*", "mise-tasks/*", "package.json", "bun.lock", "factorio-test.json"]
     }
 }

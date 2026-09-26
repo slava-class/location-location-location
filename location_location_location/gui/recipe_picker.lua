@@ -1,8 +1,9 @@
+local appearance = require("location_location_location.gui.appearance")
 -- Adapted from Factory Planner 2.1.15's picker_dialog.lua and recipe_dialog.lua.
 -- Copyright (c) 2026 Claude Metz. MIT license; see license.txt.
-local model = require("map_tag_generator.planner")
-local recipes = require("map_tag_generator.recipes")
-local ui = require("map_tag_generator.gui.components")
+local model = require("location_location_location.planner")
+local recipes = require("location_location_location.recipes")
+local ui = require("location_location_location.gui.components")
 local picker = {}
 local groups_per_row, items_per_row, recipes_per_row = 6, 10, 6
 
@@ -23,13 +24,14 @@ local function product_body(player, state, handler)
             groups[product.group] = group
             state.groups[index] = group
             local tab = ui.icon(handler, group.button, "picker_group", nil, nil, {group = product.group})
-            tab.sprite, tab.style = "item-group/"..product.group, "map_tag_generator_picker_group_tab"
+            tab.sprite, tab.style = "item-group/"..product.group, appearance.styles.picker_group
             tab.tooltip = prototypes.item_group[product.group].localised_name
+            tab.style_mods = {width = appearance.picker.group_widths[(#tabs % groups_per_row) + 1]}
             tabs[#tabs + 1] = tab
             group.flow = {type = "flow", direction = "vertical", style_mods = {vertical_spacing = 0}, children = {}}
             panes[#panes + 1] = {type = "scroll-pane", name = group.pane, style = "deep_slots_scroll_pane",
                 horizontal_scroll_policy = "never",
-                style_mods = {width = 418, padding = 0, margin = 4, vertically_stretchable = true},
+                style_mods = {width = appearance.picker.width, padding = 0, margin = 4, vertically_stretchable = true},
                 children = {group.flow}}
         end
         local subgroup = subgroups[product.subgroup]
@@ -44,7 +46,7 @@ local function product_body(player, state, handler)
         local name = "product_"..product.key
         local button = ui.icon(handler, name, "picker_product", nil, nil, {product = product.key})
         button.sprite = product.key
-        button.style = product.unlocked and "slot_button" or "flib_slot_button_red"
+        button.style = appearance.slot_style(product.unlocked, false)
         button.elem_tooltip = {type = product.type, name = product.name}
         subgroup.definition.children[#subgroup.definition.children + 1] = button
         subgroup.items[#subgroup.items + 1] = {entry = product, button = name}
@@ -55,17 +57,15 @@ local function product_body(player, state, handler)
         end
         group.flow = nil
     end
-    local scrolling = #tabs > groups_per_row * 3
-    local tabs_width = scrolling and (items_per_row * 40 + 12) or (71 * groups_per_row)
     local tabs_height = math.min(3, math.ceil(#tabs / groups_per_row)) * 76
     table.insert(panes, 1, {type = "label", name = "recipe_empty", caption = ui.caption("no-products"),
         style = "heading_2_label", visible = false})
     return {
         {type = "scroll-pane", name = "product_groups", horizontal_scroll_policy = "never",
-            style = scrolling and "map_tag_generator_picker_tabs_scrolling" or "map_tag_generator_picker_tabs",
-            style_mods = {width = tabs_width, height = tabs_height}, children = {
+            style = appearance.styles.picker_tabs,
+            style_mods = {width = appearance.picker.width, height = tabs_height, margin = 4}, children = {
                 {type = "table", column_count = groups_per_row,
-                    style_mods = {width = tabs_width, horizontal_spacing = 0, vertical_spacing = 0}, children = tabs},
+                    style_mods = {width = appearance.picker.width, horizontal_spacing = 0, vertical_spacing = 0}, children = tabs},
             }},
         {type = "flow", direction = "vertical",
             style_mods = {minimal_height = 80, vertically_stretchable = true, width = 426, vertical_spacing = 0}, children = panes},
@@ -103,7 +103,7 @@ local function recipe_body(state, handler)
         local button_name = "recipe_"..recipe.name
         local button = ui.icon(handler, button_name, "choose_recipe", nil, nil, {recipe = recipe.name})
         button.sprite, button.elem_tooltip = "recipe/"..recipe.name, {type = "recipe", name = recipe.name}
-        button.style = recipe.unlocked and "flib_slot_button_green" or "flib_slot_button_yellow"
+        button.style = appearance.slot_style(recipe.unlocked, true)
         group.slots.children[#group.slots.children + 1] = button
         group.items[#group.items + 1] = {entry = recipe, button = button_name}
     end
@@ -118,35 +118,33 @@ end
 function picker.body(player, session, click, search)
     local state = session.picker
     local toggle = ui.icon(click, "show_unresearched", "picker_unresearched", nil, nil)
-    toggle.sprite, toggle.style = "utility/tip_icon", "map_tag_generator_picker_frame_button"
-    toggle.tooltip, toggle.toggled = {"factoriopedia.show-unresearched"}, not model.preferences(player).researched_only
+    toggle.tooltip = {"factoriopedia.show-unresearched"}
+    appearance.toggle(toggle, not model.preferences(player).researched_only)
     local title_actions = {
-        {type = "textfield", name = "search", text = state.query, tooltip = ui.caption("search"),
-            style_mods = {width = 144, height = 28}, handler = {[defines.events.on_gui_text_changed] = search}},
-        {type = "sprite", sprite = "utility/search", style_mods = {size = 20, stretch_image_to_widget_size = true}},
+        {type = "textfield", name = "search", text = state.query, tooltip = ui.caption("search"), style = "search_popup_textfield",
+            handler = {[defines.events.on_gui_text_changed] = search}},
+        ui.icon(click, "focus_search", "picker_search", "utility/search", ui.caption("search-tooltip"), nil, "frame_action_button"),
         toggle,
     }
-    local draft = session.draft
-    local context = draft.title ~= "" and draft.title or ui.caption("new")
-    local body = {{type = "label", caption = ui.caption("picker-context", context), tooltip = context,
-        style_mods = {height = 24, width = 426, single_line = true}}}
-    local content = state.product and recipe_body(state, click) or product_body(player, state, click)
-    for _, definition in ipairs(content) do body[#body + 1] = definition end
+    local body = state.product and recipe_body(state, click) or product_body(player, state, click)
     local back_to_editor = ui.button(click, "back_to_plan", "editor", ui.caption("back-to-plan"), nil,
         state.product and "dialog_button" or "back_button")
     local footer = {back_to_editor}
     if state.product then
         footer = {ui.button(click, "back_to_products", "picker_products", ui.caption("back-to-products"), nil, "back_button"),
             back_to_editor}
+    else
+        footer[#footer + 1] = ui.button(click, "picker_machine", "machine", ui.caption("from-machine"), nil, "dialog_button")
     end
     return {{type = "frame", style = "inside_deep_frame", direction = "vertical",
         style_mods = {padding = 12, width = 450, height = state.height}, children = body},
-        ui.footer("recipe_picker_frame", footer)}, title_actions
+        ui.footer("location_location_location_picker_frame", footer)}, title_actions
 end
 
 function picker.refresh(player, session)
     local state, refs = session.picker, session.gui
     local query = helpers.multilingual_to_lower(state.query)
+    refs.focus_search.toggled = query ~= ""
     local researched_only = model.preferences(player).researched_only
     local first_visible, selected_visible
     for _, group in ipairs(state.groups) do
@@ -177,12 +175,13 @@ function picker.refresh(player, session)
         end
     end
     refs.recipe_empty.visible = first_visible == nil
-    refs.show_unresearched.toggled = not researched_only
+    appearance.toggle(refs.show_unresearched, not researched_only)
     if not state.product then
         state.group = selected_visible and state.group or first_visible
         for _, group in ipairs(state.groups) do
             local selected = group.name == state.group
             refs[group.button].toggled, refs[group.pane].visible = selected, selected
+            if selected then refs.product_groups.scroll_to_element(refs[group.button]) end
         end
     end
 end

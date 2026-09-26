@@ -14,18 +14,20 @@ local planner = {}
 ---@field surface_index integer
 ---@field recipe string?
 ---@field title string
+---@field hide_label boolean? Hide map-tag text without discarding the list name.
 ---@field ingredients IngredientPlan[]
 ---@field tag LuaCustomChartTag?
 ---@field retired boolean
+---@field marker_position MapPosition? Explicit marker location; nil follows the source-based suggestion.
 
 function planner.initialize()
-    if not storage.recipe_planner then
-        storage.recipe_planner = {next_id = 1, plans = {}, sessions = {}, preferences = {}, highlights = {}}
+    if not storage.location_location_location then
+        storage.location_location_location = {next_id = 1, plans = {}, sessions = {}, preferences = {}, highlights = {}}
     end
 end
 
 function planner.preferences(player)
-    local preferences = storage.recipe_planner.preferences
+    local preferences = storage.location_location_location.preferences
     if not preferences[player.index] then
         preferences[player.index] = {researched_only = true, show_retired = false, highlight_sources = false}
     end
@@ -34,12 +36,12 @@ end
 
 function planner.new(player)
     return {revision = 0, force_index = player.force.index, surface_index = player.surface_index,
-        title = "", ingredients = {}, retired = false}
+        title = "", hide_label = true, ingredients = {}, retired = false}
 end
 
 function planner.set_recipe(draft, name)
     local recipe = name and prototypes.recipe[name]
-    if not recipe then return false, {"map-tag-planner.missing-recipe"} end
+    if not recipe then return false, {"location-location-location.missing-recipe"} end
     local previous = {}
     for _, ingredient in ipairs(draft.ingredients) do previous[ingredient.key] = ingredient.anchors end
     local ingredients = {}
@@ -55,13 +57,14 @@ end
 
 function planner.copy(plan)
     return {id = plan.id, revision = plan.revision, force_index = plan.force_index,
-        surface_index = plan.surface_index, recipe = plan.recipe, title = plan.title,
-        ingredients = util.table.deepcopy(plan.ingredients), retired = plan.retired}
+        surface_index = plan.surface_index, recipe = plan.recipe, title = plan.title, hide_label = plan.hide_label,
+        ingredients = util.table.deepcopy(plan.ingredients), retired = plan.retired,
+        marker_position = plan.marker_position and {x = plan.marker_position.x, y = plan.marker_position.y} or nil}
 end
 
 function planner.load(player, id)
-    local plan = storage.recipe_planner.plans[id]
-    if not plan or plan.force_index ~= player.force.index then return nil, {"map-tag-planner.missing-plan"} end
+    local plan = storage.location_location_location.plans[id]
+    if not plan or plan.force_index ~= player.force.index then return nil, {"location-location-location.missing-plan"} end
     local draft = planner.copy(plan)
     -- Recipe changes from a mod update retain only still-applicable ingredient assignments.
     if prototypes.recipe[draft.recipe] then planner.set_recipe(draft, draft.recipe) end
@@ -70,7 +73,7 @@ end
 
 function planner.list(player, include_retired)
     local plans = {}
-    for _, plan in pairs(storage.recipe_planner.plans) do
+    for _, plan in pairs(storage.location_location_location.plans) do
         if plan.force_index == player.force.index and (include_retired or not plan.retired) then
             plans[#plans + 1] = plan
         end
@@ -79,25 +82,48 @@ function planner.list(player, include_retired)
     return plans
 end
 
-function planner.is_dirty(player, draft)
-    local saved = draft.id and storage.recipe_planner.plans[draft.id]
-    if not saved or saved.force_index ~= player.force.index then return true end
+local function same_position(a, b)
+    return a == b or (a ~= nil and b ~= nil and a.x == b.x and a.y == b.y)
+end
+
+local function same_anchors(a, b)
+    if not a then return not b or next(b) == nil end
+    if not b then return next(a) == nil end
+    for key, position in pairs(a) do
+        if not same_position(position, b[key]) then return false end
+    end
+    for key in pairs(b) do if not a[key] then return false end end
+    return true
+end
+
+local function custom_title(draft)
+    if not draft then return nil end
     local title = draft.title:match("^%s*(.-)%s*$")
-    if title == "" then title = draft.recipe end
-    if title ~= saved.title or draft.recipe ~= saved.recipe or draft.surface_index ~= saved.surface_index
-        or #draft.ingredients ~= #saved.ingredients then return true end
-    for index, ingredient in ipairs(draft.ingredients) do
-        local previous = saved.ingredients[index]
-        if ingredient.key ~= previous.key then return true end
-        for key, position in pairs(ingredient.anchors) do
-            local old = previous.anchors[key]
-            if not old or old.x ~= position.x or old.y ~= position.y then return true end
-        end
-        for key in pairs(previous.anchors) do
-            if not ingredient.anchors[key] then return true end
+    return title ~= "" and title ~= draft.recipe and title or nil
+end
+
+--- Net edits: recipe, custom name, label visibility, placement, and each changed ingredient source set.
+--- An automatic recipe-name update belongs to the recipe edit, not a second edit.
+---@return integer
+function planner.change_count(player, draft)
+    local saved = draft.id and storage.location_location_location.plans[draft.id]
+    if saved and saved.force_index ~= player.force.index then saved = nil end
+    local count = draft.recipe ~= (saved and saved.recipe) and 1 or 0
+    if custom_title(draft) ~= custom_title(saved) then count = count + 1 end
+    local saved_hide_label = saved == nil or saved.hide_label == true
+    if (draft.hide_label == true) ~= saved_hide_label then count = count + 1 end
+    if not same_position(draft.marker_position, saved and saved.marker_position)
+        or (saved and draft.surface_index ~= saved.surface_index) then count = count + 1 end
+    for _, ingredient in ipairs(draft.ingredients) do
+        local previous = saved and planner.ingredient(saved, ingredient.key)
+        if not same_anchors(ingredient.anchors, previous and previous.anchors) then count = count + 1 end
+    end
+    if saved then
+        for _, previous in ipairs(saved.ingredients) do
+            if not planner.ingredient(draft, previous.key) and next(previous.anchors) then count = count + 1 end
         end
     end
-    return false
+    return count
 end
 
 function planner.ingredient(draft, key)
@@ -113,9 +139,9 @@ local function anchor_key(entity)
 end
 
 function planner.select(draft, key, entities, mode, surface_index)
-    if surface_index ~= draft.surface_index then return false, {"map-tag-planner.wrong-surface"} end
+    if surface_index ~= draft.surface_index then return false, {"location-location-location.wrong-surface"} end
     local ingredient = planner.ingredient(draft, key)
-    if not ingredient then return false, {"map-tag-planner.choose-ingredient"} end
+    if not ingredient then return false, {"location-location-location.choose-ingredient"} end
     if mode == "replace" then ingredient.anchors = {} end
     for _, entity in pairs(entities) do
         if entity.valid and entity.surface.index == draft.surface_index then
@@ -145,12 +171,17 @@ function planner.center(draft)
     return {x = x / assigned, y = y / assigned}, assigned, #draft.ingredients
 end
 
+function planner.position(draft)
+    local suggested, assigned, total = planner.center(draft)
+    return draft.marker_position or suggested, assigned, total
+end
+
 local function current_plan(player, draft)
-    if player.force.index ~= draft.force_index then return nil, {"map-tag-planner.wrong-force"} end
+    if player.force.index ~= draft.force_index then return nil, {"location-location-location.wrong-force"} end
     if not draft.id then return nil end
-    local current = storage.recipe_planner.plans[draft.id]
-    if not current or current.force_index ~= player.force.index then return nil, {"map-tag-planner.missing-plan"} end
-    if current.revision ~= draft.revision then return nil, {"map-tag-planner.conflict"} end
+    local current = storage.location_location_location.plans[draft.id]
+    if not current or current.force_index ~= player.force.index then return nil, {"location-location-location.missing-plan"} end
+    if current.revision ~= draft.revision then return nil, {"location-location-location.conflict"} end
     return current
 end
 
@@ -158,39 +189,41 @@ function planner.apply(player, draft)
     local current, err = current_plan(player, draft)
     if err then return nil, err end
     local recipe = draft.recipe and prototypes.recipe[draft.recipe]
-    if not recipe then return nil, {"map-tag-planner.missing-recipe"} end
+    if not recipe then return nil, {"location-location-location.missing-recipe"} end
     local surface = game.surfaces[draft.surface_index]
-    if not surface then return nil, {"map-tag-planner.missing-surface"} end
-    local position, assigned, total = planner.center(draft)
-    if not position then return nil, {"map-tag-planner.no-anchors"} end
+    if not surface then return nil, {"location-location-location.missing-surface"} end
+    local position, assigned, total = planner.position(draft)
     local title = draft.title:match("^%s*(.-)%s*$")
     if title == "" then title = draft.recipe end
-    local text = title
-    if assigned < total then text = text.." ["..assigned.."/"..total.."]" end
+    local text = draft.hide_label and "" or title
+    if not draft.hide_label and assigned < total then text = text.." ["..assigned.."/"..total.."]" end
     local product = recipe.main_product or recipe.products[1]
     local icon = product and {type = product.type, name = product.name} or nil
     local tag = current and current.tag
-    if tag and tag.valid and tag.force == player.force then
+    if not position then
+        if tag and tag.valid and tag.force == player.force then tag.destroy() end
+        tag = nil
+    elseif tag and tag.valid and tag.force == player.force then
         tag.surface = surface
         tag.position, tag.text, tag.icon, tag.last_user = position, text, icon, player
     else
         tag = player.force.add_chart_tag(surface, {position = position, text = text, icon = icon, last_user = player})
-        if not tag then return nil, {"map-tag-planner.uncharted"} end
+        if not tag then return nil, {"location-location-location.uncharted"} end
     end
     local saved = planner.copy(draft)
     if not saved.id then
-        saved.id = storage.recipe_planner.next_id
-        storage.recipe_planner.next_id = saved.id + 1
+        saved.id = storage.location_location_location.next_id
+        storage.location_location_location.next_id = saved.id + 1
     end
     saved.revision, saved.title, saved.tag = draft.revision + 1, title, tag
-    storage.recipe_planner.plans[saved.id] = saved
+    storage.location_location_location.plans[saved.id] = saved
     return planner.copy(saved)
 end
 
 function planner.retire(player, draft, retired)
     local current, err = current_plan(player, draft)
     if err then return nil, err end
-    if not current then return nil, {"map-tag-planner.missing-plan"} end
+    if not current then return nil, {"location-location-location.missing-plan"} end
     current.retired, current.revision = retired, current.revision + 1
     return current.revision
 end
@@ -198,10 +231,10 @@ end
 function planner.delete(player, draft)
     local current, err = current_plan(player, draft)
     if err then return false, err end
-    if not current then return false, {"map-tag-planner.missing-plan"} end
+    if not current then return false, {"location-location-location.missing-plan"} end
     local tag = current.tag
     if tag and tag.valid and tag.force == player.force then tag.destroy() end
-    storage.recipe_planner.plans[current.id] = nil
+    storage.location_location_location.plans[current.id] = nil
     return true
 end
 

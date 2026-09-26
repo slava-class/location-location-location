@@ -1,13 +1,13 @@
-local model = require("map_tag_generator.planner")
+local model = require("location_location_location.planner")
 local sources = {}
 local machine_types = {"assembling-machine", "furnace", "rocket-silo"}
 local render_modes = {"game", "chart"}
 
 function sources.closest(player, draft, key)
-    if player.force.index ~= draft.force_index then return nil, {"map-tag-planner.wrong-force"} end
-    if player.surface_index ~= draft.surface_index then return nil, {"map-tag-planner.wrong-surface"} end
+    if player.force.index ~= draft.force_index then return nil, {"location-location-location.wrong-force"}, "error" end
+    if player.surface_index ~= draft.surface_index then return nil, {"location-location-location.wrong-surface"}, "error" end
     local ingredient = model.ingredient(draft, key)
-    if not ingredient then return nil, {"map-tag-planner.choose-ingredient"} end
+    if not ingredient then return nil, {"location-location-location.choose-ingredient"}, "info" end
     local surface, force, origin = player.surface, player.force, player.position
     local nearest, distance
     local matching_recipes = {}
@@ -38,7 +38,7 @@ function sources.closest(player, draft, key)
         end
     end
     if not nearest then
-        return nil, {"map-tag-planner.no-producer", prototypes[ingredient.type][ingredient.name].localised_name}
+        return nil, {"location-location-location.no-producer"}, "info"
     end
     return nearest
 end
@@ -48,7 +48,7 @@ local function destroy(objects)
 end
 
 local function state_for(player)
-    local states = storage.recipe_planner.highlights
+    local states = storage.location_location_location.highlights
     if not states[player.index] then states[player.index] = {plans = {}} end
     return states[player.index]
 end
@@ -70,7 +70,7 @@ function sources.find(player, entity)
 end
 
 function sources.expire(event)
-    for _, state in pairs(storage.recipe_planner.highlights) do
+    for _, state in pairs(storage.location_location_location.highlights) do
         local guide = state.guide
         if guide and (event.tick >= guide.expires or not guide.entity.valid or not guide.pin.valid) then
             if guide.pin.valid then guide.pin.destroy() end
@@ -84,10 +84,10 @@ function sources.refresh(player)
     destroy(state.plans)
     state.plans = {}
     local enabled = model.preferences(player).highlight_sources
-    player.set_shortcut_toggled("map_tag_generator_highlight_sources", enabled)
+    player.set_shortcut_toggled("location_location_location_highlight_sources", enabled)
     if not enabled then return end
     local seen = {}
-    local session = storage.recipe_planner.sessions[player.index]
+    local session = storage.location_location_location.sessions[player.index]
     local draft = session and session.draft
     for _, plan in ipairs(model.list(player)) do
         if draft and draft.id == plan.id and draft.force_index == player.force.index
@@ -120,11 +120,11 @@ function sources.toggle(player)
 end
 
 function sources.clear(player_index)
-    local state = storage.recipe_planner.highlights[player_index]
+    local state = storage.location_location_location.highlights[player_index]
     if not state then return end
     if state.guide and state.guide.pin.valid then state.guide.pin.destroy() end
     destroy(state.plans)
-    storage.recipe_planner.highlights[player_index] = nil
+    storage.location_location_location.highlights[player_index] = nil
 end
 
 return sources

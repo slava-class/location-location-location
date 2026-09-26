@@ -2,27 +2,60 @@
 Version: 3.3.0
 Date: 26 September 2026
   Features:
-    - Add surface-based navigation for saved plans, using actual planets, space platforms, and modded surfaces rather than logical districts.
-    - Keep the plan list beside a two-panel ingredient editor with native Factory Planner-style framing, compact controls, and a suggested-location preview.
+    - Add surface-based navigation for saved recipe tags, using actual planets, space platforms, and modded surfaces rather than logical districts.
+    - Keep the recipe-tag list beside a two-panel ingredient editor with native Factory Planner-style framing, compact controls, and a suggested-location preview.
+    - Pin a private draft into a non-modal compact editor while selecting sources or walking, with shared Discard changes and Apply actions.
+    - Choose a manual marker position by dragging an area, or reset it to the source-based suggestion; neither action places buildings.
+    - View location pins the draft and focuses remote view without moving the character or saving edits; its tooltip shows marker coordinates in both modes.
+    - Save a recipe tag immediately after selecting a recipe, without requiring sources; create its marker when sources or a manual position are assigned.
+    - Add No label for icon-only map markers, enabled by default for new recipe tags; disable the Name input while checked and preserve its value for re-enabling.
+    - Replace Cancel with Discard changes: restore the latest saved draft in place, or return a new unsaved draft to the list without closing.
+    - Enter a tag's surface in remote view automatically before source selection, closest lookup, copying a machine recipe, or marker placement, preserving the character and private draft.
+    - Show native recipe tooltips on the recipe icon and name in both editor layouts, plus native item and fluid tooltips on ingredient icons.
   Changes:
-    - Keep product and recipe selection in a fixed-size modal over the edited plan, with stable search and footer positions across filtering and empty results.
-    - Show unapplied draft changes beside Apply while preserving saved assignment counts in the sidebar.
-    - Use denser ingredient rows with explicit source counts and missing-source states; rename Select closest to Add closest.
-    - Separate immediate Retire/Delete controls from the Cancel/Apply footer, align plan counts, and distinguish retired rows.
-    - Align recipe controls and label the preview's actual suggested position.
-    - Share caption, button, icon, subheader, window, and footer construction between planner and picker screens.
-    - Group plan lifecycle actions separately from rail navigation, use one full-width hit target per plan, and match the empty recipe selector to the light-green Add button.
+    - Rename the product to Location Location Location, with mod ID location-location-location and subtitle "Recipe-based map tags for factory surveying and build planning."
+    - The new mod ID is a separate Factorio mod; storage from the old map-tag-generator ID does not migrate automatically.
+    - Namespace prototypes, styles, controls, GUI roots, locale keys, modules, and storage independently of Map Tag Generator; both mods can remain enabled.
+    - Use Control-Shift-L by default so the old fork's Control-Shift-T binding remains independent.
+    - Open the product/recipe picker immediately from New, retaining the private draft in a fixed-size modal with stable search and footer positions.
+    - Show Apply N changes in amber using a net diff of recipe, custom name, label visibility, marker placement, and ingredient source sets; reverted edits reduce the count.
+    - Use denser ingredient rows with explicit source counts and missing-source states; include a native Add closest + beside Select in pinned mode.
+    - Order rail actions as Add, Delete, spacer, Retire/Reactivate, Show retired, Back to list; Delete becomes inline amber Confirm with an adjacent cancel button in the same space.
+    - Use Recipe tag throughout player-facing terminology and keep marker coordinates in the View location tooltip.
+    - Move full-editor assignment progress into the Ingredient sources header, leaving the preview focused on marker placement.
+    - Add Copy from machine to the Select product footer, preserving the current private draft when entering world selection.
+    - Put bound source-selection controls in Select and Selecting tooltips instead of a standalone instruction row; use Tag location and Reset to automatic wording; remove the redundant picker context line.
+    - Explain Add closest and Find closest in shared full-editor and pinned tooltips, distinguishing draft source edits from temporary navigation.
+    - Match native popup search styling with a clickable magnifier selected only while a search filter is present; both the button and Factorio's configured search binding focus and select the query in either picker view, with the binding shown in its tooltip.
+    - Let close and search titlebar buttons inherit native frame-action sizing and padding; remove the oversized close button across editor modes and picker, retaining native artwork and hover states and showing keyboard-close instructions only in modal windows.
+    - Use native neutral and negative message frames for informational feedback and blocked operations, preserving notice geometry across retries and severity changes.
+    - Keep missing-producer feedback short and independent of ingredient names so it fits the pinned notice without wrapping.
+    - Align category and product scrollbars and fit the product background to ten slots without a partial extra column.
+    - Keep saved-tag scrollbars inside one full-width native frame without a second bottom border, use the full row width without a scrollbar, and bring the selected tag back into view after rebuilding the editor.
+    - Disable Back to recipe tags when no tag or new draft is open, and remove the marker-placement instruction line and its duplicate tooltip.
+    - Let native titlebar sprite inversion replace redundant black pin, highlight, and research icon variants while retaining compact geometry and selected colours.
+    - Fix feedback actions reading a write-only GUI width property and correct the notice content inset; preserve new Find pins through intentional remote-surface transitions.
+    - Expand Factorio regressions for repeated feedback, stale Apply recovery, item/fluid/recipe tooltips, producer eligibility, cross-surface actions, research invalidation, and long saved-tag lists.
+    - Centralize custom GUI colours, icon states, and prototype styles in one appearance-policy module shared by the editor and picker.
+    - Use one full-width click target per recipe tag, align title and saved count within the same row, and share their selection and hover colours.
     - Keep panel headers flush while insetting their contents; give visible feedback a distinct surface and return its space to the list when dismissed.
     - Remove empty recipe-choice slots and redundant product-grid framing, label recipe groups, and group consistently sized picker back actions together.
     - Use Factorio's built-in recessed-slot background without an extra surrounding frame or new image assets; align its visible border with the product tabs.
-    - Make titlebar toggles smaller with more space between them and less before Close; reduce the empty-recipe plus, tighten plan rows, and preserve ingredient-action clearance beside scrollbars.
-    - Browsing another surface discards private edits without moving the player, saved sources, or markers; new plans are created only on the current surface.
+    - Keep titlebar buttons compact while enlarging pin, source-highlight, researched-filter, View location, Find, and source-bin artwork; add clearance after the pin and recipe icon.
+    - Use Factorio's native artwork for all action icons, including the sideways pin, shortcuts, and selection cursor; remove custom action-image assets.
+    - Fit the minimap to sources and the chosen or suggested marker, with a closer default zoom.
+    - Keep the pin visible when unavailable, explain its prerequisite in a tooltip, and put compact assignment progress in the recipe header.
+    - Browsing another surface discards private edits without moving the player, saved sources, or markers; new recipe tags are created only on the current surface.
   Bugfixes:
-    - Update active-plan source highlights immediately when editing source assignments, including Clear and right-drag removal.
-    - Preserve shared sources used by other active plans, restore saved highlights on Cancel, and keep draft previews private until Apply.
-    - Show a white modal highlight icon when inactive and a black icon when active.
+    - Update active recipe-tag source highlights immediately when editing sources, including Clear and right-drag removal.
+    - Preserve shared sources used by other active recipe tags and restore saved highlights on Discard changes or closing without Apply.
+    - Use the same native highlight glyph in titlebars and shortcuts, white while off and black when hovered or active; prevent titlebar inversion from turning dark pin artwork white.
     - Show source lookup feedback in a dismissible status bar without moving the list's top edge or dialog footer; clear stale feedback on retries or source edits.
-    - Keep the full Selecting label visible.
+    - Keep Selecting fully visible and let clicking it again stop selection without discarding edits; switch directly between ingredients.
+    - Preserve the pin's screen position when switching editor modes, including after dragging either mode.
+    - Account for the native button-child inset so recipe-list labels are not shifted down and right.
+    - Bring the selected product category into view when opening, filtering, or returning from recipe alternatives in large modded catalogs.
+    - Use consistent yellow slots for unresearched products and recipe choices.
 ---------------------------------------------------------------------------------------------------
 Version: 3.2.1
 Date: 26 September 2026

@@ -3,8 +3,8 @@ local handler = require("__core__.lualib.event_handler")
 handler.add_libraries({
     require("__flib__.dictionary"),
     require("__flib__.gui"),
-    require("map_tag_generator.translation"),
-    require("map_tag_generator.event_handlers.planner"),
+    require("location_location_location.translation"),
+    require("location_location_location.event_handlers.planner"),
 })
 
 if script.active_mods["factorio-test"] then

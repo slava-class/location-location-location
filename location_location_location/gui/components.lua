@@ -1,6 +1,7 @@
+local appearance = require("location_location_location.gui.appearance")
 local ui = {}
 
-function ui.caption(key, ...) return {"map-tag-planner."..key, ...} end
+function ui.caption(key, ...) return {"location-location-location."..key, ...} end
 
 function ui.button(handler, name, action, text, tags, style)
     tags = tags or {}
@@ -16,6 +17,26 @@ function ui.icon(handler, name, action, sprite, tooltip, tags, style)
     return definition
 end
 
+function ui.recipe_tag_row(handler, id, text, count, selected, retired, width)
+    local row = appearance.row
+    local height = row.height - 2 * row.vertical_padding
+    local content_width = width - 2 * row.horizontal_padding
+    local button = ui.button(handler, "plan_"..id, "open", "", {id = id}, appearance.styles.row)
+    button.toggled = selected
+    button.style_mods = {width = width}
+    local text_style = appearance.row_text_style(selected, retired)
+    -- Button children share its inner content box, not its outer dimensions.
+    -- Both labels remain direct children so native parent-hover colours apply.
+    button.children = {
+        {type = "label", caption = text, style = text_style, ignored_by_interaction = true,
+            style_mods = {width = content_width - row.count_width - row.gap, height = height,
+                single_line = true, vertical_align = "center"}},
+        {type = "label", caption = count, style = text_style, ignored_by_interaction = true,
+            style_mods = {width = content_width, height = height, horizontal_align = "right", vertical_align = "center"}},
+    }
+    return button
+end
+
 function ui.subheader(text, controls)
     local children = {{type = "label", style = "subheader_caption_label", caption = text}}
     if controls and #controls > 0 then
@@ -26,28 +47,24 @@ function ui.subheader(text, controls)
         style_mods = {height = 36, horizontally_stretchable = true}, children = children}
 end
 
-function ui.footer(window, buttons, primary, status)
+function ui.footer(window, buttons, primary)
     buttons[#buttons + 1] = {type = "empty-widget", style = "flib_dialog_footer_drag_handle", ignored_by_interaction = true}
-    if status then buttons[#buttons + 1] = status end
     if primary then buttons[#buttons + 1] = primary end
     return {type = "flow", drag_target = window,
         style_mods = {vertical_align = "center", horizontal_spacing = 8, horizontally_stretchable = true}, children = buttons}
 end
 
-function ui.window(name, title, actions, body)
+function ui.window(name, title, actions, body, leading_action)
     local header = {
         {type = "label", style = "frame_title", caption = title, ignored_by_interaction = true},
         {type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true},
     }
-    for _, action in ipairs(actions) do
+    if leading_action then table.insert(header, 1, leading_action) end
+    for _, action in ipairs(actions) do header[#header + 1] = action end
+    for _, action in ipairs(header) do
         if action.type == "sprite-button" then
-            local close = action.tags and action.tags.action == "close"
-            action.style_mods = action.style_mods or {}
-            action.style_mods.size = close and 28 or 22
-            action.style_mods.padding = 2
-            action.style_mods.left_margin = close and 0 or 2
+            appearance.titlebar_button(action, action == leading_action)
         end
-        header[#header + 1] = action
     end
     return {type = "frame", name = name, direction = "vertical", children = {
         {type = "flow", drag_target = name, style_mods = {height = 28, vertical_align = "center", horizontal_spacing = 4}, children = header},
