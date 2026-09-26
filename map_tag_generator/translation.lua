@@ -1,32 +1,20 @@
-local flib_dictionary = require("__flib__.dictionary")
+local dictionary = require("__flib__.dictionary")
+local gui = require("map_tag_generator.gui.planner")
 
----@alias TranslationData { [string]: TranslatedDictionary }
-
-local translation = {}
-
-local function build_dictionaries()
-    for type, prototypes in pairs({
-        item = prototypes.item,
-        fluid = prototypes.fluid,
-        virtual_signal = prototypes.virtual_signal,
-    }) do
-        flib_dictionary.new(type)
-        for name, prototype in pairs(prototypes) do
-            flib_dictionary.add(type, name, { "?", prototype.localised_name, name })
-        end
+local function build()
+    for _, kind in ipairs({"recipe", "item", "fluid"}) do
+        dictionary.new(kind)
+        for name, prototype in pairs(prototypes[kind]) do dictionary.add(kind, name, prototype.localised_name) end
     end
-    flib_dictionary.new("misc")
-    flib_dictionary.add("misc", "combined_yield", { "map-info-combined-yield-percentage" })
 end
 
-translation.init = function()
-    flib_dictionary.on_init()
-    build_dictionaries()
-end
-
-translation.handle_configuration_changed = function()
-    flib_dictionary.on_configuration_changed()
-    build_dictionaries()
-end
-
-return translation
+return {
+    on_init = build,
+    on_configuration_changed = build,
+    events = {
+        [dictionary.on_player_dictionaries_ready] = function(e)
+            local player = game.get_player(e.player_index)
+            if player then gui.refresh_picker(player) end
+        end,
+    },
+}

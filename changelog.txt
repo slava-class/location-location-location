@@ -1,4 +1,65 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.3.0
+Date: 26 September 2026
+  Features:
+    - Add surface-based navigation for saved plans, using actual planets, space platforms, and modded surfaces rather than logical districts.
+    - Keep the plan list beside a two-panel ingredient editor with native Factory Planner-style framing, compact controls, and a suggested-location preview.
+  Changes:
+    - Keep product and recipe selection in a fixed-size modal over the edited plan, with stable search and footer positions across filtering and empty results.
+    - Show unapplied draft changes beside Apply while preserving saved assignment counts in the sidebar.
+    - Use denser ingredient rows with explicit source counts and missing-source states; rename Select closest to Add closest.
+    - Separate immediate Retire/Delete controls from the Cancel/Apply footer, align plan counts, and distinguish retired rows.
+    - Align recipe controls and label the preview's actual suggested position.
+    - Share caption, button, icon, subheader, window, and footer construction between planner and picker screens.
+    - Group plan lifecycle actions separately from rail navigation, use one full-width hit target per plan, and match the empty recipe selector to the light-green Add button.
+    - Keep panel headers flush while insetting their contents; give visible feedback a distinct surface and return its space to the list when dismissed.
+    - Remove empty recipe-choice slots and redundant product-grid framing, label recipe groups, and group consistently sized picker back actions together.
+    - Use Factorio's built-in recessed-slot background without an extra surrounding frame or new image assets; align its visible border with the product tabs.
+    - Make titlebar toggles smaller with more space between them and less before Close; reduce the empty-recipe plus, tighten plan rows, and preserve ingredient-action clearance beside scrollbars.
+    - Browsing another surface discards private edits without moving the player, saved sources, or markers; new plans are created only on the current surface.
+  Bugfixes:
+    - Update active-plan source highlights immediately when editing source assignments, including Clear and right-drag removal.
+    - Preserve shared sources used by other active plans, restore saved highlights on Cancel, and keep draft previews private until Apply.
+    - Show a white modal highlight icon when inactive and a black icon when active.
+    - Show source lookup feedback in a dismissible status bar without moving the list's top edge or dialog footer; clear stale feedback on retries or source edits.
+    - Keep the full Selecting label visible.
+---------------------------------------------------------------------------------------------------
+Version: 3.2.1
+Date: 26 September 2026
+  Changes:
+    - Replaced the paginated recipe picker with Factory Planner's MIT-licensed category tabs, subgroup product grid, and grouped recipe alternatives.
+    - Search translated item, fluid, and recipe names; retain researched filtering and remember the selected product category.
+    - Find closest now uses a temporary native navigation pin with off-screen directional guidance, recipe icon, and distance in world and remote view.
+    - Replace and expire only the planner's own navigation pin without moving the view, changing source assignments, or clearing personal pins.
+    - Remove old Find renderings and custom alerts when upgrading from 3.2.0.
+---------------------------------------------------------------------------------------------------
+Version: 3.2.0
+Date: 26 September 2026
+  Features:
+    - Added a searchable, grouped recipe picker with a remembered researched-only toggle.
+    - Added Select closest and Find closest for configured ingredient-producing machines in explored areas, measured from the current view.
+    - Added private world/map highlights for sources across all active saved plans.
+    - Added reversible plan retirement, preserving markers while excluding retired plans from highlights.
+  Changes:
+    - Replaced the generic generator and eraser with the planner, preserving existing chart tags and saved recipe plans.
+    - Rebuilt planner windows with native framing, a persistent close button, and separate Cancel and Back navigation.
+    - Removed routine chat notifications and kept actionable errors in the window.
+    - Require Factorio 2.1.19 for native chart-mode highlights.
+  Bugfixes:
+    - Display valid surface names instead of incorrectly reporting a deleted surface.
+    - Keep ingredient icons within their rows and exclude recipe parameters without assignable ingredients.
+---------------------------------------------------------------------------------------------------
+Version: 3.1.0
+Date: 26 September 2026
+  Features:
+    - Added a separate recipe source planner, opened from its shortcut or Control-Shift-T.
+    - Choose a recipe directly or copy it from a configured machine, then assign arbitrary entities to ingredient source groups.
+    - Suggest a location using equal weight per assigned ingredient, including clearly marked partial plans.
+    - Save force-shared plans, reopen them, and explicitly Apply changes to their chart markers.
+  Changes:
+    - Source anchors retain their saved positions when entities are moved, mined, or replaced.
+    - Protect saved plans against concurrent edits and retain plans across script reloads and force merges.
+---------------------------------------------------------------------------------------------------
 Version: 3.0.2
 Date: 26 September 2026
   Features:

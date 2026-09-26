@@ -1,167 +1,70 @@
-local mtg = require("map_tag_generator.constants")
-
-local pref = "map_tag_generator_"
-local path = "__map-tag-generator__/graphics/"
-
-local selection_color = {r = 1, g = 0, b = 1, a = 1}
-local deletion_color = {r = 1, g = 0, b = 0, a = 1}
-local entity_type_filters = {}
-for _, t in pairs(mtg.entity_types) do
-    for _, type in pairs(t) do
-        table.insert(entity_type_filters, type)
-    end
+local prefix = "map_tag_generator_"
+local graphics = "__map-tag-generator__/graphics/"
+local function selection(color, cursor)
+    return {border_color = color, cursor_box_type = cursor, mode = {"any-entity"}}
 end
 
 data:extend({
     {
-        -- select replaces entities, alt_select adds, alt_reverse_select removes
-        -- reverse_select deletes existing map tags
-        type = "selection-tool",
-        name = pref.."selection_tool",
+        type = "selection-tool", name = prefix.."planner_tool", hidden = true,
+        flags = {"not-stackable", "only-in-cursor", "spawnable"}, stack_size = 1,
         draw_label_for_cursor_render = true,
-
-        ---@diagnostic disable-next-line: missing-fields
-        select = {
-            border_color = selection_color,
-            cursor_box_type = "copy",
-            mode = {"any-entity"},
-            entity_type_filters = entity_type_filters,
-        },
-        ---@diagnostic disable-next-line: missing-fields
-        alt_select = {
-            border_color = selection_color,
-            cursor_box_type = "copy",
-            mode = {"any-entity"},
-            entity_type_filters = entity_type_filters,
-        },
-        ---@diagnostic disable-next-line: missing-fields
-        super_forced_select = {
-            border_color = selection_color,
-            cursor_box_type = "copy",
-            mode = {"any-entity"},
-            entity_type_filters = entity_type_filters,
-        },
-        ---@diagnostic disable-next-line: missing-fields
-        reverse_select = {
-            border_color = deletion_color,
-            cursor_box_type = "copy",
-            mode = {"nothing"},
-        },
-        ---@diagnostic disable-next-line: missing-fields
-        alt_reverse_select = {
-            border_color = deletion_color,
-            cursor_box_type = "not-allowed",
-            mode = {"any-entity"},
-            entity_type_filters = entity_type_filters,
-        },
-
-        hidden = true,
-        flags = {"not-stackable", "only-in-cursor", "spawnable"},
-        stack_size = 1,
+        select = selection({0.2, 0.8, 1}, "copy"),
+        alt_select = selection({0.2, 0.8, 1}, "copy"),
+        reverse_select = selection({1, 0.3, 0.2}, "not-allowed"),
+        alt_reverse_select = selection({1, 0.3, 0.2}, "not-allowed"),
         icons = {
-            {
-                icon = path.."black_square.png",
-                icon_size = 64,
-            },
-            {
-                icon = path.."map_tag_icon_white.png",
-                icon_size = 32,
-                scale = 0.5,
-            },
+            {icon = graphics.."black_square.png", icon_size = 64},
+            {icon = graphics.."map_tag_icon_white.png", icon_size = 32, scale = 0.5},
         },
-
-        custom_tooltip_fields = {
-            {order = 1, name = {"gui.instruction-when-in-cursor"}, value = ""},
-            {order = 2, name = "", value = {"map-tag-generator.instruction_to_create_tags"}},
-            {order = 3, name = "", value = {"map-tag-generator.instruction_to_force_create_tags"}},
-            {order = 4, name = "", value = {"map-tag-generator.instruction_to_delete_tags"}},
-            {order = 5, name = "", value = {"map-tag-generator.instruction_to_add_entities"}},
-            {order = 6, name = "", value = {"map-tag-generator.instruction_to_remove_entities"}},
-        },
+        custom_tooltip_fields = {{order = 1, name = "", value = {"map-tag-planner.tool-instructions"}}},
     },
-
+    {type = "custom-input", name = prefix.."open_planner", key_sequence = "CONTROL + SHIFT + T"},
+    {type = "custom-input", name = prefix.."highlight_sources", key_sequence = ""},
     {
-        type = "custom-input",
-        name = pref.."spawn_selection_tool",
-        key_sequence = "SHIFT + T",
-        action = "spawn-item",
-        item_to_spawn = pref.."selection_tool"
-    },
-
-    {
-        type = "custom-input",
-        name = pref.."confirm_gui_linked",
-        key_sequence = "",
-        linked_game_control = "confirm-gui",
-    },
-
-    {
-        type = "custom-input",
-        name = pref.."pipette_linked",
-        key_sequence = "",
-        linked_game_control = "pipette",
-    },
-
-    {
-        type = "shortcut",
-        name = pref.."spawn_selection_tool",
-        associated_control_input = pref.."spawn_selection_tool",
-        action = "spawn-item",
-        item_to_spawn = pref.."selection_tool",
-        icons =
-        {
-            {
-                icon = path.."map_tag_icon_black.png",
-                icon_size = 32,
-                scale = 1,
-            },
-        },
-        small_icons =
-        {
-            {
-                icon = path.."map_tag_icon_black.png",
-                icon_size = 32,
-                scale = 0.5,
-            },
-        },
-    },
-
-    {
-        type = "sprite",
-        name = pref.."tag_icon",
-        filename = path.."map_tag_icon_black_small.png",
-        priority = "extra-high-no-scale",
-        size = 32,
-        flags = {"icon"},
+        type = "shortcut", name = prefix.."open_planner", associated_control_input = prefix.."open_planner",
+        action = "lua", order = "a[recipe-planner]",
+        icons = {{icon = graphics.."map_tag_icon_black.png", icon_size = 32}},
+        small_icons = {{icon = graphics.."map_tag_icon_black.png", icon_size = 32, scale = 0.5}},
     },
     {
-        type = "sprite",
-        name = pref.."reorder_tags",
-        filename = path.."reorder_tags.png",
-        priority = "extra-high-no-scale",
-        size = 64,
-        flags = {"icon"},
+        type = "shortcut", name = prefix.."highlight_sources", associated_control_input = prefix.."highlight_sources",
+        action = "lua", toggleable = true, order = "b[recipe-planner-sources]",
+        icons = {{icon = graphics.."map_tag_icon_white.png", icon_size = 32, tint = {0.15, 0.65, 1}}},
+        small_icons = {{icon = graphics.."map_tag_icon_white.png", icon_size = 32, scale = 0.5, tint = {0.15, 0.65, 1}}},
     },
     {
-        type = "sprite",
-        name = pref.."select_all",
-        filename = path.."select_all.png",
-        priority = "extra-high-no-scale",
-        size = 32,
-        flags = {"icon"},
+        type = "sprite", name = prefix.."planner_icon", filename = graphics.."map_tag_icon_black_small.png",
+        priority = "extra-high-no-scale", size = 32, flags = {"icon"},
     },
     {
-        type = "sprite",
-        name = pref.."deselect_all",
-        filename = path.."deselect_all.png",
-        priority = "extra-high-no-scale",
-        size = 32,
-        flags = {"icon"},
+        type = "sprite", name = prefix.."highlight_icon_white", filename = graphics.."map_tag_icon_white.png",
+        priority = "extra-high-no-scale", size = 32, flags = {"icon"},
+    },
+    {
+        type = "sprite", name = prefix.."archive", filename = graphics.."archive.png",
+        size = 32, mipmap_count = 2, flags = {"gui-icon"},
     },
 })
 
-data.raw["gui-style"]["default"][pref.."no_toggle_button"] = {
-    type = "button_style",
-    parent = "flib_slot_button_red",
-    left_click_sound = {{ filename = "__core__/sound/cannot-build.ogg", volume = 1 }},
+-- Picker styles adapted from Factory Planner 2.1.15 (MIT, Claude Metz).
+local styles = data.raw["gui-style"].default
+styles.map_tag_generator_picker_group_tab = {
+    type = "button_style", parent = "filter_group_button_tab_slightly_larger",
+    horizontally_stretchable = "on", width = 0, padding = 1,
+}
+styles.map_tag_generator_picker_tabs = {
+    type = "scroll_pane_style", parent = "naked_scroll_pane",
+    background_graphical_set = deep_slot_background_tiling(71, 76),
+    scrollbars_go_outside = true, vertically_squashable = "off", padding = 0,
+}
+styles.map_tag_generator_picker_tabs_scrolling = {
+    type = "scroll_pane_style", parent = "map_tag_generator_picker_tabs",
+    background_graphical_set = deep_slot_background_tiling(69, 76),
+}
+styles.map_tag_generator_picker_frame_button = {
+    type = "button_style", parent = "frame_action_button",
+    selected_graphical_set = styles.frame_button.clicked_graphical_set,
+    selected_hovered_graphical_set = styles.frame_button.hovered_graphical_set,
+    selected_clicked_graphical_set = styles.frame_button.default_graphical_set,
 }

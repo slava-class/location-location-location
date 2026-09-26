@@ -4,3 +4,14 @@ bun = "1.4.2"
 [tasks.test]
 description = "Run real-engine selection and dialog regressions with FactorioTest"
 run = "bunx --no-install factorio-test run --factorio-path \"$FACTORIO\""
+
+[tasks.verify]
+description = "Check whitespace, checkpoint safety, and the complete FactorioTest suite"
+run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol diff --check HEAD", "bun test mise-tasks", {task = "test"}]
+
+[tasks.vac]
+description = "Verify, stage all changes, commit, and best-effort push the current branch"
+usage = '''
+arg "message" help="Descriptive checkpoint commit message"
+'''
+run = "bun mise-tasks/checkpoint.mjs"
