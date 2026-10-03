@@ -1,13 +1,35 @@
 {
     "name": "location-location-location",
-    "version": "3.3.0",
+    "version": "1.0.0",
     "title": "Location Location Location",
     "author": "slava-class",
     "factorio_version": "2.1",
-    "dependencies": ["base >= 2.1.19", "flib >= 0.17.2", "? factorio-test >= 3.1.0"],
-    "description": "Plan where your next production line belongs. Choose a recipe, survey its ingredient sources, and save a suggested or hand-picked site as a shared map tag. Find nearby producers, plan across surfaces, and keep the world interactive with a pinned editor.",
+    "dependencies": [
+        "base >= 2.1.20",
+        "flib >= 0.17.2",
+        "? factorio-test >= 3.1.0"
+    ],
+    "description": "Plan where your next production line belongs. Choose a recipe, survey its ingredient sources, and save a suggested or hand-picked site as a shared map tag.",
     "homepage": "https://github.com/slava-class/location-location-location",
     "package": {
-        "ignore": ["README.md", "AGENTS.md", ".mise*.toml", ".gitignore", "node_modules/*", ".factorio-test/*", "mise-tasks/*", "package.json", "bun.lock", "factorio-test.json"]
+        "ignore": [
+            "README.md",
+            "AGENTS.md",
+            ".mise*.toml",
+            ".gitignore",
+            "node_modules/*",
+            ".factorio-test/*",
+            "mise-tasks/*",
+            "package.json",
+            "bun.lock",
+            "factorio-test.json",
+            "RELEASE_AUDIT.md",
+            ".luacheckrc",
+            ".emmyrc.json",
+            "stylua.toml",
+            "types/*",
+            "patches/*",
+            "MOD_PORTAL.md"
+        ]
     }
 }

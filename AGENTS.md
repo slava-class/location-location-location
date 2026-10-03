@@ -14,7 +14,8 @@ Originally based on Map Tag Generator, with UX inspired by Factory Planner.
 - `location_location_location/gui/appearance.lua`: canonical custom colours, native icon interaction states, and data-stage styles for both GUI surfaces.
 - `location_location_location/event_handlers/`: engine event handling.
 - `locale/en/LocationLocationLocation.cfg`: player-facing strings.
-- `tests/planner.lua`: real-engine behavioral regressions.
+- `tests/planner.lua`: scoped real-engine behavioral regressions.
+- `tests/native_preview.lua`: tagged FactorioTest native UI assertions and screenshots.
 
 ## Boundaries
 
@@ -30,7 +31,8 @@ Originally based on Map Tag Generator, with UX inspired by Factory Planner.
 
 ## Verification and delivery
 
-- Install dependencies with `bun install --frozen-lockfile`. Configure `FACTORIO` in ignored `.mise.local.toml`; see README.
+- `mise run verify` prepares pinned dependencies/tools automatically. Factorio is auto-detected; use ignored `.mise.local.toml` for a `FACTORIO` override.
+- Run `mise run test-ui -- <language>` for the actual FactorioTest native suite; keep its `native-ui` tag excluded from headless profiles.
 - Run `mise run verify` for whitespace, tooling checks, and the real-engine suite. `mise run test` runs game tests only.
 - Verify UI changes in the isolated native preview as well as tests. Screenshots, fixture mods, configs, saves, and logs belong under ignored `.factorio-test/` and must not enter release packages.
 - Keep the preview sandbox limited to this mod and required dependencies. Add other mods only for an explicit compatibility check, then remove them from the sandbox.

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/EmmyLuaLs/emmylua-analyzer-rust/0.25.1/crates/emmylua_code_analysis/resources/schema.json",
+  "runtime": {
+    "version": "Lua5.2",
+    "requirePattern": [
+      "?.lua",
+      "?/init.lua"
+    ]
+  },
+  "strict": {
+    "requirePath": true,
+    "arrayIndex": true
+  },
+  "workspace": {
+    "ignoreDir": [
+      "node_modules",
+      ".git",
+      ".factorio-test"
+    ],
+    "ignoreGlobs": [
+      "tests/planner.lua"
+    ],
+    "library": [
+      ".factorio-test/types/factorio-2.1.20/factorio/library",
+      ".factorio-test/types/dependencies/flib_0.17.2",
+      "types"
+    ],
+    "moduleMap": [
+      {
+        "pattern": "^__flib__\\.(.*)$",
+        "replace": "$1"
+      },
+      {
+        "pattern": "^__core__\\.lualib\\.(.*)$",
+        "replace": "core.lualib.$1"
+      },
+      {
+        "pattern": "^__factorio-test__[/\\.]init$",
+        "replace": "factorio-test-init"
+      }
+    ]
+  }
+}

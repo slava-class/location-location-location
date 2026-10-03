@@ -25,7 +25,7 @@ You can save a recipe before assigning sources. It stays in the list; a map mark
 | **Find closest** | Show that producer with a temporary navigation pin, distance, and off-screen direction arrow. Does not change assignments; the pin expires after 30 seconds. |
 | **Clear** | Remove that ingredient's sources from the draft. |
 
-Automatic lookup searches **your force's charted machines on the tag's surface**, measured from your current character or remote-view position. It matches configured recipe outputs, not inventory contents. Manual selection accepts any selectable entities—including belts, empty chests, and ghosts—so you can mark planned supply points as well as working producers.
+Automatic lookup searches **your force's charted machines on the tag's surface** (or your force's machines on its own space platform), measured from your current character or remote-view position. It matches configured recipe outputs, not inventory contents. Manual selection accepts any selectable entities—including belts, empty chests, and ghosts—so you can mark planned supply points as well as working producers.
 
 Hover ingredient and recipe icons for Factorio's native details. **Highlight sources** marks saved source positions for your active recipe tags; while editing a saved tag, it previews your draft. Highlights are personal, shared positions are deduplicated, and removing an original entity does not erase its saved anchor.
 
@@ -54,30 +54,29 @@ Saved markers do not move automatically. Apply updates their position and can re
 
 ## Requirements and installation
 
-- Factorio **2.1.19 or later**.
+- Factorio **2.1**, build **2.1.20 or later**.
 - [Factorio Library](https://mods.factorio.com/mod/flib) **0.17.2 or later**.
 - Mod ID: `location-location-location`. Factory Planner is **not** required.
+- Space Age is optional. Planet and platform navigation uses the surfaces available in your game.
+- FactorioTest is optional and only needed for development tests.
 
-For manual installation, put `location-location-location_3.3.0.zip` in Factorio's `mods` directory, install Factorio Library, and enable both mods. The source repository is [slava-class/location-location-location](https://github.com/slava-class/location-location-location).
+For manual installation, put `location-location-location_1.0.0.zip` in Factorio's `mods` directory, install Factorio Library, and enable both mods. The source repository is [slava-class/location-location-location](https://github.com/slava-class/location-location-location).
 
 ### Coming from Map Tag Generator
 
 This is a separate mod, not an in-place upgrade. Both can remain enabled, but private storage from `map-tag-generator` does **not** transfer automatically. Back up an existing save before switching; there is no cross-ID recipe-tag migration. The old generic tag generator and eraser are not part of this mod.
 
+The prepared [Mod Portal listing](MOD_PORTAL.md) is local release copy. The public API currently has no listing for this mod ID; the draft has not been published.
+
 ## Development
 
-Run `bun install --frozen-lockfile`, then set the executable in ignored `.mise.local.toml`:
+Run `mise run verify` with Mise, Python 3.9 or later, a C compiler, and Factorio 2.1.20 installed. It prepares pinned dependencies and detects the game; the complete suite also requires Space Age.
 
-```toml
-[env]
-FACTORIO = "/absolute/path/to/Factorio.app/Contents/MacOS/factorio"
-```
+- `mise run verify`: run all checks and both headless suites.
+- `mise run test-ui -- en`: check the native UI and render screenshots.
+- `mise run package`: build and validate the release ZIP.
 
-- `mise run verify`: whitespace, checkpoint-tool tests, and real-engine [FactorioTest](https://github.com/GlassBricks/FactorioTest) regressions.
-- `mise run test`: game tests only. Test dependencies use your Mod Portal credentials; saves and configuration stay in ignored `.factorio-test/`, separate from normal game data.
-- `mise run vac -- "Describe the change"`: verify, stage **all non-ignored changes**, commit, and push the current branch. This publishes source, not a Mod Portal release.
-
-Headless tests exercise game state and GUI handlers; rendered layouts still need native-game inspection. `location_location_location/gui/appearance.lua` owns shared GUI styles and icon states. Action artwork and item/recipe tooltips are native Factorio; drafts, source geometry, and saved tags live in `location_location_location/planner.lua`.
+See the [developer guide](mise-tasks/README.md) for setup overrides, individual commands, test profiles, and tooling details.
 
 ## Credits and license
 

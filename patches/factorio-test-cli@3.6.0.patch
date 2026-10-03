@@ -1,0 +1,20 @@
+--- a/factorio-process.js
++++ b/factorio-process.js
+@@ -173,7 +173,7 @@
+             startupTimedOut = true;
+             factorioProcess.kill();
+         }
+-    }, 10_000);
++    }, 120_000);
+     const outputTimeout = options.outputTimeout;
+     let outputWatchdog;
+     function resetOutputWatchdog() {
+@@ -215,7 +215,7 @@
+                 reject(new CliError(`Factorio process stuck: no output received for ${outputTimeout} seconds${factorioLogHint(dataDir)}`));
+             }
+             else if (startupTimedOut) {
+-                reject(new CliError(`Factorio unresponsive: no test run started within 10 seconds${factorioLogHint(dataDir)}`));
++                reject(new CliError(`Factorio unresponsive: no test run started within 120 seconds${factorioLogHint(dataDir)}`));
+             }
+             else if (handler.getResultMessage() !== undefined) {
+                 resolve();

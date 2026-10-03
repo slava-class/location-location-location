@@ -5,8 +5,12 @@
     "": {
       "devDependencies": {
         "factorio-test-cli": "3.6.0",
+        "factoriomod-debug": "2.1.9",
       },
     },
+  },
+  "patchedDependencies": {
+    "factorio-test-cli@3.6.0": "patches/factorio-test-cli@3.6.0.patch",
   },
   "packages": {
     "ansi-escapes": ["ansi-escapes@7.3.0", "", { "dependencies": { "environment": "^1.0.0" } }, "sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg=="],

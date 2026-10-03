@@ -1,13 +1,72 @@
 [tools]
 bun = "1.4.2"
+lua = "5.2.4"
+stylua = "2.3.1"
+
+[tasks.setup]
+description = "Prepare pinned test dependencies and project-local Lua tooling"
+run = ["bun mise-tasks/setup.mjs", {task = "setup-lua-tools"}]
+
+[tasks.setup-tests]
+description = "Prepare pinned FactorioTest dependencies without launching the game"
+run = "bun mise-tasks/setup.mjs"
+
+[tasks.setup-lua-tools]
+description = "Download and build checksum-pinned project-local Lua tools"
+run = "python3 -B mise-tasks/setup-lua-tools.py"
+
+[tasks.lint]
+depends = ["setup"]
+run = "bun mise-tasks/lint.mjs"
+
+[tasks.format-check]
+run = "stylua --check control.lua data.lua location_location_location tests types mise-tasks"
+
+[tasks.format]
+run = "stylua --verify control.lua data.lua location_location_location tests types mise-tasks"
+
+[tasks.typecheck]
+depends = ["setup"]
+run = "bun mise-tasks/typecheck.mjs"
 
 [tasks.test]
-description = "Run real-engine selection and dialog regressions with FactorioTest"
-run = "bunx --no-install factorio-test run --factorio-path \"$FACTORIO\""
+description = "Run FactorioTest in isolated base and Space Age profiles"
+run = [{task = "test-base"}, {task = "test-space-age"}]
+
+[tasks.test-base]
+depends = ["setup-tests"]
+description = "Run all base-game engine regressions"
+run = "bun mise-tasks/test.mjs base"
+
+[tasks.test-space-age]
+depends = ["setup-tests"]
+description = "Run the complete suite with real planets and space platforms"
+run = "bun mise-tasks/test.mjs space-age"
+
+[tasks.test-ui]
+depends = ["setup-tests"]
+description = "Render a native UI gallery in an isolated locale profile"
+usage = '''arg "language" default="en"'''
+run = "bun mise-tasks/native-preview.mjs ${usage_language}"
+
+[tasks.native-preview]
+description = "Alias for the FactorioTest native UI suite"
+usage = '''arg "language" default="en"'''
+run = "mise run test-ui -- ${usage_language}"
 
 [tasks.verify]
-description = "Check whitespace, checkpoint safety, and the complete FactorioTest suite"
-run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol diff --check HEAD", "bun test mise-tasks", {task = "test"}]
+depends = ["setup"]
+description = "Audit release identity, locales, Lua tooling, checkpoint safety, and both engine profiles"
+run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol diff --check HEAD", "bun mise-tasks/audit.mjs", {task = "lint"}, {task = "format-check"}, {task = "typecheck"}, "bun test mise-tasks", {task = "test"}]
+
+[tasks.package]
+description = "Build the release ZIP from info.json and validate its contents"
+run = "python3 -B mise-tasks/package.py"
+
+[tasks.package-smoke]
+description = "Load the actual release ZIP in both engine profiles with FactorioTest disabled"
+depends = ["setup-tests", "package"]
+run = "bun mise-tasks/package-smoke.mjs"
 
 [tasks.vac]
 description = "Verify, stage all changes, commit, and best-effort push the current branch"
