@@ -9,7 +9,7 @@ Use it to plan an expansion, mark a future build, or leave a production-site pla
 ## Make your first recipe tag
 
 1. Open the planner with **Control-Shift-L**, its shortcut, or its top-left button.
-2. Click **+**, then choose a product and recipe. Search by name, enable **Show unresearched** to plan ahead, or use **Copy from machine** to read one configured assembler, furnace, or silo.
+2. Click **+**, then choose a product and recipe. Browse the compact category grid or search by name, enable **Show unresearched** to plan ahead, or use **Copy from machine** to read one configured assembler, furnace, or silo.
 3. Assign ingredient sources with **Select** or **Add closest**. Pin the editor to keep the world interactive while surveying.
 4. Review the suggested site, or use **Choose marker location** and drag an area to place the marker at its center.
 5. Click **Apply**. Your force can now reopen the recipe tag and see its map marker.
@@ -74,6 +74,7 @@ Run `mise run verify` with Mise, Python 3.9 or later, a C compiler, and Factorio
 
 - `mise run verify`: run all checks and both headless suites.
 - `mise run test-ui -- en`: check the native UI and render screenshots.
+- `mise run gallery -- en`: regenerate five Mod Portal screenshots at 1920 × 1080 with 125% UI scale on Nauvis.
 - `mise run package`: build and validate the release ZIP.
 
 See the [developer guide](mise-tasks/README.md) for setup overrides, individual commands, test profiles, and tooling details.

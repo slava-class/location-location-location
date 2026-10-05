@@ -2,3 +2,7 @@
 Version: 1.0.0
   Features:
     - Initial release.
+  Changes:
+    - Added a repeatable developer gallery task with five native 1920x1080 screenshots, 125% UI scale, and Nauvis scene fixtures.
+  Bugfixes:
+    - Fixed unwanted gaps between product-picker category buttons in partial rows.

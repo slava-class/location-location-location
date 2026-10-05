@@ -93,7 +93,8 @@ local function product_body(state, handler)
                 {
                     type = "table",
                     column_count = groups_per_row,
-                    style_mods = { width = appearance.picker.width, horizontal_spacing = 0, vertical_spacing = 0 },
+                    -- Keep partial category rows packed to their fixed native slot widths.
+                    style_mods = { horizontally_stretchable = false, horizontal_spacing = 0, vertical_spacing = 0 },
                     children = tabs,
                 },
             },

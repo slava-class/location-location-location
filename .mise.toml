@@ -47,7 +47,13 @@ run = "bun mise-tasks/test.mjs space-age"
 depends = ["setup-tests"]
 description = "Render a native UI gallery in an isolated locale profile"
 usage = '''arg "language" default="en"'''
-run = "bun mise-tasks/native-preview.mjs ${usage_language}"
+run = "bun mise-tasks/native-preview.mjs native ${usage_language}"
+
+[tasks.gallery]
+depends = ["setup-tests"]
+description = "Render five Mod Portal gallery screenshots at 1920x1080 with 125% UI scale"
+usage = '''arg "language" default="en"'''
+run = "bun mise-tasks/native-preview.mjs gallery ${usage_language}"
 
 [tasks.native-preview]
 description = "Alias for the FactorioTest native UI suite"

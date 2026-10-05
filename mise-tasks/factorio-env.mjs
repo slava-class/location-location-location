@@ -74,22 +74,23 @@ export async function ensureDependencies() {
   return directory;
 }
 export function profileConfig(profile, directory, engine, language = "en") {
-  if (!["base", "space-age", "native"].includes(profile)) throw new Error("Unknown test profile");
+  if (!["base", "space-age", "native", "gallery"].includes(profile)) throw new Error("Unknown test profile");
   normalizeLocale(language);
+  const graphics = profile === "native" || profile === "gallery";
   return {
     modPath: resolve("."), factorioPath: engine.executable, dataDirectory: directory,
     outputFile: join(directory, "results.json"), forbidOnly: true, outputTimeout: 60,
     mods: ["quality", "elevated-rails", "space-age", "recycler"].map(name => `${name}=${profile === "space-age"}`),
-    factorioArgs: profile === "native" ? ["--disable-migration-window", "--disable-audio", "--window-size", "1600x1000", "--graphics-quality", "medium"] : [],
-    test: {default_timeout: 120, log_passed_tests: true, tag_blacklist: profile === "native" ? [] : ["native-ui"],
-      ...(profile === "native" ? {tag_whitelist: ["native-ui"], game_speed: 1} : {})},
+    factorioArgs: graphics ? ["--disable-migration-window", "--disable-audio", "--window-size", profile === "gallery" ? "1920x1080" : "1600x1000", "--graphics-quality", profile === "gallery" ? "high" : "medium"] : [],
+    test: {default_timeout: 120, log_passed_tests: true, tag_blacklist: profile === "native" ? ["portal-gallery"] : graphics ? [] : ["native-ui"],
+      ...(graphics ? {tag_whitelist: [profile === "gallery" ? "portal-gallery" : "native-ui"], game_speed: 1} : {})},
   };
 }
 export async function prepareProfile(profile, language = "en") {
   language = normalizeLocale(language);
   const engine = await resolveEngine();
   await access(join(engine.readData, "base", "locale", language, "base.cfg"));
-  const directory = profile === "native" ? resolve(".factorio-test/native", language) : resolve(".factorio-test/profiles", profile);
+  const directory = profile === "native" || profile === "gallery" ? resolve(".factorio-test", profile, language) : resolve(".factorio-test/profiles", profile);
   await mkdir(join(directory, "mods"), {recursive: true});
   // Lock before touching this profile's settings or results. Independent profiles stay independent.
   const lock = join(directory, "runner.lock");
@@ -101,7 +102,7 @@ export async function prepareProfile(profile, language = "en") {
     for (const pin of dependencyPins) await copyFile(join(dependencies, `${pin.name}_${pin.version}.zip`), join(directory, "mods", `${pin.name}_${pin.version}.zip`));
     const config = profileConfig(profile, directory, engine, language);
     await writeFile(join(directory, "runner.json"), JSON.stringify(config, null, 2));
-    await writeFile(join(directory, "config.ini"), `[path]\nread-data=${engine.readData}\nwrite-data=${directory}\n[general]\nlocale=${language}\n[graphics]\nfull-screen=false\n[sound]\nmaster-muted=true\n[other]\ncheck-updates=false\nautosave-interval=0\n`);
+    await writeFile(join(directory, "config.ini"), `[path]\nread-data=${engine.readData}\nwrite-data=${directory}\n[general]\nlocale=${language}\n[graphics]\nfull-screen=false\n${profile === "gallery" ? "[interface]\nautomatic-ui-scale=false\ncustom-ui-scale=1.25\nshow-tips-and-tricks=false\n" : ""}[sound]\nmaster-muted=true\n[other]\ncheck-updates=false\nautosave-interval=0\n`);
     await unlink(config.outputFile).catch(error => {if (error.code !== "ENOENT") throw error;});
     return {engine, directory, config, release};
   } catch (error) { await release(); throw error; }

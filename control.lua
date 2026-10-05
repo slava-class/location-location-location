@@ -9,7 +9,7 @@ handler.add_libraries({
 
 if script.active_mods["factorio-test"] then
     require("__factorio-test__/init")(
-        { "tests.planner", "tests.native_preview" },
+        { "tests.planner", "tests.native_preview", "tests.native_gallery" },
         { log_passed_tests = true, tag_blacklist = { "native-ui" } }
     )
 end

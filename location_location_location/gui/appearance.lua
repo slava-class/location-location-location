@@ -185,7 +185,7 @@ function appearance.register()
     styles[appearance.styles.picker_group] = {
         type = "button_style",
         parent = "filter_group_button_tab_slightly_larger",
-        horizontally_stretchable = "on",
+        horizontally_stretchable = "off",
         width = 0,
         padding = 1,
     }

@@ -22,6 +22,7 @@ Downloading missing pinned mods reads existing Mod Portal credentials. Sign into
 - `mise run verify`: whitespace, release/locale audit, Luacheck 1.2.0, StyLua, minimum-version Factorio API types, tooling tests, and both real-engine [FactorioTest](https://github.com/GlassBricks/FactorioTest) regression profiles.
 - `mise run test`: base and Space Age suites. Use `test-base` or `test-space-age` to run one profile.
 - `mise run test-ui -- de`: the tagged FactorioTest native UI suite. It checks and renders nine scenes, then closes its own isolated test window. Supported languages: en/de/fr/es-ES/ru/zh-CN (`es` aliases `es-ES`). `native-preview` remains an alias.
+- `mise run gallery -- en`: regenerate five upload-ready Mod Portal PNGs from the current source, on Nauvis at 1920 × 1080 and 125% UI scale. Uses high-quality native artwork, hides the test runner and unrelated HUD, and closes only its isolated preview.
 - `mise run setup`: prepare tools and test dependencies without starting a game.
 - `mise run lint`, `format-check`, `typecheck`: individual Lua checks. `mise run format` applies StyLua with AST verification.
 - `mise run package`: build a deterministic ZIP from `info.json`, compare every packaged file with source, and write its SHA256.
@@ -30,11 +31,17 @@ Downloading missing pinned mods reads existing Mod Portal credentials. Sign into
 
 ## Test profiles and evidence
 
-Each profile owns its mods, settings, results, logs, screenshots, and lock under ignored `.factorio-test/profiles/<profile>/` or `.factorio-test/native/<language>/`. Headless runs record `results.json` and `console.log`. Native runs also record `native-suite-results.json`, derived from FactorioTest's actual PASS/FAIL records because CLI 3.6 emits structured test events only headlessly.
+Each profile owns its mods, settings, results, logs, screenshots, and lock under ignored `.factorio-test/profiles/<profile>/`, `.factorio-test/native/<language>/`, or `.factorio-test/gallery/<language>/`. Headless runs record `results.json` and `console.log`. Native runs also record `native-suite-results.json`, derived from FactorioTest's actual PASS/FAIL records because CLI 3.6 emits structured test events only headlessly.
+
+Gallery images are written to `.factorio-test/gallery/<language>/script-output/gallery/`, in display order: source survey, full planner, product picker, private marker placement, and recipe alternatives. Rerunning the task replaces only that profile's generated gallery. `tests/native_gallery.lua` owns the deterministic scene fixtures and composition; edit it when the desired gallery changes. `gallery-scenes.jsonl` records the actual surface, resolution, UI scale, world zoom, and window location. The runner rejects failed scenes or PNGs with the wrong dimensions, and its result manifest records the current mod ID/version and engine version.
+
+The gallery is a separate `portal-gallery` suite, also tagged `native-ui`: headless runs exclude it, and `test-ui` keeps its existing nine-scene assertions separate. No fixture code runs without FactorioTest. Normal saves, configuration, and installed mods are untouched. Screenshots and manifests remain ignored and are excluded from release packages; the task never uploads them.
+
+1920 × 1080 (16:9) is the chosen gallery presentation size, not an official Portal requirement. It gives readable text at 125% UI scale without upscaling or desktop chrome. The [official image-upload API](https://wiki.factorio.com/Mod_images_API) does not specify a preferred pixel size. Keep the separate `thumbnail.png` unchanged.
 
 An interrupted profile reports its `runner.lock`; inspect the recorded PID before removing a stale lock.
 
-[control.lua](../control.lua) registers [tests/planner.lua](../tests/planner.lua) and [tests/native_preview.lua](../tests/native_preview.lua) with FactorioTest. Regression hooks are scoped to their suite. The `native-ui` tag excludes graphics-only assertions from headless runs and selects them in the graphics profile. No fixture code is injected into the mod.
+[control.lua](../control.lua) registers [tests/planner.lua](../tests/planner.lua), [tests/native_preview.lua](../tests/native_preview.lua), and [tests/native_gallery.lua](../tests/native_gallery.lua) with FactorioTest. Regression hooks are scoped to their suite. The `native-ui` tag excludes graphics-only assertions from headless runs; graphics profiles select either the native assertions or the separate Portal gallery fixtures. No fixture code is injected into the mod.
 
 Bun applies the checked-in CLI 3.6.0 patch that increases the hard-coded headless startup deadline from 10 to 120 seconds. A separate 60-second output watchdog still catches a stalled process.
 
@@ -49,6 +56,7 @@ Luacheck verifies data-stage and runtime globals separately. FactorioTest valida
 ## Source pointers
 
 - [gui/appearance.lua](../location_location_location/gui/appearance.lua) owns shared GUI styles and icon states. Action artwork and item/recipe tooltips are native Factorio.
+- Picker category slots and their table must remain non-stretching: native table justification otherwise inserts gaps in partial rows. Keep their widths aligned with the shared background tiling.
 - [planner.lua](../location_location_location/planner.lua) owns private drafts, source geometry, and saved recipe tags.
 
 This guide and the development tooling directory are excluded from release packages.

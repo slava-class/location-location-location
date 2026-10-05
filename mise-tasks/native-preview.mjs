@@ -12,17 +12,23 @@ export function ownedNativePid(processList, executable, directory) {
   if (matching.length > 1) throw new Error("Multiple processes own this exact native profile; refusing cleanup");
   return matching.length ? Number(matching[0].trim().split(/\s+/)[0]) : undefined;
 }
-export function nativeResults(log) {
+export function nativeResults(log, suite = "native UI gallery") {
   const tests = [];
   for (const line of log.split("\n")) {
-    const match = line.match(/\b(PASS|FAIL) ((?:tests\.native_preview > )?native UI gallery > \d{2} [a-z-]+)/);
-    if (match) tests.push({path: match[2], result: match[1] === "PASS" ? "passed" : "failed"});
+    const match = line.match(/\b(PASS|FAIL) ((?:tests\.(?:native_preview|native_gallery) > )?(?:native UI gallery|Mod Portal gallery) > \d{2} [a-z-]+)/);
+    if (match && match[2].includes(`${suite} > `)) tests.push({path: match[2], result: match[1] === "PASS" ? "passed" : "failed"});
   }
   return tests;
 }
 async function main() {
-  const language = normalizeLocale(process.argv[2] || "en");
-  const context = await prepareProfile("native", language);
+  const profile = process.argv[2] || "native";
+  if (!["native", "gallery"].includes(profile)) throw new Error("Expected native or gallery profile");
+  const language = normalizeLocale(process.argv[3] || "en");
+  const gallery = profile === "gallery";
+  const suite = gallery ? "Mod Portal gallery" : "native UI gallery";
+  const expected = gallery ? 5 : 9;
+  const imageDirectory = gallery ? "gallery" : "release-ui";
+  const context = await prepareProfile(profile, language);
   const marker = join(context.directory, "script-output/native-preview-complete.txt");
   let child, output = "";
   const stopNative = () => {
@@ -34,7 +40,7 @@ async function main() {
   try {
     await unlink(marker).catch(error => {if (error.code !== "ENOENT") throw error;});
     await unlink(join(context.directory, "script-output/native-preview.jsonl")).catch(error => {if (error.code !== "ENOENT") throw error;});
-    await rm(join(context.directory, "script-output/release-ui"), {recursive: true, force: true});
+    await rm(join(context.directory, "script-output", imageDirectory), {recursive: true, force: true});
     await unlink(join(context.directory, "native-suite-results.json")).catch(error => {if (error.code !== "ENOENT") throw error;});
     // Remove the previous preview generator's owned copy; the CLI now symlinks source.
     const info = JSON.parse(await readFile("info.json", "utf8"));
@@ -63,12 +69,18 @@ async function main() {
     // CLI 3.6 emits structured events only headlessly. Use real framework log records
     // for graphics results; screenshot existence never implies a passing assertion.
     const log = await readFile(join(context.directory, "factorio-current.log"), "utf8");
-    const tests = nativeResults(log);
-    if (tests.length !== 9 || new Set(tests.map(test => test.path)).size !== 9 || tests.some(test => test.result !== "passed")) throw new Error(`Expected nine actual FactorioTest passes, found ${tests.length}; inspect factorio-current.log`);
-    const images = (await readdir(join(context.directory, "script-output/release-ui"))).filter(name => name.endsWith(".png"));
-    if (images.length !== 9) throw new Error(`Expected nine freshly rendered scenes, found ${images.length}`);
-    await writeFile(join(context.directory, "native-suite-results.json"), JSON.stringify({framework: "FactorioTest 3.1.0", locale: language, engine: context.engine.version, summary: {passed: 9, failed: 0}, tests, screenshots: images.sort()}, null, 2));
-    console.log(`FactorioTest native UI (${language}): 9 passed; ${context.directory}/script-output/release-ui`);
+    const tests = nativeResults(log, suite);
+    if (tests.length !== expected || new Set(tests.map(test => test.path)).size !== expected || tests.some(test => test.result !== "passed")) throw new Error(`Expected ${expected} actual FactorioTest passes, found ${tests.length}; inspect factorio-current.log`);
+    const images = (await readdir(join(context.directory, "script-output", imageDirectory))).filter(name => name.endsWith(".png"));
+    if (images.length !== expected) throw new Error(`Expected ${expected} freshly rendered scenes, found ${images.length}`);
+    if (gallery) {
+      for (const name of images) {
+        const bytes = await readFile(join(context.directory, "script-output", imageDirectory, name));
+        if (!bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) || bytes.readUInt32BE(16) !== 1920 || bytes.readUInt32BE(20) !== 1080) throw new Error(`Gallery image must be a 1920x1080 PNG: ${name}`);
+      }
+    }
+    await writeFile(join(context.directory, "native-suite-results.json"), JSON.stringify({framework: "FactorioTest 3.1.0", mod: {name: info.name, version: info.version}, locale: language, engine: context.engine.version, ...(gallery ? {resolution: [1920, 1080], uiScale: 1.25} : {}), summary: {passed: expected, failed: 0}, tests, screenshots: images.sort()}, null, 2));
+    console.log(`FactorioTest ${profile} (${language}): ${expected} passed; ${context.directory}/script-output/${imageDirectory}`);
   } catch (error) {
     console.error(output.slice(-6000));
     throw new Error(`${error.message}\nInspect ${context.directory}/console.log and factorio-current.log`, {cause: error});

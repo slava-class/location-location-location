@@ -35,7 +35,7 @@ test("profiles select the right suites and explicitly disable unrelated built-in
   expect(base.mods.every(mod => mod.endsWith("=false"))).toBe(true);
   expect(space.mods.every(mod => mod.endsWith("=true"))).toBe(true);
   expect(base.test.tag_blacklist).toEqual(["native-ui"]);
-  expect(native.test.tag_blacklist).toEqual([]);
+  expect(native.test.tag_blacklist).toEqual(["portal-gallery"]);
   expect(native.test.tag_whitelist).toEqual(["native-ui"]);
   expect(base.outputFile).not.toBe(space.outputFile);
   expect(() => profileConfig("native", "/cache", engine, "unknown")).toThrow();
@@ -53,6 +53,10 @@ test("native results come from real FactorioTest records and retain failures", (
   expect(nativeResults("Screenshot saved: 01-list.png")).toEqual([]);
   expect(nativeResults("11.0 Script @__factorio-test__:1: PASS native UI gallery > 01 list (<Profiler>)\n11.2 Script: FAIL native UI gallery > 02 editor")).toEqual([
     {path: "native UI gallery > 01 list", result: "passed"}, {path: "native UI gallery > 02 editor", result: "failed"}
+  ]);
+  expect(nativeResults("Script: PASS tests.native_gallery > Mod Portal gallery > 01 source-survey\nScript: FAIL Mod Portal gallery > 02 planner\nScript: PASS native UI gallery > 01 list", "Mod Portal gallery")).toEqual([
+    {path: "tests.native_gallery > Mod Portal gallery > 01 source-survey", result: "passed"},
+    {path: "Mod Portal gallery > 02 planner", result: "failed"}
   ]);
 });
 
