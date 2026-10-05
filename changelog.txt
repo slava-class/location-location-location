@@ -1,8 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+  Changes:
+    - Added a repeatable developer gallery task with five native 1920x1080 screenshots, 125% UI scale, and Nauvis scene fixtures.
+    - Added explicit release versioning, preparation, Portal status, release publishing, and standalone gallery/listing publishing tasks with sealed artifacts and publication receipts.
+  Bugfixes:
+    - Fixed unwanted gaps between product-picker category buttons in partial rows.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
     - Initial release.
-  Changes:
-    - Added a repeatable developer gallery task with five native 1920x1080 screenshots, 125% UI scale, and Nauvis scene fixtures.
-  Bugfixes:
-    - Fixed unwanted gaps between product-picker category buttons in partial rows.

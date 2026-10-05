@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import {languages as supportedLocales, minimumFactorioVersion} from "./factorio-env.mjs";
+import {readInfo, readListing} from "./release-info.mjs";
 
 export function parseLocale(text, name = "locale") {
   const entries = new Map();
@@ -50,18 +51,16 @@ async function luaFiles(directory) {
 }
 
 export async function audit(root = resolve(".")) {
-  const info = JSON.parse(await readFile(join(root, "info.json"), "utf8"));
-  if (info.name !== "location-location-location" || info.version !== "1.0.0") throw new Error("Unexpected release identity");
+  const info = await readInfo(root);
   const changelog = await readFile(join(root, "changelog.txt"), "utf8");
   if (changelog.match(/^Version: (.+)$/m)?.[1] !== info.version) throw new Error("Changelog version differs from metadata");
   const readme = await readFile(join(root, "README.md"), "utf8");
-  if (!readme.includes(`${info.name}_${info.version}.zip`)) throw new Error("README archive name differs from metadata");
+  if (!readme.includes(`${info.name}_<version>.zip`)) throw new Error("README archive template differs from metadata");
   if (!info.dependencies.includes(`base >= ${minimumFactorioVersion}`)) throw new Error("Metadata and engine guard minimum differ");
   if (!readme.includes(minimumFactorioVersion)) throw new Error("README omits the declared minimum");
   const listing = await readFile(join(root, "MOD_PORTAL.md"), "utf8");
-  if (!listing.includes(`**Release:** ${info.version}`) || !listing.includes(`minimum build ${minimumFactorioVersion}`)) throw new Error("Local Portal draft release/minimum differs from metadata");
-  const summary = listing.split("### Short summary\n\n")[1]?.split("\n\n")[0];
-  if (summary !== info.description) throw new Error("Local Portal summary differs from metadata");
+  if (!listing.includes(`minimum build ${minimumFactorioVersion}`)) throw new Error("Local Portal minimum differs from metadata");
+  await readListing(root, info);
   const emmy = JSON.parse(await readFile(join(root, ".emmyrc.json"), "utf8"));
   if (!emmy.workspace.library.includes(`.factorio-test/types/factorio-${minimumFactorioVersion}/factorio/library`)) throw new Error("EmmyLua target differs from the declared minimum");
   const typeScript = await readFile(join(root, "mise-tasks/prepare-types.py"), "utf8");

@@ -60,22 +60,26 @@ Saved markers do not move automatically. Apply updates their position and can re
 - Space Age is optional. Planet and platform navigation uses the surfaces available in your game.
 - FactorioTest is optional and only needed for development tests.
 
-For manual installation, put `location-location-location_1.0.0.zip` in Factorio's `mods` directory, install Factorio Library, and enable both mods. The source repository is [slava-class/location-location-location](https://github.com/slava-class/location-location-location).
+For manual installation, put `location-location-location_<version>.zip` in Factorio's `mods` directory, install Factorio Library, and enable both mods. Use the version selected from the [Mod Portal](https://mods.factorio.com/mod/location-location-location); `info.json` declares the workspace version. The source repository is [slava-class/location-location-location](https://github.com/slava-class/location-location-location).
 
 ### Coming from Map Tag Generator
 
 This is a separate mod, not an in-place upgrade. Both can remain enabled, but private storage from `map-tag-generator` does **not** transfer automatically. Back up an existing save before switching; there is no cross-ID recipe-tag migration. The old generic tag generator and eraser are not part of this mod.
 
-The prepared [Mod Portal listing](MOD_PORTAL.md) is local release copy. The public API currently has no listing for this mod ID; the draft has not been published.
+The [Mod Portal listing](https://mods.factorio.com/mod/location-location-location) is published. [MOD_PORTAL.md](MOD_PORTAL.md) owns its long-form copy; `info.json` owns the title, summary, and release identity.
 
 ## Development
 
-Run `mise run verify` with Mise, Python 3.9 or later, a C compiler, and Factorio 2.1.20 installed. It prepares pinned dependencies and detects the game; the complete suite also requires Space Age.
+Run `mise run verify` with Mise, a C compiler, and Factorio 2.1.20 installed. It prepares pinned dependencies, uv-managed Python tooling, and detects the game; the complete suite also requires Space Age.
 
 - `mise run verify`: run all checks and both headless suites.
 - `mise run test-ui -- en`: check the native UI and render screenshots.
 - `mise run gallery -- en`: regenerate five Mod Portal screenshots at 1920 × 1080 with 125% UI scale on Nauvis.
 - `mise run package`: build and validate the release ZIP.
+- `mise run release-prepare -- en`: verify the source, smoke-test the ZIP, regenerate native UI/gallery captures, and seal a local release bundle without publishing.
+- `mise run release-status`: inspect live Portal metadata and compare the prepared release.
+
+Release publication is explicit: `release-publish`, `gallery-publish`, and `listing-publish` are publishing commands requiring scoped API credentials. See the developer guide for versioning, preparation, and partial-publication recovery; no release is uploaded by `verify`, `package`, or `gallery`.
 
 See the [developer guide](mise-tasks/README.md) for setup overrides, individual commands, test profiles, and tooling details.
 

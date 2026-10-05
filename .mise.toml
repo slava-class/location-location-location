@@ -2,6 +2,7 @@
 bun = "1.4.2"
 lua = "5.2.4"
 stylua = "2.3.1"
+uv = "0.12.13"
 
 [tasks.setup]
 description = "Prepare pinned test dependencies and project-local Lua tooling"
@@ -13,7 +14,7 @@ run = "bun mise-tasks/setup.mjs"
 
 [tasks.setup-lua-tools]
 description = "Download and build checksum-pinned project-local Lua tools"
-run = "python3 -B mise-tasks/setup-lua-tools.py"
+run = "uv run --no-project python -B mise-tasks/setup-lua-tools.py"
 
 [tasks.lint]
 depends = ["setup"]
@@ -67,12 +68,44 @@ run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-
 
 [tasks.package]
 description = "Build the release ZIP from info.json and validate its contents"
-run = "python3 -B mise-tasks/package.py"
+run = "uv run --no-project python -B mise-tasks/package.py"
 
 [tasks.package-smoke]
 description = "Load the actual release ZIP in both engine profiles with FactorioTest disabled"
 depends = ["setup-tests", "package"]
 run = "bun mise-tasks/package-smoke.mjs"
+
+[tasks.release-version]
+description = "Set a newer local version and prepend an authored changelog note; never publishes"
+usage = '''
+arg "version" help="New Factorio mod version, e.g. 1.0.1"
+arg "note" help="Single-line changelog note"
+'''
+run = 'bun mise-tasks/release.mjs version "${usage_version}" "${usage_note}"'
+
+[tasks.release-prepare]
+description = "Verify, smoke the ZIP, render fresh UI/gallery, and seal a local release bundle"
+usage = '''arg "language" default="en"'''
+run = 'bun mise-tasks/release.mjs prepare "${usage_language}"'
+
+[tasks.release-status]
+description = "Read live Portal version/gallery and compare the prepared bundle; never publishes"
+run = "bun mise-tasks/release.mjs status"
+
+[tasks.release-publish]
+description = "PUBLISH the exact prepared version, replace its listing gallery, and sync listing copy"
+usage = '''arg "version" help="Exact prepared version authorized for publication"'''
+run = 'bun mise-tasks/release.mjs publish "${usage_version}"'
+
+[tasks.gallery-publish]
+description = "PUBLISH only the prepared five-image gallery for the latest Portal version"
+usage = '''arg "version" help="Exact prepared and latest Portal version"'''
+run = 'bun mise-tasks/release.mjs gallery "${usage_version}"'
+
+[tasks.listing-publish]
+description = "PUBLISH only prepared listing fields for the latest Portal version"
+usage = '''arg "version" help="Exact prepared and latest Portal version"'''
+run = 'bun mise-tasks/release.mjs listing "${usage_version}"'
 
 [tasks.vac]
 description = "Verify, stage all changes, commit, and best-effort push the current branch"

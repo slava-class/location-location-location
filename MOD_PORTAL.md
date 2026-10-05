@@ -1,6 +1,6 @@
-# Mod Portal listing — Location Location Location 1.0.0
+# Mod Portal listing — Location Location Location
 
-Published as **1.0.0** on 3 October 2026 UTC (4 October in Melbourne): [Location Location Location](https://mods.factorio.com/mod/location-location-location). The signed-in Portal owner is **arrayjam**. The live listing and downloadable archive were verified. The Portal summary and source metadata were shortened after upload; the published ZIP retains its original `info.json` description.
+The listing is [Location Location Location](https://mods.factorio.com/mod/location-location-location), owned by **arrayjam**. Version **1.0.0** was first published on 3 October 2026 UTC (4 October in Melbourne); its downloadable archive was verified. This file owns the long description and the listing fields below. `info.json` is canonical for the current title, summary, homepage, and release version; use `mise run release-status` for live publication state.
 
 ## Listing fields
 
@@ -10,16 +10,12 @@ Published as **1.0.0** on 3 October 2026 UTC (4 October in Melbourne): [Location
 - **Portal owner:** arrayjam
 - **Category:** Utilities
 - **Tags:** none
-- **Release:** 1.0.0
+- **Release:** declared in `info.json`; live state is read by `release-status`
 - **Factorio:** 2.1, minimum build 2.1.20
 - **Required mod:** Factorio Library (`flib`) 0.17.2 or later
 - **Optional:** Space Age; FactorioTest 3.1.0 or later for development tests
 - **License:** MIT
 - **Source:** [slava-class/location-location-location](https://github.com/slava-class/location-location-location)
-
-### Short summary
-
-Plan where your next production line belongs. Choose a recipe, survey its ingredient sources, and save a suggested or hand-picked site as a shared map tag.
 
 ## Description
 

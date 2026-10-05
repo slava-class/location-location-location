@@ -1,32 +1,11 @@
-import {mkdtemp, rm} from 'node:fs/promises';
-import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {resolve} from 'node:path';
+import {runCommand as run, withWorkspaceSnapshot} from './workspace.mjs';
 
 const message = process.env.usage_message?.trim();
 if (!message) throw new Error('Supply a descriptive commit message: mise run vac -- "message"');
 
-async function run(args, {capture = false, env = {}, allowFailure = false} = {}) {
-  const process = Bun.spawn(args, {
-    env: {...globalThis.process.env, ...env},
-    stdin: 'ignore', stdout: capture ? 'pipe' : 'inherit', stderr: 'inherit',
-  });
-  const output = capture ? await new Response(process.stdout).text() : '';
-  const code = await process.exited;
-  if (code !== 0 && !allowFailure) throw new Error(`${args[0]} ${args[1]} failed (${code}); checkpoint stopped.`);
-  return {code, output: output.trim()};
-}
 const git = async (...args) => (await run(['git', ...args], {capture: true})).output;
-const head = await git('rev-parse', 'HEAD');
-const temp = await mkdtemp(join(tmpdir(), 'map-tag-checkpoint-'));
-const indexEnv = {GIT_INDEX_FILE: join(temp, 'index')};
-try {
-  // A private index fingerprints tracked and untracked changes without disturbing staging.
-  await run(['git', 'read-tree', head], {env: indexEnv});
-  const snapshot = async () => {
-    await run(['git', 'add', '-A'], {env: indexEnv});
-    return (await run(['git', 'write-tree'], {env: indexEnv, capture: true})).output;
-  };
-  const verifiedTree = await snapshot();
+await withWorkspaceSnapshot(resolve('.'), async ({head, tree: verifiedTree, snapshot, env: indexEnv}) => {
   await run(['mise', 'run', 'verify'], {env: indexEnv});
   if (await git('rev-parse', 'HEAD') !== head || await snapshot() !== verifiedTree) {
     throw new Error('Files or HEAD changed during verification. Nothing committed; rerun vac on the new state.');
@@ -55,6 +34,4 @@ try {
         : 'WARNING: push failed. The verified checkpoint exists locally; remote synchronization is still pending.');
     }
   }
-} finally {
-  await rm(temp, {recursive: true, force: true});
-}
+});

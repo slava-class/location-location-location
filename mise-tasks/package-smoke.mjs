@@ -1,12 +1,13 @@
-import {mkdir, readFile, writeFile, copyFile} from "node:fs/promises";
+import {mkdir, writeFile, copyFile} from "node:fs/promises";
 import {join, resolve} from "node:path";
 import {ensureDependencies, resolveEngine, profileConfig} from "./factorio-env.mjs";
+import {readInfo} from "./release-info.mjs";
 const engine = await resolveEngine();
 const dependencies = await ensureDependencies();
-const info = JSON.parse(await readFile("info.json", "utf8"));
+const info = await readInfo(resolve("."));
 const archive = `${info.name}_${info.version}.zip`;
 for (const profile of ["base", "space-age"]) {
-  const directory = resolve(".factorio-test/package-smoke", profile);
+  const directory = resolve(".factorio-test/package-smoke", info.version, profile);
   const mods = join(directory, "mods");
   await mkdir(mods, {recursive: true});
   await copyFile(resolve(archive), join(mods, archive));

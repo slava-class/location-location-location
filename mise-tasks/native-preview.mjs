@@ -1,7 +1,8 @@
 import {readFile, writeFile, unlink, readdir, rm} from "node:fs/promises";
-import {join} from "node:path";
+import {join, resolve} from "node:path";
 import {spawnSync} from "node:child_process";
 import {prepareProfile, normalizeLocale} from "./factorio-env.mjs";
+import {readInfo} from "./release-info.mjs";
 
 export function ownedNativePid(processList, executable, directory) {
   const argument = (command, flag, path) => command.includes(`${flag} ${path} `) || command.endsWith(`${flag} ${path}`);
@@ -43,7 +44,7 @@ async function main() {
     await rm(join(context.directory, "script-output", imageDirectory), {recursive: true, force: true});
     await unlink(join(context.directory, "native-suite-results.json")).catch(error => {if (error.code !== "ENOENT") throw error;});
     // Remove the previous preview generator's owned copy; the CLI now symlinks source.
-    const info = JSON.parse(await readFile("info.json", "utf8"));
+    const info = await readInfo(resolve("."));
     await rm(join(context.directory, "mods", `${info.name}_${info.version}`), {recursive: true, force: true});
     // Run unmodified source through the canonical CLI and actual tagged suites.
     child = Bun.spawn(["bun", "node_modules/factorio-test-cli/cli.js", "run", "--graphics", "--config", join(context.directory, "runner.json"), "--quiet"], {

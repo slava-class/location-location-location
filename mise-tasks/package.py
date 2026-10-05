@@ -4,14 +4,15 @@ from pathlib import Path
 import hashlib
 import json
 import zipfile
+import re
 
 ROOT = Path(__file__).resolve().parent.parent
 
 def main():
     metadata = json.loads((ROOT / 'info.json').read_text())
     name, version = metadata['name'], metadata['version']
-    if name != 'location-location-location' or version != '1.0.0':
-        raise RuntimeError('Unexpected release identity')
+    if name != 'location-location-location' or not isinstance(version, str) or not re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', version) or any(int(part) > 65535 for part in version.split('.')):
+        raise RuntimeError('Unexpected mod ID or invalid Factorio release version')
     prefix = f'{name}_{version}'
     files = [ROOT / path for path in ['info.json', 'control.lua', 'data.lua', 'changelog.txt', 'license.txt', 'thumbnail.png']]
     for folder in ['location_location_location', 'locale', 'tests']:

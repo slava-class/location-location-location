@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 const root = resolve(".");
 const cache = resolve(".factorio-test");
 await mkdir(cache, { recursive: true });
-let child = Bun.spawn(["python3", "-B", "mise-tasks/prepare-types.py"], { stdout: "inherit", stderr: "inherit" });
+let child = Bun.spawn(["uv", "run", "--no-project", "python", "-B", "mise-tasks/prepare-types.py"], { stdout: "inherit", stderr: "inherit" });
 if (await child.exited) process.exit(child.exitCode);
 const report = resolve(cache, "typecheck.json");
 child = Bun.spawn([resolve(cache, "tools/emmylua_check"), root, "-c", resolve(".emmyrc.json"), "-f", "json", "--output", report, "--warnings-as-errors", "--severity", "warn"], { stdout: "inherit", stderr: "inherit" });
