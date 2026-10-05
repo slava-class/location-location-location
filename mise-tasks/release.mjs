@@ -125,8 +125,14 @@ export function publicationDifferences(metadata, bundle, mode) {
   }
   return differences;
 }
-export async function publishPrepared(bundle, mode, {portal = new ModPortal(), uploadKey, editKey, saveReceipt} = {}) {
+function confirmedReleaseUpload(receipt, mod) {
+  return receipt?.mod?.name === mod.name && receipt.mod.version === mod.version
+    && receipt.events?.some(event => event.operation === "release-upload" && event.status === "confirmed");
+}
+
+export async function publishPrepared(bundle, mode, {portal = new ModPortal(), uploadKey, editKey, saveReceipt, previousReceipt} = {}) {
   if (!["publish", "gallery", "listing"].includes(mode)) throw new Error("Unknown publishing operation");
+  if (mode === "publish" && confirmedReleaseUpload(previousReceipt, bundle.manifest.mod)) throw new Error("This version's ZIP upload was already confirmed. Do not resend it; inspect release-status and finish with gallery-publish/listing-publish.");
   if (!editKey?.trim() || (mode === "publish" && !uploadKey?.trim())) throw new Error(mode === "publish" ? "Set MOD_UPLOAD_API_KEY (Upload Mods) and MOD_EDIT_API_KEY (Edit Mods); no mutations attempted" : "Set MOD_EDIT_API_KEY (Edit Mods); no mutations attempted");
   for (const [name, key] of [["MOD_EDIT_API_KEY", editKey], ...(mode === "publish" ? [["MOD_UPLOAD_API_KEY", uploadKey]] : [])]) {
     try { new Headers({Authorization: `Bearer ${key}`}); }
@@ -188,17 +194,19 @@ async function status(root) {
   const latest = latestRelease(metadata);
   console.log(`Portal: https://mods.factorio.com/mod/${info.name}\nOwner: ${metadata.owner}\nLocal version: ${info.version}\nLatest Portal release: ${latest?.version ?? "none"}\nPortal ZIP SHA1: ${latest?.sha1 ?? "none"}\nGallery IDs: ${metadata.images.map(image => image.id).join(",") || "none"}`);
   const directory = bundleDirectory(root, info.version);
+  const publishReceipt = await optionalJSON(join(directory, "publish-receipt.json"));
   if (await optionalJSON(join(directory, "manifest.json"))) {
     try {
       const bundle = await loadPrepared(root, info.version);
       console.log(`Prepared source tree: ${bundle.manifest.source.tree}\nPrepared ZIP SHA1: ${bundle.archive.sha1}\nPrepared manifest: ${join(directory, "manifest.json")}\nPrepared gallery:\n${bundle.manifest.images.map(image => `  ${image.file}: ${image.sha1}`).join("\n")}\nReadback differences: ${publicationDifferences(metadata, bundle, "publish").join(", ") || "none"}`);
       if (latest?.version === info.version) console.log(`Version already released; listing-only commands:\n  mise run gallery-publish -- ${info.version}\n  mise run listing-publish -- ${info.version}`);
       else if (latest && compareVersions(info.version, latest.version) <= 0) console.log(`Local ${info.version} is older than latest Portal ${latest.version}; choose a newer version with release-version, then prepare it.`);
+      else if (confirmedReleaseUpload(publishReceipt, info)) console.log("ZIP upload was already confirmed; public readback is unresolved. Do not resend the ZIP. Inspect the publish receipt before finishing gallery/listing work.");
       else console.log(`Explicit publication: mise run release-publish -- ${info.version}`);
     } catch (error) { console.log(`Prepared bundle unusable: ${error.message}`); }
   } else console.log("No prepared bundle. Next: mise run release-prepare -- en");
   for (const mode of ["publish", "gallery", "listing"]) {
-    const receipt = await optionalJSON(join(directory, `${mode}-receipt.json`));
+    const receipt = mode === "publish" ? publishReceipt : await optionalJSON(join(directory, `${mode}-receipt.json`));
     if (receipt) console.log(`${mode} receipt: ${receipt.status}; target ${receipt.mod.name} ${receipt.mod.version}; source tree ${receipt.source.tree}; ZIP SHA1 ${receipt.archiveSha1}; ${receipt.events.map(event => `${event.operation}${event.file ? ` ${event.file}` : ""}=${event.status}`).join("; ")}\n  ${join(directory, `${mode}-receipt.json`)}`);
   }
 }
@@ -221,9 +229,10 @@ async function main() {
       if (args.length !== 1) throw new Error("Publishing requires the exact prepared version as its sole argument");
       const bundle = await loadPrepared(root, args[0]);
       const receiptPath = join(bundle.directory, `${operation}-receipt.json`);
+      const previousReceipt = operation === "publish" ? await optionalJSON(receiptPath) : undefined;
       const scope = operation === "publish" ? "new release ZIP, five-image gallery replacement, listing fields" : operation === "gallery" ? "five-image gallery replacement only" : "listing fields only";
       console.log(`${operation}: ${bundle.manifest.mod.name} ${args[0]}\nScope: ${scope}\nPrepared source tree: ${bundle.manifest.source.tree}\nPrepared ZIP SHA1: ${bundle.archive.sha1}\nPrepared gallery IDs: ${bundle.images.map(image => image.sha1).join(",")}\nReceipt: ${receiptPath}`);
-      await publishPrepared(bundle, operation, {uploadKey: process.env.MOD_UPLOAD_API_KEY, editKey: process.env.MOD_EDIT_API_KEY, saveReceipt: receipt => saveJSON(receiptPath, receipt)});
+      await publishPrepared(bundle, operation, {uploadKey: process.env.MOD_UPLOAD_API_KEY, editKey: process.env.MOD_EDIT_API_KEY, previousReceipt, saveReceipt: receipt => saveJSON(receiptPath, receipt)});
       console.log(`Verified ${operation}: https://mods.factorio.com/mod/${bundle.manifest.mod.name}`);
     } else throw new Error("Unknown release operation; use the named mise release tasks");
   });

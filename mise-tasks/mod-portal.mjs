@@ -28,7 +28,8 @@ export class ModPortal {
     return data;
   }
   async metadata(mod) {
-    const data = await this.request(`${origin}/api/mods/${encodeURIComponent(mod)}/full`, "Portal readback");
+    // The public endpoint is CDN-cached for 900s; each operational readback must reach fresh state.
+    const data = await this.request(`${origin}/api/mods/${encodeURIComponent(mod)}/full?readback=${crypto.randomUUID()}`, "Portal readback");
     if (data.name !== mod || !Array.isArray(data.releases) || !Array.isArray(data.images)) throw new Error("Portal metadata has an unexpected mod ID or shape");
     return data;
   }

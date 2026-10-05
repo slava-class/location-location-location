@@ -170,6 +170,28 @@ test("API failures cannot masquerade as success or disclose credentials in error
   const transport = new ModPortal(async () => {throw new Error(`https://upload.example/?token=${secret}`);});
   expect((await transport.metadata("location-location-location").catch(error => error)).message.includes(secret)).toBe(false);
 });
+test("operational metadata sees writes despite a CDN cache that ignores revalidation headers", async () => {
+  let current = metadata("1.0.0");
+  const cached = new Map();
+  const portal = new ModPortal(async url => {
+    if (!cached.has(url)) cached.set(url, structuredClone(current));
+    return Response.json(cached.get(url));
+  });
+  const before = await portal.metadata("location-location-location");
+  current = metadata("1.0.1");
+  const after = await portal.metadata("location-location-location");
+  expect(before.releases[0].version).toBe("1.0.0");
+  expect(after.releases[0].version).toBe("1.0.1");
+});
+test("a confirmed upload in a stopped receipt cannot be submitted again", async () => {
+  const prepared = bundle(), r = receipts();
+  const previousReceipt = {mod: prepared.manifest.mod, status: "stopped", events: [{operation: "release-upload", status: "confirmed"}]};
+  let touched = false;
+  const portal = {metadata: async () => {touched = true; return metadata("1.0.0");}};
+  await expect(publishPrepared(prepared, "publish", {portal, uploadKey: "upload", editKey: "edit", previousReceipt, ...r})).rejects.toThrow();
+  expect(touched).toBe(false);
+  expect(r.saved).toEqual([]);
+});
 test("untrusted upload URLs and incorrect returned image hashes cannot be accepted", async () => {
   let sentFile = false;
   const unsafe = new ModPortal(async (_url, options) => {

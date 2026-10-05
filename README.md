@@ -78,6 +78,7 @@ Run `mise run verify` with Mise, a C compiler, and Factorio 2.1.20 installed. It
 - `mise run package`: build and validate the release ZIP.
 - `mise run release-prepare -- en`: verify the source, smoke-test the ZIP, regenerate native UI/gallery captures, and seal a local release bundle without publishing.
 - `mise run release-status`: inspect live Portal metadata and compare the prepared release.
+- Operational Portal readbacks bypass its 15-minute CDN cache; confirmed ZIP uploads are never resubmitted by the release flow.
 
 Release publication is explicit: `release-publish`, `gallery-publish`, and `listing-publish` are publishing commands requiring scoped API credentials. See the developer guide for versioning, preparation, and partial-publication recovery; no release is uploaded by `verify`, `package`, or `gallery`.
 
