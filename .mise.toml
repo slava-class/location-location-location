@@ -52,7 +52,7 @@ run = "bun mise-tasks/native-preview.mjs native ${usage_language}"
 
 [tasks.gallery]
 depends = ["setup-tests"]
-description = "Render five Mod Portal gallery screenshots at 1920x1080 with 125% UI scale"
+description = "Render five native gallery candidates at 1920x1080 with 125% UI scale"
 usage = '''arg "language" default="en"'''
 run = "bun mise-tasks/native-preview.mjs gallery ${usage_language}"
 
@@ -98,7 +98,7 @@ usage = '''arg "version" help="Exact prepared version authorized for publication
 run = 'bun mise-tasks/release.mjs publish "${usage_version}"'
 
 [tasks.gallery-publish]
-description = "PUBLISH only the prepared five-image gallery for the latest Portal version"
+description = "PUBLISH only the prepared two-image gallery for the latest Portal version"
 usage = '''arg "version" help="Exact prepared and latest Portal version"'''
 run = 'bun mise-tasks/release.mjs gallery "${usage_version}"'
 

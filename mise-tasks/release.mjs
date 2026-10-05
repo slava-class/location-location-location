@@ -1,4 +1,4 @@
-import {readFile, writeFile, mkdir, open, unlink, rename} from "node:fs/promises";
+import {readFile, writeFile, mkdir, open, unlink, rename, rm} from "node:fs/promises";
 import {join, resolve, basename} from "node:path";
 import {createHash} from "node:crypto";
 import {readInfo, readListing, parseVersion, compareVersions, setVersion} from "./release-info.mjs";
@@ -6,6 +6,7 @@ import {normalizeLocale} from "./factorio-env.mjs";
 import {runCommand, withWorkspaceSnapshot} from "./workspace.mjs";
 import {ModPortal} from "./mod-portal.mjs";
 
+const portalGalleryFiles = ["02-planner.png", "01-source-survey.png"];
 const hash = (bytes, algorithm = "sha256") => createHash(algorithm).update(bytes).digest("hex");
 const bundleDirectory = (root, version) => { parseVersion(version); return join(root, ".factorio-test/releases", version); };
 const json = async path => JSON.parse(await readFile(path, "utf8"));
@@ -36,7 +37,7 @@ export async function prepareRelease(root, language = "en") {
   language = normalizeLocale(language);
   const info = await readInfo(root);
   const directory = bundleDirectory(root, info.version);
-  await mkdir(join(directory, "gallery"), {recursive: true});
+  await mkdir(directory, {recursive: true});
   // A failed new preparation must not leave a previous candidate eligible for publishing.
   await unlink(join(directory, "manifest.json")).catch(error => {if (error.code !== "ENOENT") throw error;});
   return withWorkspaceSnapshot(root, async ({head, tree, snapshot, env}) => {
@@ -51,15 +52,18 @@ export async function prepareRelease(root, language = "en") {
     const galleryRoot = join(root, ".factorio-test/gallery", language);
     const gallery = await json(join(galleryRoot, "native-suite-results.json"));
     if (gallery.mod?.name !== info.name || gallery.mod?.version !== info.version || gallery.locale !== language || gallery.summary?.passed !== 5 || gallery.summary?.failed !== 0 || gallery.uiScale !== 1.25 || gallery.resolution?.join(",") !== "1920,1080" || gallery.screenshots?.length !== 5) throw new Error("Gallery result does not match the prepared mod, locale, and five passing scenes");
+    if (portalGalleryFiles.some(file => !gallery.screenshots.includes(file))) throw new Error("Gallery captures are missing a selected Portal scene");
+    await rm(join(directory, "gallery"), {recursive: true, force: true});
+    await mkdir(join(directory, "gallery"), {recursive: true});
     const images = [];
-    for (const file of gallery.screenshots) {
+    for (const file of portalGalleryFiles) {
       if (!/^\d{2}-[a-z-]+\.png$/.test(file)) throw new Error("Unexpected gallery filename");
       const bytes = await readFile(join(galleryRoot, "script-output/gallery", file));
       checkImage(bytes, file);
       images.push(fileRecord(file, bytes));
       await writeFile(join(directory, "gallery", file), bytes);
     }
-    if (new Set(images.map(image => image.file)).size !== 5 || new Set(images.map(image => image.sha1)).size !== 5) throw new Error("Gallery must contain five distinct scenes");
+    if (new Set(images.map(image => image.sha1)).size !== portalGalleryFiles.length) throw new Error("Portal gallery must contain distinct scenes");
     await writeFile(join(directory, archiveName), archiveBytes);
     await writeFile(join(directory, archiveName + ".sha256"), `${hash(archiveBytes)}  ${archiveName}\n`);
     await saveJSON(join(directory, "gallery-results.json"), gallery);
@@ -80,7 +84,7 @@ export async function loadPrepared(root, version) {
   if (!manifest) throw new Error(`No prepared ${info.name} ${version}; run mise run release-prepare -- en`);
   if (manifest.schema !== 1 || manifest.mod?.name !== info.name || manifest.mod?.version !== version) throw new Error("Prepared manifest identity/schema mismatch");
   normalizeLocale(manifest.locale);
-  if (manifest.resolution?.join(",") !== "1920,1080" || manifest.uiScale !== 1.25 || manifest.images?.length !== 5) throw new Error("Prepared gallery specification differs");
+  if (manifest.resolution?.join(",") !== "1920,1080" || manifest.uiScale !== 1.25 || manifest.images?.map(image => image.file).join(",") !== portalGalleryFiles.join(",")) throw new Error("Prepared gallery specification differs");
   if (JSON.stringify(manifest.listing) !== JSON.stringify(await readListing(root, info))) throw new Error("Listing changed since preparation; rerun release-prepare");
   await withWorkspaceSnapshot(root, async ({tree}) => {
     if (tree !== manifest.source?.tree) throw new Error("Source changed since preparation; rerun release-prepare. A commit of the same tree remains valid.");
@@ -100,7 +104,7 @@ export async function loadPrepared(root, version) {
     checkImage(image.bytes, image.file);
     images.push(image);
   }
-  if (new Set(images.map(image => image.file)).size !== 5 || new Set(images.map(image => image.sha1)).size !== 5) throw new Error("Prepared gallery scenes are not distinct");
+  if (new Set(images.map(image => image.sha1)).size !== portalGalleryFiles.length) throw new Error("Prepared gallery scenes are not distinct");
   return {manifest, directory, archive, images};
 }
 function latestRelease(metadata) {
@@ -167,7 +171,12 @@ export async function publishPrepared(bundle, mode, {portal = new ModPortal(), u
     }
     if (mode !== "listing") {
       const ids = [];
+      const existingIds = new Set(before.images.map(image => image.id));
       for (const image of bundle.images) {
+        if (existingIds.has(image.sha1)) {
+          ids.push(image.sha1);
+          continue;
+        }
         const result = await mutate("image-upload", () => portal.upload("image", name, image, editKey), image.file);
         ids.push(result.id);
       }
@@ -230,7 +239,7 @@ async function main() {
       const bundle = await loadPrepared(root, args[0]);
       const receiptPath = join(bundle.directory, `${operation}-receipt.json`);
       const previousReceipt = operation === "publish" ? await optionalJSON(receiptPath) : undefined;
-      const scope = operation === "publish" ? "new release ZIP, five-image gallery replacement, listing fields" : operation === "gallery" ? "five-image gallery replacement only" : "listing fields only";
+      const scope = operation === "publish" ? `new release ZIP, ${bundle.images.length}-image gallery replacement, listing fields` : operation === "gallery" ? `${bundle.images.length}-image gallery replacement only` : "listing fields only";
       console.log(`${operation}: ${bundle.manifest.mod.name} ${args[0]}\nScope: ${scope}\nPrepared source tree: ${bundle.manifest.source.tree}\nPrepared ZIP SHA1: ${bundle.archive.sha1}\nPrepared gallery IDs: ${bundle.images.map(image => image.sha1).join(",")}\nReceipt: ${receiptPath}`);
       await publishPrepared(bundle, operation, {uploadKey: process.env.MOD_UPLOAD_API_KEY, editKey: process.env.MOD_EDIT_API_KEY, previousReceipt, saveReceipt: receipt => saveJSON(receiptPath, receipt)});
       console.log(`Verified ${operation}: https://mods.factorio.com/mod/${bundle.manifest.mod.name}`);

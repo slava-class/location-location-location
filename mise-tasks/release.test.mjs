@@ -15,12 +15,12 @@ const record = (file, bytes) => ({file, sha256: digest(bytes, "sha256"), sha1: d
 function bundle() {
   const archiveBytes = Buffer.from("sealed package bytes");
   const archive = {...record("location-location-location_1.0.1.zip", archiveBytes), bytes: archiveBytes};
-  const images = Array.from({length: 5}, (_, index) => {
+  const images = ["02-planner.png", "01-source-survey.png"].map((file, index) => {
     // Header-level fixture; real rendered PNGs are exercised by release-prepare.
     const bytes = Buffer.alloc(25);
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
     bytes.writeUInt32BE(1920, 16); bytes.writeUInt32BE(1080, 20); bytes[24] = index;
-    return {...record(`0${index + 1}-scene.png`, bytes), bytes};
+    return {...record(file, bytes), bytes};
   });
   const listing = {title: "Location Location Location", summary: "Plan production", description: "Native planner.", category: "utilities", license: "default_mit", homepage: "https://example.com", source_url: "https://example.com/source"};
   return {archive, images, manifest: {schema: 1, mod: {name: "location-location-location", version: "1.0.1"}, locale: "en", resolution: [1920, 1080], uiScale: 1.25, source: {}, listing,
@@ -114,6 +114,16 @@ test("modified frozen ZIP or image bytes fail integrity checks", async () => {
   await writeFile(join(f.directory, "gallery", f.prepared.images[0].file), "tampered");
   await expect(loadPrepared(f.root, "1.0.1")).rejects.toThrow();
 });
+test("extra or reordered scenes invalidate a sealed Portal gallery", async () => {
+  const f = await fixture();
+  f.prepared.manifest.images.reverse();
+  await writeFile(join(f.directory, "manifest.json"), JSON.stringify(f.prepared.manifest));
+  await expect(loadPrepared(f.root, "1.0.1")).rejects.toThrow();
+  f.prepared.manifest.images.reverse();
+  f.prepared.manifest.images.push({...f.prepared.manifest.images[0], file: "03-recipe-picker.png"});
+  await writeFile(join(f.directory, "manifest.json"), JSON.stringify(f.prepared.manifest));
+  await expect(loadPrepared(f.root, "1.0.1")).rejects.toThrow();
+});
 test("failed preparation invalidates a previously sealed candidate", async () => {
   const f = await fixture();
   await writeFile(join(f.root, ".mise.toml"), '[tasks.verify]\nrun = "false"\n');
@@ -151,7 +161,7 @@ test("a late image failure keeps prior images and records partial/unknown outcom
   const oldOrder = structuredClone(state.images);
   let uploads = 0;
   const portal = {metadata: async () => state, upload: async (_kind, _mod, image) => {
-    if (++uploads === 3) throw new Error("upload outcome unknown");
+    if (++uploads === 2) throw new Error("upload outcome unknown");
     state.images.push({id: image.sha1});
     return {id: image.sha1};
   }, gallery: async () => {state.images = []; throw new Error("must not replace gallery");}};
@@ -159,7 +169,21 @@ test("a late image failure keeps prior images and records partial/unknown outcom
   expect(state.images.slice(0, oldOrder.length)).toEqual(oldOrder);
   const last = r.saved.at(-1);
   expect(last.status).toBe("stopped");
-  expect(last.events.map(event => event.status)).toEqual(["confirmed", "confirmed", "attempting"]);
+  expect(last.events.map(event => event.status)).toEqual(["confirmed", "attempting"]);
+});
+test("retained images can be reordered and trimmed without another upload", async () => {
+  const prepared = bundle(), r = receipts();
+  const retained = prepared.images.map(image => ({id: image.sha1}));
+  let state = {...metadata("1.0.1"), images: [...retained].reverse().concat({id: "b".repeat(40)}, {id: "c".repeat(40)}, {id: "d".repeat(40)})};
+  const portal = {
+    metadata: async () => structuredClone(state),
+    upload: async () => {throw new Error("The retained PNG is already uploaded");},
+    gallery: async () => {state = {...state, images: retained};},
+  };
+  const receipt = await publishPrepared(prepared, "gallery", {portal, editKey: "edit", ...r});
+  expect(receipt.status).toBe("verified");
+  expect(receipt.previousImageIds).toEqual([retained[1].id, retained[0].id, "b".repeat(40), "c".repeat(40), "d".repeat(40)]);
+  expect(state.images).toEqual(retained);
 });
 test("API failures cannot masquerade as success or disclose credentials in errors", async () => {
   const secret = "privateAPIKey";

@@ -74,7 +74,7 @@ Run `mise run verify` with Mise, a C compiler, and Factorio 2.1.20 installed. It
 
 - `mise run verify`: run all checks and both headless suites.
 - `mise run test-ui -- en`: check the native UI and render screenshots.
-- `mise run gallery -- en`: regenerate five Mod Portal screenshots at 1920 × 1080 with 125% UI scale on Nauvis.
+- `mise run gallery -- en`: regenerate five native screenshot candidates at 1920 × 1080 with 125% UI scale on Nauvis. The published gallery uses only the full planner, then the source survey.
 - `mise run package`: build and validate the release ZIP.
 - `mise run release-prepare -- en`: verify the source, smoke-test the ZIP, regenerate native UI/gallery captures, and seal a local release bundle without publishing.
 - `mise run release-status`: inspect live Portal metadata and compare the prepared release.
