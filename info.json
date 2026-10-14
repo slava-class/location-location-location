@@ -1,11 +1,11 @@
 {
   "name": "py-research-dossier",
-  "version": "0.5.0",
-  "title": "Pyanodon Polytechnic",
+  "version": "0.6.0",
+  "title": "Pyanodons Polytechnic",
   "author": "slava-class",
   "factorio_version": "2.1",
-  "description": "A field primer for the curious industrialist. Concise, sourced lessons in Pyanodon chemistry, engineering and biology, with local in-game feedback flags. No balance changes.",
-  "homepage": "https://github.com/slava-class/pyanodon-polytechnic",
+  "description": "An unofficial field primer for Pyanodons (pY). Concise, sourced lessons in chemistry, engineering and biology, with local in-game feedback flags. No balance changes.",
+  "homepage": "https://github.com/slava-class/pyanodons-polytechnic",
   "dependencies": [
     "base >= 2.1.21",
     "flib >= 0.17.2",
@@ -16,6 +16,10 @@
     "pypostprocessing >= 3.1.6",
     "? pyhardmode >= 1.3.38",
     "? pyfusionenergy >= 3.1.5",
-    "? aai-loaders >= 0.3.0"
+    "? aai-loaders >= 0.3.0",
+    "? pyindustry >= 3.1.6",
+    "? pyhightech >= 3.1.5",
+    "? pyalternativeenergy >= 3.2.9",
+    "? cargo-ships-floating-electric-pole >= 2.1.0"
   ]
 }

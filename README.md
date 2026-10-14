@@ -1,23 +1,23 @@
-# Pyanodon Polytechnic
+# Pyanodons Polytechnic
 
 A field primer for the curious industrialist.
 
-An unofficial educational companion for Pyanodon. The public name is **Pyanodon Polytechnic**; the stable Factorio mod ID, save identity and feedback directory remain `py-research-dossier`.
+An unofficial educational companion for **Pyanodons (pY)**, the mod suite created by **pyanodon**. This companion is independently maintained, not an official project by the mod creator. The public name is **Pyanodons Polytechnic**; the stable Factorio mod ID, save identity and feedback directory remain `py-research-dossier`.
 
-A Factorio 2.1 science-note companion for the Py Coal Processing / Petroleum Handling / Raw Ores / Alien Life stack, with an in-game feedback logger. The notes were authored against the installed Py/Hardmode sources recorded in [game-sources.json](content/game-sources.json), not inferred from recipe names alone.
+A Factorio 2.1 science-note companion for Pyanodons and the stock Factorio equipment used alongside it, with an in-game feedback logger. The notes were authored against the installed Py/Hardmode sources recorded in [game-sources.json](content/game-sources.json), not inferred from recipe names alone.
 
 ## What is included
 
-**121 authored dossiers across 204 exact prototype targets**, covering coal and tar, ore processing, early biology, boron chemistry, electrolysis, glass, furnaces, inserters and conveyor logistics. Counts include future tiers and explicitly conditional families, not only currently unlocked content.
+**251 authored dossiers across 456 exact prototype targets**, covering coal and tar, mineral processing, early biology, boron chemistry, electronics, copper metallurgy, utilities, steam systems and logistics. Counts include future tiers and explicitly conditional families, not only currently unlocked content.
 
 | Surface | Annotated prototypes |
 | --- | ---: |
-| Recipes | 43 |
-| Material items (not machine placement items) | 42 |
+| Recipes | 111 |
+| Material items (not machine placement items) | 94 |
 | Biological modules (fungi, plants and animals) | 6 |
-| Fluids | 13 |
-| Machine and logistics entities | 66 |
-| Technologies | 34 |
+| Fluids | 25 |
+| Machine and logistics entities | 116 |
+| Technologies | 104 |
 
 Ordinary hovers show one regular-weight paragraph: a short topic followed by a concrete lesson. Disciplines (chemistry, physics, engineering, metallurgy, geology and biology) and the following basis labels live with the references in Factoriopedia:
 
@@ -31,6 +31,8 @@ Budgets include the topic: materials allow 28 words / 200 characters, recipes 32
 Early ingredients include raw coal and coal, ash, kerogen, coal dust, limestone, lime, soil, sand and washed sand. Biology covers fawogae and its spores/substrate, ralesia and seeds, wood and seedlings, moss, native flora, ulrics and cubs, vrauks and cocoons, and auogs and pups. Iron and zinc grade notes explain their opposite processing directions rather than inventing a universal quality ranking.
 
 The 0.5.0 expansion includes all configured inserter/crane tiers, basic through express belts/undergrounds/splitters, optional AAI loaders, their capacity and batch-production research, the borate-to-boron material chain, electrolysis products, glassworks, stock furnaces and all high-pressure furnace tiers. Middle oil teaches boiling fractions; gasoline teaches octane rating. Coalification is kept on raw coal, while the shared coal/charcoal fuel item gets its own explanation.
+
+The 0.6.0 pass adds electronics components, circuit boards and assembly equipment; copper preparation, extraction and casting; poles, pipes, boilers and heat exchangers; 31 source-reviewed distilator/tar-category processes; and related research and upstream materials. It distinguishes copper preparation grades from assay percentages, resistor power ratings from resistance, and steam temperature from pressure. Hidden helpers and a recipe moved to the cracker category are explicitly excluded from the distilator family.
 
 This is deliberately curated coverage, **not every unlocked Py recipe**. English content only. No runtime AI generation, gameplay advice, real-world operating instructions, balance changes or settings. Runtime code provides a local feedback dialog and translated recipe search, not gameplay mechanics.
 
@@ -83,7 +85,7 @@ Examples of the expected scope—not claims that these wider audits are already 
 - **Transport belt:** belts, underground belts and splitters across the relevant upgrade family, plus their unlocking technologies and prerequisites—not just the basic belt.
 - **Diborane:** the related boron-processing family, its actual unlocking technology package and prerequisite chain, keeping the synthesis recipe and fluid explanation distinct.
 
-The local 0.5.0 family audit applies this contract to both logged flags and the reported Diborane attempt. Its inventory preserves the full current/future scope, exact IDs, prerequisite edges, recovered unlock packages, upgrade choices and remaining gaps. Player-specific audit files under `audits/` are intentionally excluded from Git; run the workflow against your own profile to generate a local review.
+The local 0.6.0 audit applies this contract to all nine logged flags, carrying forward the earlier Diborane work. Its inventory preserves the full current/future scope, exact IDs, prerequisite edges, recovered unlock packages, upgrade choices and remaining gaps. Player-specific reports under `audits/0.6.0-before/` and `audits/0.6.0-after/` are intentionally excluded from Git; run the workflow against your own profile to generate a local review. Automated `review-required` dispositions are not silently converted into scientific approval or log acknowledgements.
 
 ## Repeatable corpus and feedback workflow
 
@@ -125,7 +127,7 @@ The managed `py-research-dossier` skill routes corpus/flag work here; `factorio-
 
 ## Text boundary and compatibility
 
-[info.json](info.json) declares the required Py modules, `flib` and minimum reviewed versions. Hardmode, Fusion Energy and AAI Loaders have explicit optional ordering. `data-final-fixes.lua` runs after those dependencies and uses **Py's existing `py.add_to_description` helper** to append native `custom_tooltip_fields`.
+[info.json](info.json) declares the required Py modules, `flib` and minimum reviewed versions. Hardmode, Fusion Energy, Industry, High Tech, Alternative Energy, AAI Loaders and the floating-pole mod have explicit optional ordering. `data-final-fixes.lua` runs after those dependencies and uses **Py's existing `py.add_to_description` helper** to append native `custom_tooltip_fields`.
 
 Original names, `localised_description` values, warnings and existing custom fields remain unchanged. A shallow copy isolates each tooltip array before appending, so notes cannot leak into another prototype sharing that array. No ingredients, results, times, unlocks, productivity, fuel values, machine statistics or visibility flags are changed.
 
@@ -163,22 +165,22 @@ Content validation reads `../factorio-llm-docs/llm-docs/2.1.21/prototype-api.jso
 
 After editing content, run `generate`; after editing authored Lua, run `format`. `verify` checks content budgets, citation/target validity, generated-file freshness, Lua formatting, Luacheck and regression tests. Updating reviewed Py source pins requires a deliberate source review, not a checksum-only refresh. Pins describe reviewed inputs, not automatic discovery of the currently enabled mod set.
 
-Packaging writes `dist/py-research-dossier_0.5.0.zip`, its SHA256 sidecar and `.factorio-test/package-manifest.json`. Only runtime/data-stage Lua, English locale, metadata, changelog and license files are shipped; development tools, tests, audit inventories, source archives and replay data are excluded. ZIP members have fixed timestamps, stable order and byte-for-byte verification against source.
+Packaging writes `dist/py-research-dossier_0.6.0.zip`, its SHA256 sidecar and `.factorio-test/package-manifest.json`. Only runtime/data-stage Lua, English locale, metadata, changelog and license files are shipped; development tools, tests, audit inventories, source archives and replay data are excluded. ZIP members have fixed timestamps, stable order and byte-for-byte verification against source.
 
 Installation is separate. Use LLL's existing canonical local-mod workflow when installation is explicitly requested; do not manually edit the profile or select an old save by assumption.
 
 ## Verification evidence and limits
 
-For 0.5.0, the exercised offline smoke checks cover:
+For 0.6.0, the exercised offline checks cover:
 
-- Content generation: 121 dossiers, 204 unique qualified targets, 51 scientific source locators.
-- Actual data-stage entrypoint replay: all 204 annotations, 66 placement-item/entity pairs and 515 covered Crafting recipe routes. Original fields remain unchanged except appended tooltip fields; every locale reference resolves. Each composed product card has at most one research note, and process notes are not copied into product cards.
-- Actual feedback module with the generated catalogue: ten records across enabled/disabled optional-mod, startup-setting and feature-flag contexts. Recipe identity and item/entity note ownership are preserved. This uses the offline API boundary model and does not write the user's log.
-- Saved-progression audit: all 11 current family Crafting recipes have a process or product lesson. Across their much larger prerequisite-package slice, 75 of 341 current Crafting recipes have a lesson; the other 266 remain explicitly recorded gaps, not claimed coverage.
+- Content generation: 251 dossiers, 456 unique qualified targets, 98 scientific source locators and no corpus editorial-review signals.
+- Actual data-stage entrypoint replay: all 456 annotations, 116 placement-item/entity pairs and 797 covered Crafting recipe routes. Original fields remain unchanged except appended tooltip fields; every locale reference resolves. Each composed product card has at most one research note, and process notes are not copied into product cards.
+- All 30 regression tests pass, with zero Lua lint warnings/errors and a passing formatting check. Feedback tests exercise enabled/disabled optional-mod, startup-setting and feature-flag contexts, exact recipe identity and item/entity note ownership using an offline API boundary model.
+- Saved-progression audit: 38 of 39 current family Crafting routes have verified process/product coverage; the remaining crane route has an unverified startup condition, not an invented coverage claim. Across the larger prerequisite-package slice, 124 of 343 current Crafting recipes have a verified lesson, 218 have none and one is conditional. This reduces no-note routes from 268 on the same save; it does not claim comprehensive coverage of every upstream recipe.
 
 Regression coverage includes creation-condition combinations, absent optional settings, shared-array isolation, atomic missing-target failure, duplicate ownership, typed feedback identities, crafting visibility/unlock transitions, translated search, delayed translations, pagination, a recipe disabled while the dialog is open, draft preservation and the 0.3.0 draft migration. These are offline API/annotation tests, not native UI tests.
 
-The replay input is **historical Factorio 2.1.19**, captured **2026-09-17T18:18:10.879Z**. It contains older Py versions and no player research state. Replay explicitly enables the source-conditional families; this is not a recovery of that capture's startup settings. Its 204 selected annotation targets contain 37 explicit descriptions but no existing custom tooltip fields; preservation of custom fields is exercised separately with the real current helper. Fully annotated prototype classes need no invented unselected sentinel. The 515 routes are potential covered hovers across the historical graph, **not 515 unlocked recipes in the current save**. Current availability is assessed separately from the saved 2.1.21 state and documented in the audit.
+The replay input is **historical Factorio 2.1.19**, captured **2026-09-17T18:18:10.879Z**. It contains older Py versions and no player research state. Replay explicitly enables the source-conditional families; this is not a recovery of that capture's startup settings. Its 456 selected annotation targets contain 53 explicit descriptions but no existing custom tooltip fields; preservation of custom fields is exercised separately with the real current helper. Fully annotated prototype classes need no invented unselected sentinel. The 797 routes are potential covered hovers across the historical graph, **not 797 unlocked recipes in the current save**. Current availability is assessed separately from the saved 2.1.21 state and documented in the audit.
 
 Reproduce the existing-capture smoke without launching the game:
 
@@ -188,7 +190,7 @@ mise run smoke -- \
   --snapshot "$HOME/workspace/factorio-llm-docs/.work/factoriopedia-VoWe9g/snapshot.json"
 ```
 
-The runner checks the recorded capture identity and input digest, executes the actual data-stage entrypoint, compares complete selected prototypes and writes `.factorio-test/smoke-report.json`. `.factorio-test/source-manifest.json` records the 66 inspected source-file fingerprints and the helper digest. These generated local receipts are not shipped.
+The runner checks the recorded capture identity and input digest, executes the actual data-stage entrypoint, compares complete selected prototypes and writes `.factorio-test/smoke-report.json`. `.factorio-test/source-manifest.json` records the 154 inspected source-file fingerprints and the helper digest. These generated local receipts are not shipped.
 
 The user's 0.1.0 screenshots established that native machine tooltips combined the item and entity notes, and that the headings/paragraphs were too prominent. Version 0.2.0 removes the duplicate ownership and uses shorter, regular-font notes. The offline composition checks model that observed behaviour; they are not screenshots.
 

@@ -162,7 +162,16 @@ for _, entry in ipairs(catalogue) do
     end
 end
 print("Entry point replayed: " .. count .. " targets; every original prototype field preserved except appended custom_tooltip_fields.")
-for _, target in ipairs({{"assembling-machine", "tar-processing-unit"}, {"fluid", "coal-gas"}, {"item", "raw-coal"}, {"item", "ash"}, {"item", "kerogen"}, {"module", "fawogae"}, {"module", "ulric"}, {"item", "grade-1-iron"}, {"item", "grade-1-zinc"}, {"recipe", "diborane"}, {"fluid", "diborane"}, {"inserter", "burner-inserter"}, {"transport-belt", "transport-belt"}}) do
+for _, target in ipairs({
+    {"assembling-machine", "tar-processing-unit"}, {"fluid", "coal-gas"}, {"item", "raw-coal"},
+    {"item", "ash"}, {"item", "kerogen"}, {"module", "fawogae"}, {"module", "ulric"},
+    {"item", "grade-1-iron"}, {"item", "grade-1-zinc"}, {"recipe", "diborane"}, {"fluid", "diborane"},
+    {"inserter", "burner-inserter"}, {"transport-belt", "transport-belt"},
+    {"underground-belt", "underground-belt"}, {"electric-pole", "small-electric-pole"},
+    {"pipe", "pipe"}, {"boiler", "boiler"}, {"assembling-machine", "distilator"},
+    {"assembling-machine", "electronics-factory-mk01"}, {"item", "inductor1"},
+    {"item", "capacitor1"}, {"recipe", "copper-plate"}, {"item", "copper-plate"}, {"recipe", "latex-slab"}
+}) do
     local fields = raw[target[1]][target[2]].custom_tooltip_fields
     print(target[1] .. "/" .. target[2] .. "\\n" .. localise(fields[#fields - 1].value, 0))
 end
