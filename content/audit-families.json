@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "id": "inserters-and-cranes",
+      "targets": [
+        "inserter/burner-inserter",
+        "inserter/inserter",
+        "inserter/long-handed-inserter",
+        "inserter/fast-inserter",
+        "inserter/bulk-inserter",
+        "inserter/py-stack-inserter",
+        "inserter/crane-mk01",
+        "inserter/crane-mk02",
+        "inserter/crane-mk03",
+        "inserter/crane-mk04"
+      ],
+      "recipes": [],
+      "technologies": [
+        "fast-inserter",
+        "bulk-inserter",
+        "inserter-capacity-bonus-1",
+        "inserter-capacity-bonus-2",
+        "inserter-capacity-bonus-3",
+        "inserter-capacity-bonus-4",
+        "inserter-capacity-bonus-5",
+        "inserter-capacity-bonus-6",
+        "inserter-capacity-bonus-7",
+        "fast-inserter-2",
+        "bulk-inserter-2"
+      ],
+      "evidence": [
+        "audits/0.5.0-family-audit.md: inspected stock/Py inserter placement, tier and batch-manufacturing relationships",
+        "content/game-sources.json: coal-entity-updates, base-technologies, improved-recipes, petroleum-technologies"
+      ],
+      "exclusions": [
+        "A catalyst return that consumes at least as many inserters as it returns is not an inserter-production route."
+      ]
+    },
+    {
+      "id": "conveyors-and-loaders",
+      "targets": [
+        "transport-belt/transport-belt",
+        "transport-belt/fast-transport-belt",
+        "transport-belt/express-transport-belt",
+        "underground-belt/underground-belt",
+        "underground-belt/fast-underground-belt",
+        "underground-belt/express-underground-belt",
+        "splitter/splitter",
+        "splitter/fast-splitter",
+        "splitter/express-splitter",
+        "loader-1x1/aai-loader",
+        "loader-1x1/aai-fast-loader",
+        "loader-1x1/aai-express-loader"
+      ],
+      "recipes": [],
+      "technologies": [
+        "logistics",
+        "logistics-2",
+        "logistics-3",
+        "py-transport-belt-capacity-1",
+        "py-transport-belt-capacity-2",
+        "py-transport-belt-capacity-3",
+        "py-transport-belt-capacity-4",
+        "py-transport-belt-capacity-5",
+        "py-transport-belt-capacity-6",
+        "py-transport-belt-capacity-7",
+        "aai-loader",
+        "aai-fast-loader",
+        "aai-express-loader"
+      ],
+      "evidence": [
+        "audits/0.5.0-family-audit.md: source-reviewed tiers, placement targets and AAI/Hardmode overrides",
+        "content/game-sources.json: base-transport-belts, base-technologies, py-belt-capacity, aai-loader-tiers"
+      ],
+      "exclusions": [
+        "Hidden engine loader helpers, linked belts, lane splitters and AAI helper pipes are not player-buildable equivalents.",
+        "Space Age is not enabled; its belt tiers are excluded. BeltThreadUpgrades cursor tools modify these tiers, not a new production family."
+      ]
+    },
+    {
+      "id": "distillation-and-thermal-conversion",
+      "targets": [
+        "assembling-machine/distilator",
+        "assembling-machine/distilator-mk02",
+        "assembling-machine/distilator-mk03",
+        "assembling-machine/distilator-mk04",
+        "assembling-machine/tar-processing-unit",
+        "assembling-machine/tar-processing-unit-mk02",
+        "assembling-machine/tar-processing-unit-mk03",
+        "assembling-machine/tar-processing-unit-mk04"
+      ],
+      "recipes": [
+        "recipe/tar-distilation",
+        "recipe/stone-distilation",
+        "recipe/oleochemicals-distilation",
+        "recipe/distilled-raw-coal",
+        "recipe/syngas-distilation",
+        "recipe/oil-refining",
+        "recipe/bitumen-refining",
+        "recipe/anthraquinone-from-anthracene",
+        "recipe/aromatics-from-naphthalene",
+        "recipe/naphthalene-solvent",
+        "recipe/light-oil-aromatics",
+        "recipe/anthracene-gasoline-cracking",
+        "recipe/residual-mixture-distillation",
+        "recipe/pitch-refining",
+        "recipe/urea-decomposition",
+        "recipe/cumene-distilation",
+        "recipe/benzene-aromatics",
+        "recipe/tar-talloil",
+        "recipe/coarse-tar",
+        "recipe/coal-slurry-fuel",
+        "recipe/plastics-mk03",
+        "recipe/liquid-air-distilation",
+        "recipe/liquid-rich-gas-distilation",
+        "recipe/d2o-distilation",
+        "recipe/lignin-to-aromatics",
+        "recipe/latex-slab",
+        "recipe/bio-oil-1",
+        "recipe/phenol-02",
+        "recipe/tio2",
+        "recipe/tar-to-carbolic",
+        "recipe/acrylic",
+        "recipe/tar-refining",
+        "recipe/tar-refining-tops"
+      ],
+      "technologies": [],
+      "evidence": [
+        "pycoalprocessing_3.1.7.zip:pycoalprocessing/prototypes/buildings/distilator.lua and tar-processing-unit.lua; distinct distilator and tar categories",
+        "Active recipe sources in pycoalprocessing 3.1.7, pyrawores 3.1.4, pypetroleumhandling 3.1.3, pyhightech 3.1.5, pyfusionenergy 3.1.5, pyalienlife 3.1.8 and pyalternativeenergy 3.2.9; see audits/workflow-audit.md",
+        "Source-save Factory Planner final recipe relationships supply actual recipe products/unlock owners after overrides"
+      ],
+      "exclusions": [
+        "Petroleum unused-recipes.lua is not loaded; commented scrude distilator definitions are not members. Active scrude-refining runs in the reformer.",
+        "Shared machinery is not proof of a shared physical process: solid-feed thermal conversion, liquid fractionation and reactive cracking require distinct explanations."
+      ]
+    },
+    {
+      "id": "electronics-factories-and-components",
+      "targets": [
+        "assembling-machine/electronics-factory-mk01",
+        "assembling-machine/electronics-factory-mk02",
+        "assembling-machine/electronics-factory-mk03",
+        "assembling-machine/electronics-factory-mk04",
+        "item/inductor1",
+        "item/inductor2",
+        "item/inductor3",
+        "item/capacitor1",
+        "item/capacitor2",
+        "item/capacitor3",
+        "item/resistor1",
+        "item/resistor2",
+        "item/resistor3",
+        "item/vacuum-tube",
+        "item/transistor",
+        "item/diode",
+        "item/diode3",
+        "item/microchip",
+        "item/processor",
+        "item/paradiamatic-resistor",
+        "item/csle-diode",
+        "item/fault-current-inductor",
+        "item/supercapacitor",
+        "item/pi-josephson-junction"
+      ],
+      "recipes": [],
+      "technologies": [
+        "electronics-machines-1",
+        "electronics-machines-2",
+        "electronics-machines-3",
+        "electronics-machines-4"
+      ],
+      "evidence": [
+        "pyhightech_3.1.5.zip:pyhightech/prototypes/buildings/electronics-factory-mk01.lua through mk04; shared electronic category and electronics-factory upgrade group",
+        "pyhightech/prototypes/recipes/recipes.lua: passive components, semiconductor devices and advanced components in electronic category",
+        "pyalienlife/prototypes/updates/pyhightech-updates.lua: mk01 switches to ceramic unlock and distilator/fluid-drill inputs; current saved final relationships retained"
+      ],
+      "exclusions": [
+        "The electronics factory is not a single universal semiconductor fabrication process; passive components, vacuum devices and semiconductor components need separate concepts."
+      ]
+    },
+    {
+      "id": "copper-preparation-and-metallurgy",
+      "targets": [
+        "item/copper-ore",
+        "item/copper-plate",
+        "item/grade-1-copper",
+        "item/grade-2-copper",
+        "item/grade-3-copper",
+        "item/grade-4-copper",
+        "item/copper-low-dust",
+        "item/copper-rejects",
+        "item/low-grade-copper",
+        "item/high-grade-copper",
+        "item/sintered-copper",
+        "item/reduced-copper",
+        "fluid/copper-pulp-01",
+        "fluid/copper-pulp-02",
+        "fluid/copper-pulp-03",
+        "fluid/copper-pulp-04",
+        "fluid/copper-solution",
+        "fluid/copper-pregnant-solution",
+        "fluid/molten-copper"
+      ],
+      "recipes": [
+        "recipe/grade-2-copper",
+        "recipe/grade-1-copper-crush",
+        "recipe/grade-3-copper",
+        "recipe/copper-rejects-recrush",
+        "recipe/grade-4-copper",
+        "recipe/classify-low-grade",
+        "recipe/wash-coper-low-dust",
+        "recipe/high-grade-copper",
+        "recipe/reduction-copper",
+        "recipe/sinter-copper-2",
+        "recipe/molten-copper-01",
+        "recipe/molten-copper-02",
+        "recipe/molten-copper-03",
+        "recipe/molten-copper-04",
+        "recipe/copper-plate",
+        "recipe/copper-plate-4",
+        "recipe/copper-plate-1",
+        "recipe/low-grade-smelting-copper",
+        "recipe/hotair-copper-plate-1"
+      ],
+      "technologies": [
+        "copper-mk01",
+        "copper-mk02",
+        "copper-mk03",
+        "copper-mk04",
+        "copper-mk05"
+      ],
+      "evidence": [
+        "pyrawores_3.1.4.zip:pyrawores/prototypes/recipes/recipes-copper.lua; prototypes/updates/base-updates.lua; prototypes/updates/pyfusionenergy-updates.lua",
+        "Source-save Factory Planner final index resolves encoded combination-cache products, ingredients and unlock owners; initial recipe declarations are not treated as final",
+        "PyAlienLife TUR registry preserves all sibling Simik choices when copper-recovery routes select the package"
+      ],
+      "exclusions": [
+        "Copper-cable/coil/lamp consumers are downstream uses, not plate producers; include them when their technology package is in the closure, not by copper in the name.",
+        "Copper-mine construction is equipment rather than plate production; its unlocking package remains part of the audit."
+      ]
+    },
+    {
+      "id": "electric-distribution",
+      "targets": [
+        "electric-pole/small-electric-pole",
+        "electric-pole/medium-electric-pole",
+        "electric-pole/big-electric-pole",
+        "electric-pole/substation",
+        "electric-pole/nexelit-power-pole",
+        "electric-pole/nexelit-substation",
+        "electric-pole/floating-electric-pole"
+      ],
+      "recipes": [],
+      "technologies": [
+        "electric-energy-distribution-1",
+        "electric-energy-distribution-2",
+        "electric-energy-distribution-3",
+        "electric-energy-distribution-4",
+        "electric-energy-distribution-5"
+      ],
+      "evidence": [
+        "base/prototypes/entity/entities.lua and recipe.lua: stock pole placement targets and production routes",
+        "pycoalprocessing/prototypes/recipes/recipes.lua: small-electric-pole-2 is a treated-wood alternative producing the same small pole",
+        "pyalternativeenergy/prototypes/updates/base-updates.lua:469-473 and buildings/nexelit-power-pole.lua, nexelit-substation.lua: distribution roles and retiered unlocks",
+        "cargo-ships-floating-electric-pole 2.1.0 data.lua/data-final-fixes.lua and pypostprocessing/prototypes/functions/compatibility/cargo-ships.lua: water-only zero-supply-area pole and current prerequisite remap",
+        "pyhightech/prototypes/technologies/electronics.lua replaces the base electronics definition with effects={}; saved final small-pole owner is steam-power, not both stock electronics and steam-power"
+      ],
+      "exclusions": [
+        "These are related distribution roles, not one linear next_upgrade chain.",
+        "The hidden Nexelit legacy entity is not another craftable tier; historical-only or_pole has no current source-backed production route."
+      ]
+    },
+    {
+      "id": "fluid-conduits",
+      "targets": [
+        "pipe/pipe",
+        "pipe-to-ground/pipe-to-ground",
+        "pipe/niobium-pipe",
+        "pipe-to-ground/niobium-pipe-to-ground",
+        "pipe/ht-pipes",
+        "pipe-to-ground/ht-pipes-to-ground",
+        "pipe/vessel",
+        "pipe-to-ground/vessel-to-ground"
+      ],
+      "recipes": [],
+      "technologies": [],
+      "evidence": [
+        "base/prototypes/entity/entities.lua and recipe.lua: ordinary and underground pipes",
+        "pyindustry/prototypes/pipes/niobium-pipes.lua; pyhightech/prototypes/pipes/ht-pipes.lua; pyalienlife/prototypes/biofluid/vessel.lua: specialized conduit types and connection categories",
+        "pyrawores/prototypes/recipes/recipes-casting.lua and recipes/pyhightech-recipes.lua plus active PyAlienLife/PPH overlays: casting alternatives; final saved index also retains generated hot-air casting variants",
+        "pycoalprocessing/prototypes/updates/pyindustry-updates.lua: niobium pipes move to niobium research"
+      ],
+      "exclusions": [
+        "Pumps/valves regulate flow and storage-tank gauges measure it; they are neighbors, not pipe tiers. Their recipes remain included if selected by a full technology package.",
+        "Heat pipes transport heat, not fluid. Vessels are dedicated biofluid conduits, not interchangeable ordinary pipes.",
+        "The py-braided-pipes startup value is not recovered: do not infer connectivity solely from shared replacement groups.",
+        "Automatic underground connectors add placement behavior, not a new recipe tier; disabled pipe-pack add-ons are excluded."
+      ]
+    },
+    {
+      "id": "boilers-and-steam-heat-exchange",
+      "targets": [
+        "boiler/boiler",
+        "boiler/heat-exchanger",
+        "assembling-machine/oil-boiler-mk01",
+        "assembling-machine/py-electric-boiler",
+        "assembling-machine/py-heat-exchanger",
+        "assembling-machine/py-heat-exchanger-mk02",
+        "assembling-machine/py-heat-exchanger-mk03",
+        "assembling-machine/py-heat-exchanger-mk04",
+        "assembling-machine/simik-boiler"
+      ],
+      "recipes": [
+        "recipe/oil-boiler-water-to-steam",
+        "recipe/electric-boiler-water-to-steam",
+        "recipe/he-01",
+        "recipe/he-02",
+        "recipe/he-03",
+        "recipe/he-04",
+        "recipe/he-05",
+        "recipe/geo-he-00",
+        "recipe/geo-he-01",
+        "recipe/geo-he-02",
+        "recipe/geo-he-03",
+        "recipe/steam-250",
+        "recipe/steam-500",
+        "recipe/pressured-steam-1",
+        "recipe/pressured-steam-2",
+        "recipe/pressured-steam-3",
+        "recipe/pressured-steam-4"
+      ],
+      "technologies": [
+        "nonrenewable-mk01",
+        "nonrenewable-mk02",
+        "nonrenewable-mk03",
+        "nonrenewable-mk04",
+        "coalplant-mk01",
+        "coalplant-mk02",
+        "coalplant-mk03",
+        "coalplant-mk04",
+        "oilplant-mk01",
+        "oilplant-mk02",
+        "oilplant-mk03",
+        "oilplant-mk04",
+        "biomassplant-mk01",
+        "biomassplant-mk02",
+        "biomassplant-mk03",
+        "biomassplant-mk04",
+        "gasplant-mk01",
+        "gasplant-mk02",
+        "gasplant-mk03",
+        "gasplant-mk04",
+        "geothermal-power-mk01",
+        "geothermal-power-mk02",
+        "geothermal-power-mk03",
+        "geothermal-power-mk04"
+      ],
+      "evidence": [
+        "base/prototypes/entity/entities.lua and recipe.lua: stock boiler and heat exchanger",
+        "pyhardmode/prototypes/oil-boiler.lua: live oil boiler becomes an assembling-machine with fixed water-to-steam recipe; legacy boiler remains hidden",
+        "pyalternativeenergy/prototypes/buildings/electric-boiler.lua and heat-exchanger tiers; current saved final recipes he-01..05 and geo-he-00..03",
+        "pyalienlife Simik steam/pressured-steam recipes and actual TUR registry; current saved final unlock owners, not source-declared initial prerequisites"
+      ],
+      "exclusions": [
+        "Solar molten-salt collectors are thermal neighbors, not water-to-steam boiler equivalents.",
+        "Steam engines/turbines consume steam and heat pipes transport heat; their complete selected technology packages are retained, without calling them boiler tiers.",
+        "Simik hot-air equipment is distinct from steam production."
+      ]
+    }
+  ]
+}

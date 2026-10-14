@@ -1,0 +1,7 @@
+node_modules/
+.factorio-test/
+dist/
+.DS_Store
+
+# Local player feedback, progression and installation evidence are not source.
+audits/
