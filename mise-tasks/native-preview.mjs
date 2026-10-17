@@ -27,7 +27,7 @@ async function main() {
   const language = normalizeLocale(process.argv[3] || "en");
   const gallery = profile === "gallery";
   const suite = gallery ? "Mod Portal gallery" : "native UI gallery";
-  const expected = gallery ? 5 : 9;
+  const expected = gallery ? 5 : 10;
   const imageDirectory = gallery ? "gallery" : "release-ui";
   const context = await prepareProfile(profile, language);
   const marker = join(context.directory, "script-output/native-preview-complete.txt");

@@ -5,11 +5,12 @@ handler.add_libraries({
     require("__flib__.gui"),
     require("location_location_location.translation"),
     require("location_location_location.event_handlers.planner"),
+    require("location_location_location.undergrounds"),
 })
 
 if script.active_mods["factorio-test"] then
     require("__factorio-test__/init")(
-        { "tests.planner", "tests.native_preview", "tests.native_gallery" },
+        { "tests.planner", "tests.undergrounds", "tests.native_preview", "tests.native_gallery" },
         { log_passed_tests = true, tag_blacklist = { "native-ui" } }
     )
 end

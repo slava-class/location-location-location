@@ -81,7 +81,7 @@ export function profileConfig(profile, directory, engine, language = "en") {
     modPath: resolve("."), factorioPath: engine.executable, dataDirectory: directory,
     outputFile: join(directory, "results.json"), forbidOnly: true, outputTimeout: 60,
     mods: ["quality", "elevated-rails", "space-age", "recycler"].map(name => `${name}=${profile === "space-age"}`),
-    factorioArgs: graphics ? ["--disable-migration-window", "--disable-audio", "--window-size", profile === "gallery" ? "1920x1080" : "1600x1000", "--graphics-quality", profile === "gallery" ? "high" : "medium"] : [],
+    factorioArgs: graphics ? ["--disable-migration-window", "--disable-audio", "--window-size", profile === "gallery" ? "1920x1080" : "1600x1000", "--force-graphics-preset", "extreme"] : [],
     test: {default_timeout: 120, log_passed_tests: true, tag_blacklist: profile === "native" ? ["portal-gallery"] : graphics ? [] : ["native-ui"],
       ...(graphics ? {tag_whitelist: [profile === "gallery" ? "portal-gallery" : "native-ui"], game_speed: 1} : {})},
   };

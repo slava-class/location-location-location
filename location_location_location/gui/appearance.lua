@@ -8,6 +8,17 @@ appearance.row =
 appearance.navigation = { width = 240, height = 524, list_height = 444, padding = 4, scrollbar_width = 12 }
 appearance.highlight_source = "move_tag"
 appearance.picker = { width = 400, group_widths = { 66, 67, 67, 66, 67, 67 } }
+appearance.underground = {
+    sprite = prefix .. "underground_warning_arrow",
+    mouth_scale = 1,
+    span_scale = 0.9,
+    mouth_tint = { r = 1, g = 0.34, b = 0, a = 1 },
+    span_tint = { r = 1, g = 0.34, b = 0, a = 0.75 },
+    pulse_interval = 6,
+    pulse_period = 216,
+    mouth_pulse_floor = 0.6,
+    span_pulse_floor = 0.6,
+}
 appearance.close_sprite = prefix .. "close_black"
 appearance.styles = {
     titlebar = prefix .. "titlebar_toggle",
@@ -108,6 +119,22 @@ function appearance.register()
         ---@cast sprite data.SpritePrototype
         data:extend({ sprite })
     end
+    local triangle = {
+        filename = "__core__/graphics/arrows/underground-lines.png",
+        x = 78,
+        y = 23,
+        width = 36,
+        height = 20,
+        scale = 0.5,
+    }
+    -- Yellow + its additive blue complement produces a neutral triangle with
+    -- the original alpha. Runtime tint can then supply every color channel.
+    local complement = table.deepcopy(triangle)
+    complement.invert_colors = true
+    complement.blend_mode = "additive"
+    data:extend({
+        { type = "sprite", name = appearance.underground.sprite, layers = { triangle, complement } },
+    })
     local styles = data.raw["gui-style"].default
     styles[appearance.styles.titlebar] = {
         type = "button_style",

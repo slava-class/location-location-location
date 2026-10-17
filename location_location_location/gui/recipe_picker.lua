@@ -214,6 +214,12 @@ function picker.body(player, session, click, search)
         toggle,
     }
     local body = state.product and recipe_body(state, click) or product_body(state, click)
+    table.insert(body, 1, {
+        type = "label",
+        name = "selected_recipe_count",
+        caption = ui.caption("recipe-selection", #session.draft.recipes),
+        style_mods = { width = 426, single_line = false },
+    })
     local back_to_editor = ui.button(
         click,
         "back_to_plan",
@@ -251,12 +257,29 @@ function picker.refresh(player, session)
     refs.focus_search.toggled = query ~= ""
     local researched_only = model.preferences(player).researched_only
     local first_visible, selected_visible
+    local selected_recipes, selected_products = {}, {}
+    for _, name in ipairs(session.draft.recipes) do
+        selected_recipes[name] = true
+        ---@type LuaRecipePrototype?
+        local recipe = prototypes.recipe[name]
+        if recipe then
+            for _, product in ipairs(recipe.products) do
+                if
+                    product.independent_probability > 0
+                    and product.shared_probability.max > product.shared_probability.min
+                then
+                    selected_products[product.type .. "/" .. product.name] = true
+                end
+            end
+        end
+    end
     for _, group in ipairs(state.groups) do
         local any_visible = false
         if state.product then
             for _, item in ipairs(group.items) do
                 local visible = recipes.matches(item.entry, query, researched_only)
                 refs[item.button].visible = visible
+                refs[item.button].toggled = selected_recipes[item.entry.name] == true
                 any_visible = any_visible or visible
             end
             refs[group.pane].visible = any_visible
@@ -266,6 +289,7 @@ function picker.refresh(player, session)
                 for _, item in ipairs(subgroup.items) do
                     local visible = recipes.matches(item.entry, query, researched_only)
                     refs[item.button].visible = visible
+                    refs[item.button].toggled = selected_products[item.entry.key] == true
                     subgroup_visible = subgroup_visible or visible
                 end
                 refs[subgroup.name].visible = subgroup_visible

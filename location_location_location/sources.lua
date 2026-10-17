@@ -3,18 +3,24 @@ local sources = {}
 local machine_types = { "assembling-machine", "furnace", "rocket-silo" }
 local render_modes = { "game", "chart" }
 
-function sources.closest(player, draft, key)
+---@param player LuaPlayer
+---@param draft RecipePlan
+---@param direction ConnectionDirection
+---@param key string
+function sources.closest(player, draft, direction, key)
     if player.force.index ~= draft.force_index then
         return nil, { "location-location-location.wrong-force" }, "error"
     end
     if player.surface_index ~= draft.surface_index then
         return nil, { "location-location-location.wrong-surface" }, "error"
     end
-    local ingredient = model.ingredient(draft, key)
-    if not ingredient then
-        return nil, { "location-location-location.choose-ingredient" }, "info"
+    local connection = model.connection(draft, direction, key)
+    if not connection then
+        return nil, { "location-location-location.choose-connection" }, "info"
     end
     local surface, force, origin = player.surface, player.force, player.position
+    ---@cast force LuaForce
+    ---@cast origin MapPosition.struct
     local nearest, distance
     local matching_recipes = {}
     for _, entity in pairs(surface.find_entities_filtered({ type = machine_types, force = force })) do
@@ -24,12 +30,18 @@ function sources.closest(player, draft, key)
             local matches = matching_recipes[recipe.name]
             if matches == nil then
                 matches = false
-                for _, product in pairs(recipe.products) do
+                local entries = direction == "input" and recipe.products or recipe.ingredients
+                for _, entry in pairs(entries) do
                     if
-                        product.type == ingredient.type
-                        and product.name == ingredient.name
-                        and product.independent_probability > 0
-                        and product.shared_probability.max > product.shared_probability.min
+                        entry.type == connection.type
+                        and entry.name == connection.name
+                        and (
+                            direction == "output"
+                            or (
+                                entry.independent_probability > 0
+                                and entry.shared_probability.max > entry.shared_probability.min
+                            )
+                        )
                     then
                         matches = true
                         break
@@ -39,6 +51,7 @@ function sources.closest(player, draft, key)
             end
             if matches then
                 local position = entity.position
+                ---@cast position MapPosition.struct
                 local chunk = { x = math.floor(position.x / 32), y = math.floor(position.y / 32) }
                 -- Platform surfaces do not chart chunks; their owning force can
                 -- already survey its machines in remote view.
@@ -57,7 +70,9 @@ function sources.closest(player, draft, key)
         end
     end
     if not nearest then
-        return nil, { "location-location-location.no-producer" }, "info"
+        return nil,
+            { "location-location-location." .. (direction == "input" and "no-producer" or "no-consumer") },
+            "info"
     end
     return nearest
 end
@@ -140,8 +155,8 @@ function sources.refresh(player)
         local surface = game.surfaces[plan.surface_index]
         ---@cast surface LuaSurface?
         if surface then
-            for _, ingredient in ipairs(plan.ingredients) do
-                for key, position in pairs(ingredient.anchors) do
+            for _, connection in model.connections(plan) do
+                for key, position in pairs(connection.anchors) do
                     local qualified = plan.surface_index .. ":" .. key
                     if not seen[qualified] then
                         seen[qualified] = true

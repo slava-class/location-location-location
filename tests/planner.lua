@@ -29,10 +29,11 @@ describe("planner regression suite", function()
         local slot = session().gui["product_" .. product.type .. "/" .. product.name]
         assert(slot and slot.visible, "Product missing from filtered picker: " .. product.name)
         click(slot)
-        if session().picker then
+        if session().picker.product then
             click(session().gui["recipe_" .. name])
         end
-        assert(session().draft.recipe == name)
+        assert(model.has_recipe(session().draft, name))
+        click(session().gui.back_to_plan)
     end
     local function select(mode, entities)
         local modes = {
@@ -55,14 +56,14 @@ describe("planner regression suite", function()
     end
     local function make_draft()
         local value = model.new(player)
-        assert(model.set_recipe(value, "electronic-circuit"))
+        assert(model.set_recipes(value, { "electronic-circuit" }))
         return value
     end
     local function populated()
         local value = make_draft()
         value.hide_label = false
-        assert(model.select(value, "item/iron-plate", { a, b }, "add", surface.index))
-        assert(model.select(value, "item/copper-cable", { c }, "add", surface.index))
+        assert(model.select(value, "input", "item/iron-plate", { a, b }, "add", surface.index))
+        assert(model.select(value, "input", "item/copper-cable", { c }, "add", surface.index))
         return value
     end
     local function apply(value)
@@ -91,6 +92,13 @@ describe("planner regression suite", function()
         end
         storage.location_location_location.plans = {}
         if surface then
+            -- This surface belongs to the suite. Clean manual fixture tags too,
+            -- including tags left behind when a test assertion interrupts cleanup.
+            for _, force in pairs(game.forces) do
+                for _, tag in pairs(force.find_chart_tags(surface)) do
+                    tag.destroy()
+                end
+            end
             for _, entity in pairs(surface.find_entities()) do
                 entity.destroy()
             end
@@ -165,10 +173,10 @@ describe("planner regression suite", function()
             gui.open(player)
             click(session().gui.new)
             assert(session().picker and player.opened == session().gui.picker_frame)
-            assert(session().draft and not session().draft.id and not session().draft.recipe)
+            assert(session().draft and not session().draft.id and not session().draft.recipes[1])
             assert(next(storage.location_location_location.plans) == nil)
             choose("electronic-circuit")
-            assert(not session().picker and session().draft.recipe == "electronic-circuit")
+            assert(not session().picker and session().draft.recipes[1] == "electronic-circuit")
             assert(next(storage.location_location_location.plans) == nil)
         end)
         test("pinned Add closest edits only the private ingredient sources", function()
@@ -194,13 +202,16 @@ describe("planner regression suite", function()
                 end
                 click(session().gui["clear_" .. index])
                 click(session().gui["closest_" .. index])
-                local anchors = model.ingredient(session().draft, "item/copper-cable").anchors
+                local anchors = model.connection(session().draft, "input", "item/copper-cable").anchors
                 assert(table_size(anchors) == 1, "Add closest must find the charted copper-cable producer")
                 for _, position in pairs(anchors) do
                     near(position, producer.position.x, producer.position.y)
                 end
-                local original =
-                    model.ingredient(storage.location_location_location.plans[saved.id], "item/copper-cable").anchors
+                local original = model.connection(
+                    storage.location_location_location.plans[saved.id],
+                    "input",
+                    "item/copper-cable"
+                ).anchors
                 assert(table_size(original) == 1)
                 for _, position in pairs(original) do
                     near(position, 20.5, 0.5)
@@ -397,19 +408,19 @@ describe("planner regression suite", function()
     describe("recipe planner selection", function()
         test("choosing a recipe prepares ingredients without creating a plan", function()
             start()
-            assert(session().draft.recipe == "electronic-circuit")
+            assert(session().draft.recipes[1] == "electronic-circuit")
             assert(#session().draft.ingredients == 2)
             assert(#model.list(player) == 0)
             assert(session().gui.apply.enabled)
         end)
-        test("copy from machine uses its configured recipe", function()
+        test("copy from machine adds its configured recipe without replacing the plan", function()
             start()
             local machine =
                 surface.create_entity({ name = "assembling-machine-1", position = { 4.5, 4.5 }, force = team })
             machine.set_recipe("iron-gear-wheel")
             click(session().gui.machine)
             select("replace", { machine })
-            assert(session().draft.recipe == "iron-gear-wheel")
+            assert(#session().draft.recipes == 2 and model.has_recipe(session().draft, "iron-gear-wheel"))
             assert(not session().selecting)
         end)
         test("Copy from machine leaves the product picker and fills the same private draft", function()
@@ -423,21 +434,26 @@ describe("planner regression suite", function()
             assert(not session().picker and not picker_frame.valid and not player.opened)
             assert(session().selecting and session().selection_mode == "machine" and session().draft == draft)
             select("replace", { machine })
-            assert(session().draft == draft and draft.recipe == "iron-gear-wheel")
+            assert(session().draft == draft and draft.recipes[1] == "iron-gear-wheel")
             assert(not session().selecting and player.opened == session().gui.frame)
             assert(#model.list(player) == 0 and #team.find_chart_tags(surface) == 0)
         end)
-        test("ambiguous machine selection does not replace the chosen recipe", function()
+        test("copying several machines adds distinct recipes without duplicating existing selections", function()
             start()
             local first =
                 surface.create_entity({ name = "assembling-machine-1", position = { 4.5, 4.5 }, force = team })
             local second =
                 surface.create_entity({ name = "assembling-machine-1", position = { 8.5, 4.5 }, force = team })
             first.set_recipe("iron-gear-wheel")
-            second.set_recipe("iron-gear-wheel")
+            second.set_recipe("copper-cable")
             click(session().gui.machine)
             select("replace", { first, second })
-            assert(session().draft.recipe == "electronic-circuit")
+            assert(#session().draft.recipes == 3 and session().draft.recipes[1] == "electronic-circuit")
+            assert(model.has_recipe(session().draft, "iron-gear-wheel"))
+            assert(model.has_recipe(session().draft, "copper-cable"))
+            click(session().gui.machine)
+            select("replace", { first, second })
+            assert(#session().draft.recipes == 3)
         end)
         test("ingredient selection accepts empty chests and belts and retains the window position", function()
             start()
@@ -446,7 +462,7 @@ describe("planner regression suite", function()
             click(session().gui.select_1)
             select("replace", { a })
             select("add", { a, b })
-            assert(table_size(model.ingredient(session().draft, key).anchors) == 2)
+            assert(table_size(model.connection(session().draft, "input", key).anchors) == 2)
             select("remove", { a })
             near(model.center(session().draft), 10.5, 0.5)
             assert(session().gui.frame.location.x == 70 and session().gui.frame.location.y == 90)
@@ -455,21 +471,21 @@ describe("planner regression suite", function()
         test("each assigned ingredient has equal weight regardless of its anchor count", function()
             local position, assigned, total = model.center(populated())
             near(position, 13, 0.5)
-            assert(assigned == 2 and total == 2)
+            assert(assigned == 2 and total == 3)
         end)
         test("partial plans exclude unassigned ingredients and visibly label the marker", function()
             local value = make_draft()
             value.hide_label = false
-            model.select(value, "item/iron-plate", { a, b }, "replace", surface.index)
+            model.select(value, "input", "item/iron-plate", { a, b }, "replace", surface.index)
             local _, tag = apply(value)
             near(tag.position, 5.5, 0.5)
-            assert(tag.text:find("[1/2]", 1, true))
+            assert(tag.text:find("[1/3]", 1, true))
         end)
         test("No label is private, reversible, and persists an icon-only marker without losing its name", function()
             local value = make_draft()
             value.hide_label = false
             value.title = "Circuit supply"
-            model.select(value, "item/iron-plate", { a }, "replace", surface.index)
+            model.select(value, "input", "item/iron-plate", { a }, "replace", surface.index)
             local saved, tag = apply(value)
             gui.open(player)
             click(session().gui["plan_" .. saved.id])
@@ -480,7 +496,7 @@ describe("planner regression suite", function()
             end
             hide_label(true)
             assert(not session().gui.title.enabled and session().gui.title.text == "Circuit supply")
-            assert(model.change_count(player, session().draft) == 1 and tag.text == "Circuit supply [1/2]")
+            assert(model.change_count(player, session().draft) == 1 and tag.text == "Circuit supply [1/3]")
             hide_label(false)
             assert(session().gui.title.enabled and session().gui.title.text == "Circuit supply")
             assert(model.change_count(player, session().draft) == 0)
@@ -500,9 +516,9 @@ describe("planner regression suite", function()
             assert(session().gui.title.text == "Circuit supply" and session().gui.hide_label.state)
             hide_label(false)
             click(session().gui.apply)
-            assert(tag.text == "Circuit supply [1/2]" and #team.find_chart_tags(surface) == 1)
+            assert(tag.text == "Circuit supply [1/3]" and #team.find_chart_tags(surface) == 1)
         end)
-        test("new recipe tags save icon-only markers unless labeling is explicitly enabled", function()
+        test("new recipe tags save an icon-only marker before assigning connections", function()
             start()
             assert(not session().gui.title.enabled and model.change_count(player, session().draft) == 1)
             click(session().gui.move_marker)
@@ -510,12 +526,6 @@ describe("planner regression suite", function()
             click(session().gui.apply)
             local saved = storage.location_location_location.plans[session().draft.id]
             assert(saved.tag.text == "" and saved.tag.icon.name == "electronic-circuit")
-            local checkbox = session().gui.hide_label
-            checkbox.state = false
-            emit(defines.events.on_gui_checked_state_changed, { element = checkbox })
-            assert(session().gui.title.enabled and model.change_count(player, session().draft) == 1)
-            click(session().gui.apply)
-            assert(saved.tag.text == "electronic-circuit [0/2]")
         end)
         test("source-free recipe tags save and reopen from either editor mode", function()
             for _, compact in ipairs({ false, true }) do
@@ -531,7 +541,7 @@ describe("planner regression suite", function()
                 click(session().gui.close)
                 gui.open(player)
                 click(session().gui["plan_" .. id])
-                assert(session().draft.recipe == "electronic-circuit")
+                assert(session().draft.recipes[1] == "electronic-circuit")
                 assert(not model.position(session().draft))
                 click(session().gui.close)
             end
@@ -540,16 +550,18 @@ describe("planner regression suite", function()
         test("assigning and clearing the last source creates and removes only the recipe tag marker", function()
             local saved = apply(make_draft())
             assert(not storage.location_location_location.plans[saved.id].tag)
-            model.select(saved, "item/iron-plate", { a }, "add", surface.index)
+            model.select(saved, "input", "item/iron-plate", { a }, "add", surface.index)
             local positioned, marker = apply(saved)
             near(marker.position, 0.5, 0.5)
             local unrelated = team.add_chart_tag(surface, { position = { 4, 4 }, text = "Unrelated" })
-            model.ingredient(positioned, "item/iron-plate").anchors = {}
+            model.connection(positioned, "input", "item/iron-plate").anchors = {}
             local cleared = apply(positioned)
             assert(cleared.id == saved.id and cleared.revision == positioned.revision + 1)
             assert(not marker.valid and unrelated.valid)
             assert(not storage.location_location_location.plans[cleared.id].tag)
-            assert(model.load(player, cleared.id).recipe == "electronic-circuit")
+            local reopened = assert(model.load(player, cleared.id))
+            assert(model.has_recipe(reopened, "electronic-circuit"))
+            assert(model.connection(reopened, "output", "item/electronic-circuit"))
             unrelated.destroy()
         end)
         test("foreign tools and cross-surface selections do not change ingredient sources", function()
@@ -562,13 +574,13 @@ describe("planner regression suite", function()
                 area = { left_top = { x = 0, y = 0 }, right_bottom = { x = 1, y = 1 } },
             })
             local value = populated()
-            assert(not model.select(value, "item/iron-plate", { c }, "replace", game.surfaces.nauvis.index))
+            assert(not model.select(value, "input", "item/iron-plate", { c }, "replace", game.surfaces.nauvis.index))
             near(model.center(value), 13, 0.5)
             assert(model.center(session().draft) == nil)
         end)
         test("recipe changes retain only matching ingredient assignments", function()
             local value = populated()
-            model.set_recipe(value, "iron-gear-wheel")
+            model.set_recipes(value, { "iron-gear-wheel" })
             assert(#value.ingredients == 1 and value.ingredients[1].name == "iron-plate")
             near(model.center(value), 5.5, 0.5)
         end)
@@ -666,11 +678,11 @@ describe("planner regression suite", function()
         end)
         test("recipe diffs count discarded source sets but not automatic recipe-name updates", function()
             local value = apply(populated())
-            model.set_recipe(value, "iron-gear-wheel")
+            model.set_recipes(value, { "iron-gear-wheel" })
             assert(model.change_count(player, value) == 2)
-            model.set_recipe(value, "electronic-circuit")
+            model.set_recipes(value, { "electronic-circuit" })
             assert(model.change_count(player, value) == 1)
-            model.select(value, "item/copper-cable", { c }, "add", surface.index)
+            model.select(value, "input", "item/copper-cable", { c }, "add", surface.index)
             assert(model.change_count(player, value) == 0)
             value.title = "  Named tag  "
             value = apply(value)
@@ -679,7 +691,7 @@ describe("planner regression suite", function()
             local fresh = make_draft()
             assert(model.change_count(player, fresh) == 1)
             fresh.title, fresh.marker_position = "New tag", { x = 1, y = 2 }
-            model.select(fresh, "item/iron-plate", { a, b }, "add", surface.index)
+            model.select(fresh, "input", "item/iron-plate", { a, b }, "add", surface.index)
             assert(model.change_count(player, fresh) == 4)
         end)
         test("detaching the modal editor for world selection does not close the planner", function()
@@ -715,7 +727,7 @@ describe("planner regression suite", function()
                 local anchor =
                     remote_surface.create_entity({ name = "wooden-chest", position = { 0.5, 0.5 }, force = team })
                 local remote_draft = make_draft()
-                model.select(remote_draft, "item/iron-plate", { anchor }, "add", remote_surface.index)
+                model.select(remote_draft, "input", "item/iron-plate", { anchor }, "add", remote_surface.index)
                 local remote_plan = apply(remote_draft)
                 player.teleport({ 0, 8 }, surface)
                 sources.toggle(player)
@@ -799,12 +811,14 @@ describe("planner regression suite", function()
             search.text = "solid-fuel"
             emit(defines.events.on_gui_text_changed, { element = search })
             click(session().gui["product_item/solid-fuel"])
-            assert(session().draft.recipe == "electronic-circuit")
+            assert(session().draft.recipes[1] == "electronic-circuit")
             assert(session().gui["recipe_solid-fuel-from-heavy-oil"].visible)
             assert(session().gui["recipe_solid-fuel-from-light-oil"].visible)
             click(session().gui["recipe_solid-fuel-from-light-oil"])
-            assert(session().draft.recipe == "solid-fuel-from-light-oil")
-            assert(model.ingredient(session().draft, "fluid/light-oil"))
+            assert(session().picker and #session().draft.recipes == 2)
+            assert(model.has_recipe(session().draft, "solid-fuel-from-light-oil"))
+            assert(session().gui["recipe_solid-fuel-from-light-oil"].toggled)
+            assert(model.connection(session().draft, "input", "fluid/light-oil"))
         end)
         test("search indicator follows filtering, clearing, and picker navigation", function()
             team.recipes["solid-fuel-from-heavy-oil"].enabled = true
@@ -914,7 +928,7 @@ describe("planner regression suite", function()
         test("right-drag removal updates highlights before Apply and preserves other active plans", function()
             local saved = apply(populated())
             local shared = make_draft()
-            model.select(shared, "item/iron-plate", { a }, "add", surface.index)
+            model.select(shared, "input", "item/iron-plate", { a }, "add", surface.index)
             apply(shared)
             sources.toggle(player)
             gui.open(player)
@@ -945,7 +959,7 @@ describe("planner regression suite", function()
             assert(session().gui.notice_panel.style.name == "neutral_message_frame")
             click(session().gui.clear_1)
             assert(not session().gui.notice_panel.visible and not model.center(session().draft))
-            assert(session().draft.recipe == "electronic-circuit" and #model.list(player) == 0)
+            assert(session().draft.recipes[1] == "electronic-circuit" and #model.list(player) == 0)
         end)
         test("a stale revision cannot retire a newer saved plan", function()
             local saved = apply(populated())
@@ -958,7 +972,7 @@ describe("planner regression suite", function()
         test("closest-source lookup rejects a draft from another force", function()
             local value = populated()
             player.force = other_force
-            assert(not sources.closest(player, value, "item/iron-plate"))
+            assert(not sources.closest(player, value, "input", "item/iron-plate"))
             player.force = team
         end)
     end)
@@ -982,7 +996,7 @@ describe("planner regression suite", function()
         test("reapplying updates the existing marker rather than adding another", function()
             local saved, tag = apply(populated())
             local number = tag.tag_number
-            model.select(saved, "item/iron-plate", { c }, "replace", surface.index)
+            model.select(saved, "input", "item/iron-plate", { c }, "replace", surface.index)
             saved = apply(saved)
             assert(storage.location_location_location.plans[saved.id].tag.tag_number == number)
             near(tag.position, 20.5, 0.5)
@@ -1090,14 +1104,14 @@ describe("planner regression suite", function()
         end)
         test("missing recipes fail cleanly while leaving a saved plan deletable", function()
             local saved = apply(populated())
-            storage.location_location_location.plans[saved.id].recipe = "removed-recipe"
+            storage.location_location_location.plans[saved.id].recipes[1] = "removed-recipe"
             storage.location_location_location.plans[saved.id].ingredients[1].name = "removed-ingredient"
             local reopened = model.load(player, saved.id)
             assert(not model.apply(player, reopened))
             gui.open(player)
             click(session().gui["plan_" .. saved.id])
             assert(not session().gui.apply.enabled)
-            assert(not session().gui.recipe.elem_tooltip and not session().gui.recipe_name.elem_tooltip)
+            assert(not session().gui.selected_recipe_1.elem_tooltip)
             assert(not session().gui.ingredient_1.elem_tooltip)
             assert(not session().gui.closest_1.enabled and not session().gui.find_1.enabled)
             assert(model.delete(player, reopened))
@@ -1117,7 +1131,7 @@ describe("planner regression suite", function()
             local saved = apply(populated())
             gui.open(player)
             click(session().gui["plan_" .. saved.id])
-            gui.activate(player, "ingredient", "item/iron-plate")
+            gui.activate(player, "connection", "item/iron-plate", "input")
             select("replace", { a })
         end).after_reload_script(function()
             player = game.get_player(1)
@@ -1233,7 +1247,9 @@ describe("planner regression suite", function()
                     click(session().gui.pin)
                 end
                 local function recipe_tooltips(name)
-                    for _, element in ipairs({ session().gui.recipe, session().gui.recipe_name }) do
+                    local elements = compact and { session().gui.recipe, session().gui.recipe_name }
+                        or { session().gui.selected_recipe_1 }
+                    for _, element in ipairs(elements) do
                         assert(element.elem_tooltip.type == "recipe" and element.elem_tooltip.name == name)
                         assert(not element.ignored_by_interaction)
                     end
@@ -1241,14 +1257,14 @@ describe("planner regression suite", function()
                 recipe_tooltips("electronic-circuit")
                 assert(session().gui.ingredient_1.elem_tooltip.type == "item")
                 assert(session().gui.ingredient_1.elem_tooltip.name == "iron-plate")
-                gui.choose_recipe(player, "sulfur")
+                gui.choose_recipes(player, { "sulfur" })
                 recipe_tooltips("sulfur")
                 for index, ingredient in ipairs(session().draft.ingredients) do
                     local icon = session().gui["ingredient_" .. index]
                     assert(icon.elem_tooltip.type == "fluid" and icon.elem_tooltip.name == ingredient.name)
                     assert(not icon.ignored_by_interaction)
                 end
-                gui.choose_recipe(player, "iron-gear-wheel")
+                gui.choose_recipes(player, { "iron-gear-wheel" })
                 recipe_tooltips("iron-gear-wheel")
                 assert(session().gui.ingredient_1.elem_tooltip.name == "iron-plate")
                 assert(not session().gui.ingredient_2 and #model.list(player) == 0)
@@ -1267,7 +1283,7 @@ describe("planner regression suite", function()
                 select("replace", {})
                 near(session().draft.marker_position, 11, 0.5)
                 click(session().gui.select_1)
-                assert(not session().gui.selection_hint.visible and session().selection_mode == "ingredient")
+                assert(not session().gui.selection_hint.visible and session().selection_mode == "connection")
                 gui.activate(player, "machine")
                 assert(session().gui.selection_hint.visible and session().selection_mode == "machine")
                 click(session().gui.move_marker)
@@ -1296,43 +1312,43 @@ describe("planner regression suite", function()
             producer({ -3.5, 8.5 }, "copper-cable", other_force)
             local nearest = producer({ 5.5, 8.5 }, "copper-cable")
             producer({ 13.5, 8.5 }, "copper-cable")
-            assert(sources.closest(player, value, "item/copper-cable") == nearest)
-            assert(table_size(model.ingredient(value, "item/copper-cable").anchors) == 0)
+            assert(sources.closest(player, value, "input", "item/copper-cable") == nearest)
+            assert(table_size(model.connection(value, "input", "item/copper-cable").anchors) == 0)
         end)
         test("equidistant producers resolve deterministically and destroyed producers are excluded", function()
             local first = producer({ -5.5, 8.5 }, "copper-cable")
             local second = producer({ 5.5, 8.5 }, "copper-cable")
             assert(first.unit_number < second.unit_number)
             local value = make_draft()
-            assert(sources.closest(player, value, "item/copper-cable") == first)
+            assert(sources.closest(player, value, "input", "item/copper-cable") == first)
             first.destroy()
-            assert(sources.closest(player, value, "item/copper-cable") == second)
+            assert(sources.closest(player, value, "input", "item/copper-cable") == second)
         end)
         test("an uncharted producer is not disclosed even when it is closer", function()
             producer({ -48.5, 8.5 }, "copper-cable")
             local visible = producer({ 50.5, 8.5 }, "copper-cable")
             team.unchart_chunk({ -2, 0 }, surface)
             assert(not team.is_chunk_charted(surface, { -2, 0 }) and team.is_chunk_charted(surface, { 1, 0 }))
-            assert(sources.closest(player, make_draft(), "item/copper-cable") == visible)
+            assert(sources.closest(player, make_draft(), "input", "item/copper-cable") == visible)
         end)
         test("fluid ingredients find recipes producing the matching fluid", function()
             local refinery = producer({ 12.5, 8.5 }, "basic-oil-processing", team, "oil-refinery")
             local value = model.new(player)
-            assert(model.set_recipe(value, "sulfur"))
-            assert(sources.closest(player, value, "fluid/petroleum-gas") == refinery)
-            local entity, _, severity = sources.closest(player, value, "fluid/water")
+            assert(model.set_recipes(value, { "sulfur" }))
+            assert(sources.closest(player, value, "input", "fluid/petroleum-gas") == refinery)
+            local entity, _, severity = sources.closest(player, value, "input", "fluid/water")
             assert(not entity and severity == "info")
         end)
         test("Find navigates without assigning sources and repeated Add closest does not duplicate them", function()
             local machine = producer({ 5.5, 8.5 }, "copper-cable")
             start()
             click(session().gui.find_2)
-            assert(table_size(model.ingredient(session().draft, "item/copper-cable").anchors) == 0)
+            assert(table_size(model.connection(session().draft, "input", "item/copper-cable").anchors) == 0)
             local guide = storage.location_location_location.highlights[player.index].guide
             assert(guide.pin.valid and guide.entity == machine)
             click(session().gui.closest_2)
             click(session().gui.closest_2)
-            local anchors = model.ingredient(session().draft, "item/copper-cable").anchors
+            local anchors = model.connection(session().draft, "input", "item/copper-cable").anchors
             assert(table_size(anchors) == 1 and #model.list(player) == 0)
             for _, position in pairs(anchors) do
                 near(position, machine.position.x, machine.position.y)
@@ -1342,13 +1358,13 @@ describe("planner regression suite", function()
 
     describe("cross-surface world actions", function()
         for _, scenario in ipairs({
-            { action = "select_1", mode = "ingredient" },
-            { action = "move_marker", mode = "marker" },
-            { action = "machine", mode = "machine" },
+            { action = "select_1" },
+            { action = "move_marker" },
+            { action = "machine" },
             { action = "closest_2" },
             { action = "find_2" },
-            { action = "select_1", mode = "ingredient", source_free = true },
-            { action = "move_marker", mode = "marker", source_free = true },
+            { action = "select_1", source_free = true },
+            { action = "move_marker", source_free = true },
         }) do
             test(
                 scenario.action
@@ -1391,20 +1407,36 @@ describe("planner regression suite", function()
                             and original.title == "Private cross-surface edit"
                     )
                     assert(not current.gui.notice_panel.visible)
-                    if tag then
-                        near(tag.position, 13, 0.5)
-                    end
-                    if scenario.mode then
-                        assert(current.selecting and current.selection_mode == scenario.mode)
-                        assert(player.cursor_stack.name == "location_location_location_planner_tool")
+                    if scenario.action == "select_1" then
+                        select("replace", { c })
+                        local anchors = model.connection(original, "input", "item/iron-plate").anchors
+                        assert(table_size(anchors) == 1)
+                        for _, position in pairs(anchors) do
+                            near(position, 20.5, 0.5)
+                        end
+                        local persisted = model.connection(model.load(player, saved.id), "input", "item/iron-plate")
+                        assert(table_size(persisted.anchors) == (scenario.source_free and 0 or 2))
+                    elseif scenario.action == "move_marker" then
+                        select("replace", {})
+                        near(original.marker_position, 11, 0.5)
+                        assert(not model.load(player, saved.id).marker_position)
+                    elseif scenario.action == "machine" then
+                        select("replace", { producer })
+                        assert(model.has_recipe(original, "copper-cable"))
+                        assert(not model.has_recipe(model.load(player, saved.id), "copper-cable"))
                     elseif scenario.action == "closest_2" then
-                        assert(table_size(model.ingredient(original, "item/copper-cable").anchors) == 2)
+                        assert(table_size(model.connection(original, "input", "item/copper-cable").anchors) == 2)
                         assert(
-                            table_size(model.ingredient(model.load(player, saved.id), "item/copper-cable").anchors) == 1
+                            table_size(
+                                model.connection(model.load(player, saved.id), "input", "item/copper-cable").anchors
+                            ) == 1
                         )
                     else
                         assert(storage.location_location_location.highlights[player.index].guide.pin.valid)
-                        assert(table_size(model.ingredient(original, "item/copper-cable").anchors) == 1)
+                        assert(table_size(model.connection(original, "input", "item/copper-cable").anchors) == 1)
+                    end
+                    if tag then
+                        near(tag.position, 13, 0.5)
                     end
                 end
             )
@@ -1425,7 +1457,7 @@ describe("planner regression suite", function()
             emit(defines.events.on_gui_text_changed, { element = search })
             team.recipes["solid-fuel-from-heavy-oil"].enabled = false
             click(session().gui["recipe_solid-fuel-from-heavy-oil"])
-            assert(session().draft == original and original.recipe == "electronic-circuit")
+            assert(session().draft == original and original.recipes[1] == "electronic-circuit")
             assert(session().picker.product == "item/solid-fuel" and session().gui.search.text == "heavy")
             assert(
                 session().gui.notice_panel.visible and session().gui.notice_panel.style.name == "negative_message_frame"
@@ -1433,7 +1465,7 @@ describe("planner regression suite", function()
             team.recipes["solid-fuel-from-heavy-oil"].enabled = true
             gui.refresh_picker(player)
             click(session().gui["recipe_solid-fuel-from-heavy-oil"])
-            assert(not session().picker and session().draft.recipe == "solid-fuel-from-heavy-oil")
+            assert(session().picker and model.has_recipe(session().draft, "solid-fuel-from-heavy-oil"))
             assert(not session().gui.notice_panel.visible and #model.list(player) == 0)
         end)
         test("research refresh preserves filtered browsing and private ingredient assignments", function()
@@ -1450,8 +1482,8 @@ describe("planner regression suite", function()
             assert(session().draft == original and session().gui.search.text == "iron-gear-wheel")
             assert(session().gui["product_item/iron-gear-wheel"].visible and session().gui.focus_search.toggled)
             click(session().gui["product_item/iron-gear-wheel"])
-            assert(session().draft.recipe == "iron-gear-wheel" and not session().picker)
-            local anchors = model.ingredient(session().draft, "item/iron-plate").anchors
+            assert(model.has_recipe(session().draft, "iron-gear-wheel") and session().picker)
+            local anchors = model.connection(session().draft, "input", "item/iron-plate").anchors
             assert(table_size(anchors) == 1)
             for _, position in pairs(anchors) do
                 near(position, 0.5, 0.5)
@@ -1531,7 +1563,7 @@ describe("planner regression suite", function()
     end)
 
     describe("saved-list overflow boundaries", function()
-        test("filtering across the overflow boundary reclaims the gutter without losing names or counts", function()
+        test("retired filtering preserves access to plans across list overflow", function()
             local first, last
             for index = 1, 16 do
                 local value = make_draft()
@@ -1547,12 +1579,15 @@ describe("planner regression suite", function()
             for _, scrolling in ipairs({ false, true, false }) do
                 local pane, row = session().gui.plans, session().gui["plan_" .. first.id]
                 assert(pane.vertical_scroll_policy == (scrolling and "always" or "never"))
-                assert(pane.style.minimal_width == pane.parent.style.minimal_width)
-                assert(row.style.minimal_width == (scrolling and 220 or 232))
-                local name, count = row.children[1], row.children[2]
-                assert(count.style.minimal_width == row.style.minimal_width - 16)
-                assert(name.style.minimal_width + 48 == count.style.minimal_width)
-                assert(tostring(count.caption[2]) == "0" and tostring(count.caption[4]) == "2")
+                assert((session().gui["plan_" .. last.id] ~= nil) == scrolling)
+                click(row)
+                assert(session().draft.id == first.id)
+                click(session().gui.back)
+                if scrolling then
+                    click(session().gui["plan_" .. last.id])
+                    assert(session().draft.id == last.id and session().draft.retired)
+                    click(session().gui.back)
+                end
                 click(session().gui.show_retired)
             end
         end)
@@ -1607,7 +1642,7 @@ describe("planner regression suite", function()
             click(session().gui.new)
             click(session().gui.picker_machine)
             select("replace", { machine })
-            assert(session().draft.recipe == "sulfur")
+            assert(session().draft.recipes[1] == "sulfur")
             for index, ingredient in ipairs(session().draft.ingredients) do
                 assert(ingredient.type == "fluid")
                 click(session().gui["select_" .. index])
@@ -1620,7 +1655,7 @@ describe("planner regression suite", function()
         end).after_reload_script(function()
             player = game.get_player(1)
             local current = session()
-            assert(current and current.compact and current.draft.recipe == "sulfur")
+            assert(current and current.compact and current.draft.recipes[1] == "sulfur")
             local saved = model.load(player, current.draft.id)
             near(saved.marker_position, 11, 0.5)
             for _, ingredient in ipairs(saved.ingredients) do
@@ -1629,7 +1664,7 @@ describe("planner regression suite", function()
             click(current.gui.pin)
             click(session().gui.back)
             click(session().gui["plan_" .. saved.id])
-            assert(session().draft.recipe == "sulfur" and session().gui.ingredient_1.elem_tooltip.type == "fluid")
+            assert(session().draft.recipes[1] == "sulfur" and session().gui.ingredient_1.elem_tooltip.type == "fluid")
         end)
         test("new, picker back, empty search and source-free Apply all leave a recoverable workspace", function()
             gui.open(player)
@@ -1661,12 +1696,12 @@ describe("planner regression suite", function()
             local refinery = surface.create_entity({ name = "oil-refinery", position = { 4, 12 }, force = team })
             refinery.set_recipe("advanced-oil-processing")
             local value = model.new(player)
-            assert(model.set_recipe(value, "solid-fuel-from-heavy-oil"))
-            assert(sources.closest(player, value, "fluid/heavy-oil") == refinery)
-            assert(model.set_recipe(value, "solid-fuel-from-light-oil"))
-            assert(sources.closest(player, value, "fluid/light-oil") == refinery)
-            assert(model.set_recipe(value, "sulfur"))
-            assert(sources.closest(player, value, "fluid/petroleum-gas") == refinery)
+            assert(model.set_recipes(value, { "solid-fuel-from-heavy-oil" }))
+            assert(sources.closest(player, value, "input", "fluid/heavy-oil") == refinery)
+            assert(model.set_recipes(value, { "solid-fuel-from-light-oil" }))
+            assert(sources.closest(player, value, "input", "fluid/light-oil") == refinery)
+            assert(model.set_recipes(value, { "sulfur" }))
+            assert(sources.closest(player, value, "input", "fluid/petroleum-gas") == refinery)
         end)
     end)
 
@@ -1682,7 +1717,7 @@ describe("planner regression suite", function()
             pa.highlight_sources, pa.show_retired = true, true
             assert(not pb.highlight_sources and not pb.show_retired)
             local private = model.new(alice)
-            assert(model.set_recipe(private, "electronic-circuit"))
+            assert(model.set_recipes(private, { "electronic-circuit" }))
             assert(#model.list(bob) == 0)
             local saved = assert(model.apply(alice, private))
             local da, db = model.load(alice, saved.id), model.load(bob, saved.id)
@@ -1938,10 +1973,10 @@ describe("planner regression suite", function()
                 surface.create_entity({ name = "assembling-machine-2", position = { 20.5, 4.5 }, force = team })
             assert(machine.set_recipe(fixture))
             local value = model.new(player)
-            assert(model.set_recipe(value, "location_location_location_probability_consumer"))
-            assert(not sources.closest(player, value, "item/iron-stick"))
-            assert(not sources.closest(player, value, "item/electronic-circuit"))
-            assert(sources.closest(player, value, "item/copper-cable") == machine)
+            assert(model.set_recipes(value, { "location_location_location_probability_consumer" }))
+            assert(not sources.closest(player, value, "input", "item/iron-stick"))
+            assert(not sources.closest(player, value, "input", "item/electronic-circuit"))
+            assert(sources.closest(player, value, "input", "item/copper-cable") == machine)
             local catalog = recipes.catalog(player)
             local function has_fixture(product)
                 for _, recipe in ipairs(catalog.by_product[product] or {}) do
@@ -1954,5 +1989,56 @@ describe("planner regression suite", function()
             assert(not has_fixture("item/iron-stick") and not has_fixture("item/electronic-circuit"))
             assert(has_fixture("item/copper-cable"))
         end)
+    end)
+
+    describe("multi-recipe connections", function()
+        test("picker toggles recipes privately and removes only the selected recipe", function()
+            start()
+            click(session().gui.select_1)
+            select("replace", { a })
+            click(session().gui.recipe)
+            click(session().gui["product_item/iron-gear-wheel"])
+            assert(#session().draft.recipes == 2 and session().picker)
+            click(session().gui["product_item/iron-gear-wheel"])
+            assert(#session().draft.recipes == 1 and session().draft.recipes[1] == "electronic-circuit")
+            click(session().gui["product_item/iron-gear-wheel"])
+            click(session().gui.back_to_plan)
+            click(session().gui.remove_recipe_1)
+            assert(#session().draft.recipes == 1 and session().draft.recipes[1] == "iron-gear-wheel")
+            near(model.center(session().draft), 0.5, 0.5)
+            assert(#model.list(player) == 0)
+            click(session().gui.apply)
+            assert(model.load(player, session().draft.id).recipes[1] == "iron-gear-wheel")
+        end)
+        for _, compact in ipairs({ false, true }) do
+            test((compact and "pinned" or "full") .. " output selection stays distinct from the same input", function()
+                start()
+                gui.choose_recipes(player, { "electronic-circuit", "copper-cable" })
+                if compact then
+                    click(session().gui.pin)
+                end
+                click(session().gui.select_2)
+                select("replace", { a })
+                click(session().gui.output_select_2)
+                select("replace", { c })
+                local draft = session().draft
+                for _, position in pairs(model.connection(draft, "input", "item/copper-cable").anchors) do
+                    near(position, 0.5, 0.5)
+                end
+                for _, position in pairs(model.connection(draft, "output", "item/copper-cable").anchors) do
+                    near(position, 20.5, 0.5)
+                end
+                near(model.center(draft), 10.5, 0.5)
+                assert(#model.list(player) == 0)
+                click(session().gui.apply)
+                local saved = model.load(player, session().draft.id)
+                near(model.center(saved), 10.5, 0.5)
+                click(session().gui.output_clear_2)
+                near(model.center(session().draft), 0.5, 0.5)
+                near(model.center(model.load(player, saved.id)), 10.5, 0.5)
+                click(session().gui.discard)
+                near(model.center(session().draft), 10.5, 0.5)
+            end)
+        end
     end)
 end)

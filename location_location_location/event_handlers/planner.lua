@@ -104,26 +104,37 @@ local function select(e, mode)
         if mode ~= "replace" then
             return
         end
-        local recipe, count = nil, 0
+        local names, selected, found = {}, {}, false
+        for _, name in ipairs(s.draft.recipes) do
+            names[#names + 1], selected[name] = name, true
+        end
+        local additions = {}
         for _, entity in pairs(e.entities) do
             if
                 entity.valid
                 and (entity.type == "assembling-machine" or entity.type == "furnace" or entity.type == "rocket-silo")
             then
-                local selected = entity.get_recipe()
-                if selected then
-                    recipe, count = selected.name, count + 1
+                local recipe = entity.get_recipe()
+                if recipe then
+                    found = true
+                    if not selected[recipe.name] then
+                        additions[#additions + 1], selected[recipe.name] = recipe.name, true
+                    end
                 end
             end
         end
-        if count ~= 1 then
-            gui.report(player, { "location-location-location.one-machine" }, "info")
+        if not found then
+            gui.report(player, { "location-location-location.no-machines" }, "info")
             return
         end
-        gui.choose_recipe(player, recipe)
+        table.sort(additions)
+        for _, name in ipairs(additions) do
+            names[#names + 1] = name
+        end
+        gui.choose_recipes(player, names)
         return
     end
-    local ok, err = model.select(s.draft, s.active_key, e.entities, mode, e.surface.index)
+    local ok, err = model.select(s.draft, s.active_direction, s.active_key, e.entities, mode, e.surface.index)
     if not ok then
         gui.report(player, err, "error")
         return

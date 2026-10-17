@@ -176,93 +176,140 @@ function gui.toolbar(player)
     )
 end
 
-local function ingredient_rows(s, compact)
+local function connection_rows(s, compact)
     local draft = s.draft
-    ---@type LuaRecipePrototype?
-    local recipe = draft.recipe and prototypes.recipe[draft.recipe]
+    local valid_recipes = model.valid_recipes(draft)
     local rows = {}
-    for index, ingredient in ipairs(draft.ingredients) do
-        ---@type LuaItemPrototype|LuaFluidPrototype|nil
-        local prototype = prototypes[ingredient.type][ingredient.name]
-        local count = table_size(ingredient.anchors)
-        local active = s.selecting and s.selection_mode == "ingredient" and s.active_key == ingredient.key
-        local select = ui.button(
-            on_action,
-            "select_" .. index,
-            "ingredient",
-            ui.caption(active and "selected" or "select"),
-            { key = ingredient.key }
-        )
-        select.style_mods, select.toggled = { width = 96, height = 28, padding = { 0, 8 } }, active == true
-        select.tooltip = ui.caption("instructions")
-        local closest =
-            ui.button(on_action, "closest_" .. index, "closest", ui.caption("add-closest"), { key = ingredient.key })
-        local find =
-            ui.button(on_action, "find_" .. index, "find", ui.caption("find-closest"), { key = ingredient.key })
-        closest.style_mods, find.style_mods = { width = 112, height = 28 }, { width = 112, height = 28 }
-        closest.enabled, find.enabled = recipe ~= nil and prototype ~= nil, recipe ~= nil and prototype ~= nil
-        if compact then
-            closest = ui.icon(on_action, "closest_" .. index, "closest", "utility/add", nil, { key = ingredient.key })
-            closest.style_mods, closest.enabled = { size = 28, padding = 2 }, recipe ~= nil and prototype ~= nil
-            find = ui.icon(on_action, "find_" .. index, "find", "utility/search_icon", nil, { key = ingredient.key })
-            find.style_mods, find.enabled = { size = 28, padding = 2 }, recipe ~= nil and prototype ~= nil
+    for _, direction in ipairs({ "input", "output" }) do
+        local connections = direction == "input" and draft.ingredients or draft.outputs
+        local prefix = direction == "input" and "" or "output_"
+        if #connections > 0 then
+            rows[#rows + 1] = {
+                type = "label",
+                caption = ui.caption(direction == "input" and "ingredients" or "outputs"),
+                style = "heading_2_label",
+                style_mods = { height = 28, top_margin = 4 },
+            }
         end
-        closest.tooltip = ui.caption("add-closest-tooltip", ui.caption("add-closest"))
-        find.tooltip = ui.caption("find-closest-tooltip", ui.caption("find-closest"))
-        local clear = ui.icon(
-            on_action,
-            "clear_" .. index,
-            "clear",
-            "utility/trash",
-            ui.caption("clear"),
-            { key = ingredient.key }
-        )
-        clear.style_mods = { size = 28, padding = 2 }
-        rows[#rows + 1] = {
-            type = "flow",
-            style_mods = {
-                minimal_width = compact and compact_content_width - 16 or 628,
-                maximal_width = compact and compact_content_width or 644,
-                horizontally_stretchable = true,
-                height = 32,
-                horizontal_spacing = 4,
-                vertical_align = "center",
-            },
-            children = {
-                {
-                    type = "sprite-button",
-                    name = "ingredient_" .. index,
-                    sprite = prototype and ingredient.type .. "/" .. ingredient.name or nil,
-                    style = appearance.slot_style(count > 0, false),
-                    style_mods = { size = 28 },
-                    elem_tooltip = prototype and { type = ingredient.type, name = ingredient.name } or nil,
+        for index, connection in ipairs(connections) do
+            ---@type LuaItemPrototype|LuaFluidPrototype|nil
+            local prototype = prototypes[connection.type][connection.name]
+            local count = table_size(connection.anchors)
+            local active = s.selecting
+                and s.selection_mode == "connection"
+                and s.active_direction == direction
+                and s.active_key == connection.key
+            local select = ui.button(
+                on_action,
+                prefix .. "select_" .. index,
+                "connection",
+                ui.caption(active and "selected" or "select"),
+                { key = connection.key, direction = direction }
+            )
+            select.style_mods, select.toggled = { width = 96, height = 28, padding = { 0, 8 } }, active == true
+            select.tooltip = ui.caption("instructions")
+            local closest = ui.button(
+                on_action,
+                prefix .. "closest_" .. index,
+                "closest",
+                ui.caption("add-closest"),
+                { key = connection.key, direction = direction }
+            )
+            local find = ui.button(
+                on_action,
+                prefix .. "find_" .. index,
+                "find",
+                ui.caption("find-closest"),
+                { key = connection.key, direction = direction }
+            )
+            closest.style_mods, find.style_mods = { width = 112, height = 28 }, { width = 112, height = 28 }
+            closest.enabled, find.enabled = valid_recipes and prototype ~= nil, valid_recipes and prototype ~= nil
+            if compact then
+                closest = ui.icon(
+                    on_action,
+                    prefix .. "closest_" .. index,
+                    "closest",
+                    "utility/add",
+                    nil,
+                    { key = connection.key, direction = direction }
+                )
+                closest.style_mods, closest.enabled = { size = 28, padding = 2 }, valid_recipes and prototype ~= nil
+                find = ui.icon(
+                    on_action,
+                    prefix .. "find_" .. index,
+                    "find",
+                    "utility/search_icon",
+                    nil,
+                    { key = connection.key, direction = direction }
+                )
+                find.style_mods, find.enabled = { size = 28, padding = 2 }, valid_recipes and prototype ~= nil
+            end
+            closest.tooltip = ui.caption(
+                direction == "input" and "add-closest-tooltip" or "add-consumer-tooltip",
+                ui.caption("add-closest")
+            )
+            find.tooltip = ui.caption(
+                direction == "input" and "find-closest-tooltip" or "find-consumer-tooltip",
+                ui.caption("find-closest")
+            )
+            local clear = ui.icon(
+                on_action,
+                prefix .. "clear_" .. index,
+                "clear",
+                "utility/trash",
+                ui.caption(direction == "input" and "clear" or "clear-output"),
+                { key = connection.key, direction = direction }
+            )
+            clear.style_mods = { size = 28, padding = 2 }
+            local count_caption = direction == "input"
+                    and (count == 0 and ui.caption("no-source") or ui.caption("source-count", count))
+                or (count == 0 and ui.caption("no-destination") or ui.caption("destination-count", count))
+            rows[#rows + 1] = {
+                type = "flow",
+                style_mods = {
+                    minimal_width = compact and compact_content_width - 16 or 628,
+                    maximal_width = compact and compact_content_width or 644,
+                    horizontally_stretchable = true,
+                    height = 32,
+                    horizontal_spacing = 4,
+                    vertical_align = "center",
                 },
-                {
-                    type = "label",
-                    caption = prototype and prototype.localised_name
-                        or ui.caption("missing-ingredient", ingredient.name),
-                    tooltip = prototype and prototype.localised_name or ingredient.name,
-                    style_mods = { width = compact and 100 or 132, single_line = true },
-                },
-                {
-                    type = "label",
-                    name = "source_count_" .. index,
-                    caption = count == 0 and ui.caption("no-source") or ui.caption("source-count", count),
-                    tooltip = count == 0 and ui.caption("no-source") or ui.caption("source-count", count),
-                    style_mods = {
-                        width = compact and 60 or 80,
-                        single_line = true,
-                        horizontal_align = "right",
-                        font_color = count == 0 and appearance.colors.warning or nil,
+                children = {
+                    {
+                        type = "sprite-button",
+                        name = prefix .. "ingredient_" .. index,
+                        sprite = prototype and connection.type .. "/" .. connection.name or nil,
+                        style = appearance.slot_style(count > 0, false),
+                        style_mods = { size = 28 },
+                        elem_tooltip = prototype and { type = connection.type, name = connection.name } or nil,
                     },
+                    {
+                        type = "label",
+                        caption = prototype and prototype.localised_name
+                            or ui.caption("missing-ingredient", connection.name),
+                        tooltip = prototype and prototype.localised_name or connection.name,
+                        style_mods = { width = compact and 100 or 132, single_line = true },
+                    },
+                    {
+                        type = "label",
+                        name = prefix .. "source_count_" .. index,
+                        caption = count_caption,
+                        tooltip = count_caption,
+                        style_mods = {
+                            width = compact and 60 or 80,
+                            single_line = true,
+                            horizontal_align = "right",
+                            font_color = count == 0 and appearance.colors.warning or nil,
+                        },
+                    },
+                    { type = "empty-widget", style_mods = { horizontally_stretchable = true } },
+                    select,
+                    closest,
+                    find,
+                    clear,
                 },
-                { type = "empty-widget", style_mods = { horizontally_stretchable = true } },
-                select,
-                closest,
-                find,
-                clear,
-            },
-        }
+            }
+        end
     end
     if #rows == 0 then
         rows[1] = {
@@ -277,6 +324,55 @@ local function ingredient_rows(s, compact)
         }
     end
     return rows
+end
+
+local function plan_title(draft)
+    if draft.title ~= model.default_title(draft) then
+        return draft.title
+    end
+    local title = ""
+    for index, name in ipairs(draft.recipes) do
+        local recipe = prototypes.recipe[name]
+        local caption = recipe and recipe.localised_name or name
+        title = index == 1 and caption or { "", title, " + ", caption }
+    end
+    return title
+end
+
+local function recipe_buttons(draft)
+    local buttons = {}
+    for index, name in ipairs(draft.recipes) do
+        local recipe = prototypes.recipe[name]
+        local remove = ui.icon(
+            on_action,
+            "remove_recipe_" .. index,
+            "remove_recipe",
+            appearance.close_sprite,
+            ui.caption("remove-recipe", recipe and recipe.localised_name or name),
+            { recipe = name }
+        )
+        remove.style_mods = { size = 20, padding = 2 }
+        buttons[#buttons + 1] = {
+            type = "flow",
+            style_mods = { vertical_align = "center", horizontal_spacing = 0 },
+            children = {
+                {
+                    type = "sprite-button",
+                    name = "selected_recipe_" .. index,
+                    sprite = recipe and "recipe/" .. name or nil,
+                    elem_tooltip = recipe and { type = "recipe", name = name } or nil,
+                    tooltip = not recipe and ui.caption("missing-recipe") or nil,
+                    style = "slot_button",
+                    style_mods = { size = 28 },
+                },
+                remove,
+            },
+        }
+    end
+    if #buttons == 0 then
+        buttons[1] = { type = "label", caption = ui.caption("choose-recipe") }
+    end
+    return buttons
 end
 
 ---@param width integer
@@ -312,23 +408,23 @@ local function placement_controls(s, width)
     }
 end
 
-local function draft_actions(player, draft, recipe)
+local function draft_actions(player, draft)
     local changes = model.change_count(player, draft)
     local discard = ui.button(on_action, "discard", "discard", ui.caption("discard"), nil, "back_button")
     discard.tooltip = ui.caption("discard-tooltip")
     discard.enabled = changes > 0 or not draft.id
     local apply = ui.button(on_action, "apply", "apply", ui.caption("apply"), nil, "confirm_button")
     appearance.apply(apply, changes)
-    apply.enabled = recipe ~= nil and game.surfaces[draft.surface_index] ~= nil
+    apply.enabled = model.valid_recipes(draft) and game.surfaces[draft.surface_index] ~= nil
     return discard, apply
 end
 
 local function compact_body(player, s)
     local draft = s.draft
     ---@type LuaRecipePrototype?
-    local recipe = draft.recipe and prototypes.recipe[draft.recipe]
+    local recipe = draft.recipes[1] and prototypes.recipe[draft.recipes[1]]
     local _, assigned, total = model.center(draft)
-    local discard, apply = draft_actions(player, draft, recipe)
+    local discard, apply = draft_actions(player, draft)
     local content = {
         {
             type = "flow",
@@ -344,7 +440,7 @@ local function compact_body(player, s)
                 {
                     type = "label",
                     name = "recipe_name",
-                    caption = draft.title == draft.recipe and recipe and recipe.localised_name or draft.title,
+                    caption = plan_title(draft),
                     tooltip = draft.title,
                     elem_tooltip = recipe and { type = "recipe", name = recipe.name } or nil,
                     style = "heading_2_label",
@@ -365,13 +461,13 @@ local function compact_body(player, s)
         },
         {
             type = "scroll-pane",
-            name = "ingredients",
+            name = "connections",
             direction = "vertical",
             style = "naked_scroll_pane",
             horizontal_scroll_policy = "never",
             style_mods = {
                 width = compact_content_width,
-                height = math.min(6, math.max(1, #draft.ingredients)) * 32,
+                height = math.min(8, math.max(1, #draft.ingredients + #draft.outputs + 2)) * 32,
                 padding = 0,
             },
             children = {
@@ -379,7 +475,7 @@ local function compact_body(player, s)
                     type = "flow",
                     direction = "vertical",
                     style_mods = { vertical_spacing = 0, horizontally_stretchable = true },
-                    children = ingredient_rows(s, true),
+                    children = connection_rows(s, true),
                 },
             },
         },
@@ -407,8 +503,8 @@ end
 
 local function minimap_view(draft, marker)
     local left, right, top, bottom = marker.x, marker.x, marker.y, marker.y
-    for _, ingredient in ipairs(draft.ingredients) do
-        for _, anchor in pairs(ingredient.anchors) do
+    for _, connection in model.connections(draft) do
+        for _, anchor in pairs(connection.anchors) do
             left, right = math.min(left, anchor.x), math.max(right, anchor.x)
             top, bottom = math.min(top, anchor.y), math.max(bottom, anchor.y)
         end
@@ -420,23 +516,18 @@ end
 
 local function editor_body(player, s)
     local draft = s.draft
-    ---@type LuaRecipePrototype?
-    local recipe = draft.recipe and prototypes.recipe[draft.recipe]
     local position, assigned, total = model.position(draft)
     local recipe_button = ui.icon(
         on_action,
         "recipe",
         "recipes",
-        recipe and "recipe/" .. draft.recipe or "utility/add",
+        "utility/add",
         ui.caption("choose-recipe"),
         nil,
-        recipe and "slot_button" or "item_and_count_select_confirm"
+        "item_and_count_select_confirm"
     )
-    recipe_button.style_mods = { size = recipe and 40 or 32, padding = recipe and 1 or 4, top_margin = 0 }
-    if recipe then
-        recipe_button.elem_tooltip = { type = "recipe", name = recipe.name }
-    end
-    local rows = ingredient_rows(s, false)
+    recipe_button.style_mods = { size = 32, padding = 4, top_margin = 0 }
+    local rows = connection_rows(s, false)
     local machine = ui.button(on_action, "machine", "machine", ui.caption("from-machine"))
     machine.style_mods = { width = 152 }
     local left = {
@@ -454,13 +545,19 @@ local function editor_body(player, s)
             children = {
                 recipe_button,
                 {
-                    type = "label",
-                    name = "recipe_name",
-                    caption = recipe and recipe.localised_name
-                        or ui.caption(draft.recipe and "missing-recipe" or "choose-recipe"),
-                    tooltip = recipe and recipe.localised_name or nil,
-                    elem_tooltip = recipe and { type = "recipe", name = recipe.name } or nil,
-                    style_mods = { maximal_width = 424, single_line = true },
+                    type = "scroll-pane",
+                    name = "selected_recipes",
+                    style = "naked_scroll_pane",
+                    horizontal_scroll_policy = "auto",
+                    vertical_scroll_policy = "never",
+                    style_mods = { width = 420, height = 40, padding = 0 },
+                    children = {
+                        {
+                            type = "flow",
+                            style_mods = { horizontal_spacing = 4, vertical_align = "center" },
+                            children = recipe_buttons(draft),
+                        },
+                    },
                 },
                 { type = "empty-widget", style_mods = { horizontally_stretchable = true } },
                 machine,
@@ -498,7 +595,7 @@ local function editor_body(player, s)
                 },
             },
         },
-        ui.subheader(ui.caption("ingredients"), {
+        ui.subheader(ui.caption("connections"), {
             {
                 type = "label",
                 name = "status",
@@ -521,7 +618,7 @@ local function editor_body(player, s)
                     children = {
                         {
                             type = "scroll-pane",
-                            name = "ingredients",
+                            name = "connections",
                             direction = "vertical",
                             style = "naked_scroll_pane",
                             horizontal_scroll_policy = "never",
@@ -594,7 +691,7 @@ local function editor_body(player, s)
             children = preview,
         },
     }
-    local discard, apply = draft_actions(player, draft, recipe)
+    local discard, apply = draft_actions(player, draft)
     return {
         {
             type = "flow",
@@ -639,12 +736,12 @@ local function navigation(player, s)
     local rows = {}
     for _, plan in ipairs(visible_plans) do
         local _, assigned, total = model.center(plan)
-        local recipe = prototypes.recipe[plan.recipe]
-        local title = recipe and plan.title == plan.recipe and recipe.localised_name or plan.title
+        local recipe = prototypes.recipe[plan.recipes[1]]
+        local title = plan_title(plan)
         local selected_plan = s.draft ~= nil and s.draft.id == plan.id
         local text = {
             "",
-            recipe and "[img=recipe/" .. plan.recipe .. "] " or "",
+            recipe and "[img=recipe/" .. recipe.name .. "] " or "",
             plan.retired and { "", ui.caption("retired"), ": " } or "",
             title,
         }
@@ -844,8 +941,7 @@ function gui.render(player)
         opened = s.gui.picker_frame
     end
     appearance.toggle(s.gui.highlights, model.preferences(player).highlight_sources)
-    s.gui.pin.enabled = s.compact == true
-        or (s.draft ~= nil and s.draft.recipe ~= nil and prototypes.recipe[s.draft.recipe] ~= nil)
+    s.gui.pin.enabled = s.compact == true or (s.draft ~= nil and model.valid_recipes(s.draft))
     appearance.toggle(s.gui.pin, s.compact == true)
     s.gui.pin.tooltip =
         ui.caption(not s.gui.pin.enabled and "pin-unavailable" or s.compact and "expand-tooltip" or "pin-tooltip")
@@ -931,12 +1027,12 @@ function gui.toggle_highlights(player)
     end
 end
 
-function gui.activate(player, mode, key)
+function gui.activate(player, mode, key, direction)
     local s = session(player)
     if not s or not s.draft then
         return
     end
-    if s.selecting and s.selection_mode == mode and s.active_key == key then
+    if s.selecting and s.selection_mode == mode and s.active_key == key and s.active_direction == direction then
         stop_selecting(player, s)
         gui.render(player)
         return
@@ -950,25 +1046,42 @@ function gui.activate(player, mode, key)
     end
     player.cursor_stack.set_stack({ name = tool })
     s.selection_mode, s.selecting, s.active_key, s.picker = mode, true, key, nil
+    s.active_direction = direction
     if player.opened == s.gui.frame or player.opened == s.gui.picker_frame then
         player.opened = nil
     end
     gui.render(player)
 end
 
-function gui.choose_recipe(player, name)
+function gui.choose_recipes(player, names)
     local s = session(player)
     if not s or not s.draft then
         return
     end
-    local ok, err = model.set_recipe(s.draft, name)
+    local ok, err = model.set_recipes(s.draft, names)
     if not ok then
         gui.report(player, err, "error")
         return
     end
     stop_selecting(player, s)
-    s.active_key, s.confirm_delete, s.picker = nil, nil, nil
+    s.active_key, s.active_direction, s.confirm_delete = nil, nil, nil
     gui.render(player)
+end
+
+local function toggle_recipe(player, name)
+    local draft = session(player).draft
+    local names, selected = {}, false
+    for _, existing in ipairs(draft.recipes) do
+        if existing == name then
+            selected = true
+        else
+            names[#names + 1] = existing
+        end
+    end
+    if not selected then
+        names[#names + 1] = name
+    end
+    gui.choose_recipes(player, names)
 end
 
 function gui.refresh_picker(player)
@@ -1135,12 +1248,21 @@ on_action = function(e)
     elseif action == "editor" then
         s.picker = nil
     elseif action == "choose_recipe" then
-        if model.preferences(player).researched_only and not recipes.unlocked(player.force)[tags.recipe] then
+        if
+            not model.has_recipe(s.draft, tags.recipe)
+            and model.preferences(player).researched_only
+            and not recipes.unlocked(player.force)[tags.recipe]
+        then
             gui.refresh_picker(player)
             gui.report(player, ui.caption("unresearched"), "error")
             return
         end
-        gui.choose_recipe(player, tags.recipe)
+        toggle_recipe(player, tags.recipe)
+        return
+    elseif action == "remove_recipe" then
+        if model.has_recipe(s.draft, tags.recipe) then
+            toggle_recipe(player, tags.recipe)
+        end
         return
     elseif action == "picker_search" then
         gui.focus_search(player)
@@ -1158,7 +1280,7 @@ on_action = function(e)
         s.picker.catalog = recipes.catalog(player)
         local choices = recipes.choices(s.picker.catalog, tags.product, model.preferences(player).researched_only)
         if #choices == 1 then
-            gui.choose_recipe(player, choices[1].name)
+            toggle_recipe(player, choices[1].name)
             return
         end
         s.picker.product, s.picker.product_query = tags.product, s.picker.query
@@ -1169,8 +1291,8 @@ on_action = function(e)
     elseif action == "machine" then
         gui.activate(player, "machine")
         return
-    elseif action == "ingredient" then
-        gui.activate(player, "ingredient", tags.key)
+    elseif action == "connection" then
+        gui.activate(player, "connection", tags.key, tags.direction)
         return
     elseif action == "move_marker" then
         gui.activate(player, "marker")
@@ -1185,7 +1307,7 @@ on_action = function(e)
             end
             gui.render(player)
         end
-        local entity, err, severity = sources.closest(player, s.draft, tags.key)
+        local entity, err, severity = sources.closest(player, s.draft, tags.direction, tags.key)
         if not entity then
             gui.report(player, err, severity)
             return
@@ -1194,12 +1316,12 @@ on_action = function(e)
             sources.find(player, entity)
             return
         end
-        model.select(s.draft, tags.key, { entity }, "add", s.draft.surface_index)
+        model.select(s.draft, tags.direction, tags.key, { entity }, "add", s.draft.surface_index)
         s.confirm_delete = nil
     elseif action == "clear" then
-        local ingredient = model.ingredient(s.draft, tags.key)
-        if ingredient then
-            ingredient.anchors = {}
+        local connection = model.connection(s.draft, tags.direction, tags.key)
+        if connection then
+            connection.anchors = {}
         end
         s.confirm_delete = nil
     elseif action == "hide_label" then

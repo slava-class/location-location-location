@@ -19,3 +19,6 @@ function after_all(body) end
 function after_ticks(ticks, body) end
 ---@param ticks integer
 function ticks_between_tests(ticks) end
+---@param timeout integer?
+function async(timeout) end
+function done() end

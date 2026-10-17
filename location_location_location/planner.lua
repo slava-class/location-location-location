@@ -1,7 +1,8 @@
 local util = require("__core__.lualib.util")
 local planner = {}
 
----@class IngredientPlan
+---@alias ConnectionDirection "input"|"output"
+---@class ConnectionPlan
 ---@field key string
 ---@field type "item"|"fluid"
 ---@field name string
@@ -12,20 +13,46 @@ local planner = {}
 ---@field revision integer
 ---@field force_index integer
 ---@field surface_index integer
----@field recipe string?
+---@field recipes string[]
 ---@field title string
 ---@field hide_label boolean? Hide map-tag text without discarding the list name.
----@field ingredients IngredientPlan[]
+---@field ingredients ConnectionPlan[]
+---@field outputs ConnectionPlan[]
 ---@field tag LuaCustomChartTag?
 ---@field retired boolean
 ---@field marker_position MapPosition.struct? Explicit marker location; nil follows the source-based suggestion.
+
+local function migrate_single_recipe(plan)
+    ---@cast plan table
+    plan.recipes = plan.recipe and { plan.recipe } or {}
+    plan.recipe, plan.outputs = nil, {}
+    -- Missing prototypes keep their saved anchors until the player removes that recipe.
+    planner.set_recipes(plan, plan.recipes)
+end
 
 function planner.initialize()
     ---@type LLLState?
     local state = storage.location_location_location
     if not state then
-        storage.location_location_location =
-            { next_id = 1, plans = {}, sessions = {}, preferences = {}, highlights = {} }
+        storage.location_location_location = {
+            schema_version = 2,
+            next_id = 1,
+            plans = {},
+            sessions = {},
+            preferences = {},
+            highlights = {},
+        }
+    elseif not state.schema_version then
+        -- One-time migration from released single-recipe saves, not a runtime fallback.
+        for _, plan in pairs(state.plans) do
+            migrate_single_recipe(plan)
+        end
+        for _, session in pairs(state.sessions) do
+            if session.draft then
+                migrate_single_recipe(session.draft)
+            end
+        end
+        state.schema_version = 2
     end
 end
 
@@ -48,35 +75,98 @@ function planner.new(player)
         revision = 0,
         force_index = force_index,
         surface_index = player.surface_index,
+        recipes = {},
         title = "",
         hide_label = true,
         ingredients = {},
+        outputs = {},
         retired = false,
     }
 end
 
 ---@param draft RecipePlan
----@param name string?
+---@return string
+function planner.default_title(draft)
+    return table.concat(draft.recipes, " + ")
+end
+
+---@param draft RecipePlan
+---@param name string
+---@return boolean
+function planner.has_recipe(draft, name)
+    for _, selected in ipairs(draft.recipes) do
+        if selected == name then
+            return true
+        end
+    end
+    return false
+end
+
+---@param draft RecipePlan
+---@return boolean
+function planner.valid_recipes(draft)
+    if #draft.recipes == 0 then
+        return false
+    end
+    for _, name in ipairs(draft.recipes) do
+        if not prototypes.recipe[name] then
+            return false
+        end
+    end
+    return true
+end
+
+---@param names string[]
+---@param previous ConnectionPlan[]
+---@param direction ConnectionDirection
+---@return ConnectionPlan[]
+local function collect_connections(names, previous, direction)
+    local anchors, seen, connections = {}, {}, {}
+    for _, connection in ipairs(previous) do
+        anchors[connection.key] = connection.anchors
+    end
+    for _, name in ipairs(names) do
+        local recipe = prototypes.recipe[name]
+        local entries = direction == "input" and recipe.ingredients or recipe.products
+        for _, entry in ipairs(entries) do
+            local key = entry.type .. "/" .. entry.name
+            local possible = direction == "input"
+                or (entry.independent_probability > 0 and entry.shared_probability.max > entry.shared_probability.min)
+            if possible and not seen[key] then
+                seen[key] = true
+                connections[#connections + 1] =
+                    { key = key, type = entry.type, name = entry.name, anchors = anchors[key] or {} }
+            end
+        end
+    end
+    return connections
+end
+
+---@param draft RecipePlan
+---@param names string[]
 ---@return boolean, LocalisedString?
-function planner.set_recipe(draft, name)
-    local recipe = name and prototypes.recipe[name]
-    if not recipe then
-        return false, { "location-location-location.missing-recipe" }
+function planner.set_recipes(draft, names)
+    local selected, seen, available = {}, {}, true
+    for _, name in ipairs(names) do
+        if not prototypes.recipe[name] then
+            if not planner.has_recipe(draft, name) then
+                return false, { "location-location-location.missing-recipe" }
+            end
+            available = false
+        end
+        if not seen[name] then
+            seen[name] = true
+            selected[#selected + 1] = name
+        end
     end
-    local previous = {}
-    for _, ingredient in ipairs(draft.ingredients) do
-        previous[ingredient.key] = ingredient.anchors
+    local automatic_title = draft.title == "" or draft.title == planner.default_title(draft)
+    -- Unknown recipes must remain removable one at a time without losing saved anchors.
+    local ingredients = available and collect_connections(selected, draft.ingredients, "input") or draft.ingredients
+    local outputs = available and collect_connections(selected, draft.outputs, "output") or draft.outputs
+    draft.recipes, draft.ingredients, draft.outputs = selected, ingredients, outputs
+    if automatic_title then
+        draft.title = planner.default_title(draft)
     end
-    local ingredients = {}
-    for _, ingredient in ipairs(recipe.ingredients) do
-        local key = ingredient.type .. "/" .. ingredient.name
-        ingredients[#ingredients + 1] =
-            { key = key, type = ingredient.type, name = ingredient.name, anchors = previous[key] or {} }
-    end
-    if draft.title == "" or draft.title == draft.recipe then
-        draft.title = name
-    end
-    draft.recipe, draft.ingredients = name, ingredients
     return true
 end
 
@@ -88,10 +178,11 @@ function planner.copy(plan)
         revision = plan.revision,
         force_index = plan.force_index,
         surface_index = plan.surface_index,
-        recipe = plan.recipe,
+        recipes = util.table.deepcopy(plan.recipes),
         title = plan.title,
         hide_label = plan.hide_label,
         ingredients = util.table.deepcopy(plan.ingredients),
+        outputs = util.table.deepcopy(plan.outputs),
         retired = plan.retired,
         marker_position = plan.marker_position and { x = plan.marker_position.x, y = plan.marker_position.y } or nil,
     }
@@ -106,9 +197,9 @@ function planner.load(player, id)
         return nil, { "location-location-location.missing-plan" }
     end
     local draft = planner.copy(plan)
-    -- Recipe changes from a mod update retain only still-applicable ingredient assignments.
-    if draft.recipe and prototypes.recipe[draft.recipe] then
-        planner.set_recipe(draft, draft.recipe)
+    -- Recipe updates retain only still-applicable assignments on each side of the site.
+    if planner.valid_recipes(draft) then
+        planner.set_recipes(draft, draft.recipes)
     end
     return draft
 end
@@ -158,11 +249,11 @@ local function custom_title(draft)
         return nil
     end
     local title = draft.title:match("^%s*(.-)%s*$")
-    return title ~= "" and title ~= draft.recipe and title or nil
+    return title ~= "" and title ~= planner.default_title(draft) and title or nil
 end
 
---- Net edits: recipe, custom name, label visibility, placement, and each changed ingredient source set.
---- An automatic recipe-name update belongs to the recipe edit, not a second edit.
+--- Net edits: recipe selection, custom name, label visibility, placement, and each changed connection.
+--- An automatic title update belongs to the recipe edit, not a second edit.
 ---@return integer
 ---@param player LuaPlayer
 ---@param draft RecipePlan
@@ -171,7 +262,17 @@ function planner.change_count(player, draft)
     if saved and saved.force_index ~= player.force.index then
         saved = nil
     end
-    local count = draft.recipe ~= (saved and saved.recipe) and 1 or 0
+    local count = 0
+    if #draft.recipes ~= (saved and #saved.recipes or 0) then
+        count = 1
+    else
+        for index, name in ipairs(draft.recipes) do
+            if not saved or saved.recipes[index] ~= name then
+                count = 1
+                break
+            end
+        end
+    end
     if custom_title(draft) ~= custom_title(saved) then
         count = count + 1
     end
@@ -185,15 +286,15 @@ function planner.change_count(player, draft)
     then
         count = count + 1
     end
-    for _, ingredient in ipairs(draft.ingredients) do
-        local previous = saved and planner.ingredient(saved, ingredient.key)
-        if not same_anchors(ingredient.anchors, previous and previous.anchors) then
+    for _, connection, direction in planner.connections(draft) do
+        local previous = saved and planner.connection(saved, direction, connection.key)
+        if not same_anchors(connection.anchors, previous and previous.anchors) then
             count = count + 1
         end
     end
     if saved then
-        for _, previous in ipairs(saved.ingredients) do
-            if not planner.ingredient(draft, previous.key) and next(previous.anchors) then
+        for _, previous, direction in planner.connections(saved) do
+            if not planner.connection(draft, direction, previous.key) and next(previous.anchors) then
                 count = count + 1
             end
         end
@@ -202,14 +303,34 @@ function planner.change_count(player, draft)
 end
 
 ---@param draft RecipePlan
+---@param direction ConnectionDirection
 ---@param key string
----@return IngredientPlan?
-function planner.ingredient(draft, key)
-    for _, ingredient in ipairs(draft.ingredients) do
-        if ingredient.key == key then
-            return ingredient
+---@return ConnectionPlan?
+function planner.connection(draft, direction, key)
+    for _, connection in ipairs(direction == "input" and draft.ingredients or draft.outputs) do
+        if connection.key == key then
+            return connection
         end
     end
+end
+
+---@param draft RecipePlan
+---@param index integer
+---@return integer?, ConnectionPlan?, ConnectionDirection?
+local function next_connection(draft, index)
+    index = index + 1
+    if index <= #draft.ingredients then
+        return index, draft.ingredients[index], "input"
+    end
+    local output = draft.outputs[index - #draft.ingredients]
+    if output then
+        return index, output, "output"
+    end
+end
+
+---@param draft RecipePlan
+function planner.connections(draft)
+    return next_connection, draft, 0
 end
 
 local function anchor_key(entity)
@@ -219,21 +340,22 @@ local function anchor_key(entity)
 end
 
 ---@param draft RecipePlan
+---@param direction ConnectionDirection
 ---@param key string
 ---@param entities LuaEntity[]
 ---@param mode "replace"|"add"|"remove"
 ---@param surface_index integer
 ---@return boolean, LocalisedString?
-function planner.select(draft, key, entities, mode, surface_index)
+function planner.select(draft, direction, key, entities, mode, surface_index)
     if surface_index ~= draft.surface_index then
         return false, { "location-location-location.wrong-surface" }
     end
-    local ingredient = planner.ingredient(draft, key)
-    if not ingredient then
-        return false, { "location-location-location.choose-ingredient" }
+    local connection = planner.connection(draft, direction, key)
+    if not connection then
+        return false, { "location-location-location.choose-connection" }
     end
     if mode == "replace" then
-        ingredient.anchors = {}
+        connection.anchors = {}
     end
     for _, entity in pairs(entities) do
         if entity.valid and entity.surface.index == draft.surface_index then
@@ -241,9 +363,9 @@ function planner.select(draft, key, entities, mode, surface_index)
             ---@cast position MapPosition.struct
             local position_key = anchor_key(entity)
             if mode == "remove" then
-                ingredient.anchors[position_key] = nil
+                connection.anchors[position_key] = nil
             else
-                ingredient.anchors[position_key] = { x = position.x, y = position.y }
+                connection.anchors[position_key] = { x = position.x, y = position.y }
             end
         end
     end
@@ -255,10 +377,10 @@ end
 function planner.center(draft)
     ---@type number, number, integer
     local x, y, assigned = 0, 0, 0
-    for _, ingredient in ipairs(draft.ingredients) do
+    for _, connection in planner.connections(draft) do
         ---@type number, number, integer
         local sx, sy, count = 0, 0, 0
-        for _, position in pairs(ingredient.anchors) do
+        for _, position in pairs(connection.anchors) do
             sx, sy, count = sx + position.x, sy + position.y, count + 1
         end
         if count > 0 then
@@ -266,9 +388,9 @@ function planner.center(draft)
         end
     end
     if assigned == 0 then
-        return nil, 0, #draft.ingredients
+        return nil, 0, #draft.ingredients + #draft.outputs
     end
-    return { x = x / assigned, y = y / assigned }, assigned, #draft.ingredients
+    return { x = x / assigned, y = y / assigned }, assigned, #draft.ingredients + #draft.outputs
 end
 
 ---@param draft RecipePlan
@@ -306,8 +428,7 @@ function planner.apply(player, draft)
     if err then
         return nil, err
     end
-    local recipe = draft.recipe and prototypes.recipe[draft.recipe]
-    if not recipe then
+    if not planner.valid_recipes(draft) then
         return nil, { "location-location-location.missing-recipe" }
     end
     local surface = game.surfaces[draft.surface_index]
@@ -317,12 +438,14 @@ function planner.apply(player, draft)
     local position, assigned, total = planner.position(draft)
     local title = draft.title:match("^%s*(.-)%s*$")
     if title == "" then
-        title = draft.recipe
+        title = planner.default_title(draft)
     end
     local text = draft.hide_label and "" or title
     if not draft.hide_label and assigned < total then
         text = text .. " [" .. assigned .. "/" .. total .. "]"
     end
+    local recipe = prototypes.recipe[draft.recipes[1]]
+    ---@cast recipe LuaRecipePrototype
     local product = recipe.main_product or recipe.products[1]
     local icon = product and { type = product.type, name = product.name } or nil
     local tag = current and current.tag

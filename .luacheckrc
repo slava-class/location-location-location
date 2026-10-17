@@ -9,9 +9,10 @@ local storage_fields = {read_only = true, fields = {
 files["data.lua"] = {read_globals = {"mods", data = {fields = {
     raw = {read_only = false, other_fields = true}, extend = {},
 }}}}
+files["settings.lua"] = {read_globals = {data = {fields = {extend = {}}}}}
 files["control.lua"] = {read_globals = {"script"}}
 files["location_location_location/**/*.lua"] = {
-    read_globals = {"game", "script", "defines", "prototypes", "rendering", "helpers", storage = storage_fields},
+    read_globals = {"game", "script", "defines", "prototypes", "rendering", "helpers", "settings", storage = storage_fields},
 }
 -- This shared appearance module defines data-stage styles and runtime geometry.
 files["location_location_location/gui/appearance.lua"] = {
@@ -20,8 +21,9 @@ files["location_location_location/gui/appearance.lua"] = {
     }}},
 }
 files["tests/**/*.lua"] = {
-    read_globals = {"game", "script", "defines", "prototypes", "rendering", "helpers", "serpent",
+    read_globals = {"game", "script", "defines", "prototypes", "rendering", "helpers", "settings", "serpent",
         "tags", "describe", "test", "before_all", "before_each", "after_each", "after_all", "after_ticks", "ticks_between_tests",
+        "async", "done",
         storage = storage_fields},
 }
 

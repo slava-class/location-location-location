@@ -92,7 +92,7 @@ describe("Mod Portal gallery", function()
         player.teleport({ 3, 0 }, surface)
         assert(player.force.chart)(surface, { { -40, -40 }, { 40, 40 } })
         local draft = model.new(player)
-        assert(model.set_recipe(draft, "advanced-circuit"))
+        assert(model.set_recipes(draft, { "advanced-circuit" }))
         draft.title = "Advanced circuits"
         for _, spec in ipairs({
             {
@@ -108,7 +108,7 @@ describe("Mod Portal gallery", function()
                 assert(surface.create_entity({ name = spec.name, position = spec.position, force = player.force }))
             machine.set_recipe(spec.recipe)
             machine.disabled_by_script = true
-            assert(model.select(draft, spec.key, { machine }, "add", surface.index))
+            assert(model.select(draft, "input", spec.key, { machine }, "add", surface.index))
         end
         local pole =
             assert(surface.create_entity({ name = "big-electric-pole", position = { -4, -6 }, force = player.force }))
@@ -116,7 +116,7 @@ describe("Mod Portal gallery", function()
         saved_id = assert(assert(model.apply(player, draft)).id)
         for _, recipe in ipairs({ "processing-unit", "battery", "engine-unit", "chemical-science-pack" }) do
             local next_plan = model.new(player)
-            assert(model.set_recipe(next_plan, recipe))
+            assert(model.set_recipes(next_plan, { recipe }))
             assert(model.apply(player, next_plan))
         end
         sources.toggle(player)
@@ -163,7 +163,7 @@ describe("Mod Portal gallery", function()
             end)
             after_ticks(30, function()
                 local current = state()
-                assert(current.draft.recipe == "advanced-circuit")
+                assert(current.draft.recipes[1] == "advanced-circuit")
                 assert(current.gui.frame.visible and current.gui.frame.valid)
                 assert(player.surface.name == "nauvis")
                 if name == "recipe-picker" then

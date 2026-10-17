@@ -21,14 +21,18 @@ depends = ["setup"]
 run = "bun mise-tasks/lint.mjs"
 
 [tasks.format-check]
-run = "stylua --check control.lua data.lua location_location_location tests types mise-tasks"
+run = "stylua --check control.lua data.lua settings.lua location_location_location tests types mise-tasks"
 
 [tasks.format]
-run = "stylua --verify control.lua data.lua location_location_location tests types mise-tasks"
+run = "stylua --verify control.lua data.lua settings.lua location_location_location tests types mise-tasks"
 
 [tasks.typecheck]
 depends = ["setup"]
 run = "bun mise-tasks/typecheck.mjs"
+
+[tasks.test-model]
+description = "Run Lua planner and connection-lookup regressions without launching Factorio"
+run = "bun test mise-tasks/model.test.mjs"
 
 [tasks.test]
 description = "Run FactorioTest in isolated base and Space Age profiles"
@@ -69,6 +73,32 @@ run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-
 [tasks.package]
 description = "Build the release ZIP from info.json and validate its contents"
 run = "uv run --no-project python -B mise-tasks/package.py"
+
+[tasks.mod-status]
+description = "Read one mod's installed archives and enabled state in the normal Factorio profile"
+usage = '''arg "mod"'''
+run = 'bun mise-tasks/local-mod.mjs status "${usage_mod}"'
+
+[tasks.mod-load]
+description = "Install a local ZIP for normal play, backing up the selected save and previous mod state"
+usage = '''
+arg "archive"
+arg "save" help="Exact filename in the normal saves directory, or its absolute path"
+'''
+run = 'bun mise-tasks/local-mod.mjs load "${usage_archive}" --save "${usage_save}"'
+
+[tasks.mod-unload]
+description = "Disable one mod without deleting its archive; back up the selected save first"
+usage = '''
+arg "mod"
+arg "save"
+'''
+run = 'bun mise-tasks/local-mod.mjs unload "${usage_mod}" --save "${usage_save}"'
+
+[tasks.mod-restore]
+description = "Restore the exact mod state recorded in a deployment receipt without overwriting saves"
+usage = '''arg "receipt"'''
+run = 'bun mise-tasks/local-mod.mjs restore "${usage_receipt}"'
 
 [tasks.package-smoke]
 description = "Load the actual release ZIP in both engine profiles with FactorioTest disabled"
