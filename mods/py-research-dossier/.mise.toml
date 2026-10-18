@@ -1,0 +1,59 @@
+[tools]
+bun = "1.4.2"
+lua = "5.2.4"
+stylua = "2.3.1"
+uv = "0.12.13"
+
+[tasks.setup]
+description = "Prepare pinned dependencies and the installed Py text helper; never launch Factorio"
+run = ["bun install --frozen-lockfile", "uv run --no-project python -B mise-tasks/setup-lua-tools.py", "bun mise-tasks/prepare.mjs"]
+
+[tasks.generate]
+description = "Validate the authored catalogue and generate Lua plus English locale"
+run = "bun mise-tasks/content.mjs generate"
+
+[tasks.content]
+description = "Check content budgets, citations, targets and generated files"
+run = "bun mise-tasks/content.mjs check"
+
+[tasks.format]
+run = "stylua data.lua data-final-fixes.lua control.lua dossier/apply.lua dossier/flags.lua dossier/flag-gui.lua dossier/recipes.lua tests"
+
+[tasks."format:check"]
+run = "stylua --check data.lua data-final-fixes.lua control.lua dossier/apply.lua dossier/flags.lua dossier/flag-gui.lua dossier/recipes.lua tests"
+
+[tasks.lint]
+run = "bun mise-tasks/lint.mjs"
+
+[tasks.test]
+description = "Run offline annotation, feedback and audit-workflow regression tests"
+run = "bun test mise-tasks"
+
+[tasks.verify]
+description = "Offline verification only; no game executable or profile mutation"
+depends = ["content", "format:check", "lint", "test"]
+
+[tasks.smoke]
+description = "Replay the real entrypoint on a previously captured data.raw dump (explicit path required)"
+run = "bun mise-tasks/smoke.mjs"
+
+[tasks.package]
+description = "Build and byte-verify a deterministic mod ZIP"
+depends = ["verify"]
+run = "uv run --no-project python -B mise-tasks/package.py"
+
+[tasks."corpus:check"]
+description = "Check canonical content and report corpus/editorial review signals; no game launch"
+run = "bun mise-tasks/audit.mjs corpus"
+
+[tasks."flags:read"]
+description = "Read typed player flags with byte-prefix receipts; never consume or rewrite the log"
+run = "bun mise-tasks/audit.mjs flags"
+
+[tasks."audit:scope"]
+description = "Map flagged families, full technology packages and prerequisites against a read-only save"
+run = "bun mise-tasks/audit.mjs scope"
+
+[tasks."audit:progress"]
+description = "Read latest saved force research and recipe availability offline, with exact save/mod identity"
+run = "bun mise-tasks/audit.mjs progress"

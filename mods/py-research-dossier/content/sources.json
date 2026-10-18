@@ -1,0 +1,304 @@
+{
+  "epa-coke": {
+    "title": "US EPA: Economic Impact Analysis of Final Coke Ovens NESHAP (2002)",
+    "section": "Section 2.1.1, By-Product Coke Production Process; section 2.1.2, Types of Coke",
+    "url": "https://www.epa.gov/sites/default/files/2020-07/documents/coke-ovens_eia_neshap_final_08-2002.pdf"
+  },
+  "fao-carbonisation": {
+    "title": "FAO: Wood carbonisation and the products it yields",
+    "section": "Chapter 2, sections 2.1, 2.4 and 2.9.1.3",
+    "url": "https://www.fao.org/4/X5555E/x5555e03.htm"
+  },
+  "netl-gasification": {
+    "title": "DOE/NETL: Guidelines/Handbook for the Design of Modular Gasification Systems (2022)",
+    "section": "Section 3.2, Gasification fundamentals; section 6.3.4, Hydrogen-to-carbon monoxide ratio adjustment",
+    "url": "https://netl.doe.gov/sites/default/files/2026-02/Gasification%20Handbook.pdf"
+  },
+  "netl-tars": {
+    "title": "DOE/NETL: Guidelines/Handbook for the Design of Modular Gasification Systems (2022)",
+    "section": "Section 6.3.3, Hydrocarbon removal; table 6-4, Tar decomposition reaction mechanisms",
+    "url": "https://netl.doe.gov/sites/default/files/2026-02/Gasification%20Handbook.pdf"
+  },
+  "eia-refining": {
+    "title": "US EIA: Refining crude oil - the refining process",
+    "section": "Separation and Conversion (general refinery principles, not Py-specific tar yields)",
+    "url": "https://www.eia.gov/energyexplained/oil-and-petroleum-products/refining-crude-oil-the-refining-process.php"
+  },
+  "sepro-introduction": {
+    "title": "Sepro: Introduction to Mineral Processing or Beneficiation",
+    "section": "Sections 1.1-1.3, Mineral processing, ores, gangue and concentrates",
+    "url": "https://www.seprosystems.com/mineral-processing-introduction/"
+  },
+  "sepro-comminution": {
+    "title": "Sepro: Introduction to Mineral Processing or Beneficiation",
+    "section": "Sections 3.1-3.2, Liberation and comminution; crushing and grinding",
+    "url": "https://www.seprosystems.com/mineral-processing-introduction/"
+  },
+  "sepro-classification": {
+    "title": "Sepro: Introduction to Mineral Processing or Beneficiation",
+    "section": "Section 4, Size separation: screening and classification",
+    "url": "https://www.seprosystems.com/mineral-processing-introduction/"
+  },
+  "sepro-flotation": {
+    "title": "Sepro: Introduction to Mineral Processing or Beneficiation",
+    "section": "Section 5.4, Froth flotation",
+    "url": "https://www.seprosystems.com/mineral-processing-introduction/"
+  },
+  "uaf-metallurgy": {
+    "title": "University of Alaska Fairbanks: AMIT 135, Lesson 1 - Introduction",
+    "section": "Mineral processing; Nickel, Platinum and Zinc processing examples (dewatering and thermal operations)",
+    "url": "https://millops.community.uaf.edu/amit-135/amit-135-lesson-1/"
+  },
+  "aisi-ironmaking": {
+    "title": "American Iron and Steel Institute: Steel Production",
+    "section": "How Steel Is Made (blast furnace and electric arc furnace routes)",
+    "url": "https://www.steel.org/steel-technology/steel-production/"
+  },
+  "usgs-coal": {
+    "title": "USGS: What are the types of coal?",
+    "section": "Coalification, coal ranks and peat",
+    "url": "https://www.usgs.gov/faqs/what-are-types-coal"
+  },
+  "usgs-coal-minerals": {
+    "title": "USGS: Coal - A Complex Natural Resource (Circular 1143)",
+    "section": "Mineral Matter; distinction between coal minerals and ash formed during combustion",
+    "url": "https://pubs.usgs.gov/circ/c1143/html/text.html"
+  },
+  "mit-kerogen": {
+    "title": "MIT Summons Lab: Kerogen",
+    "section": "Kerogen and bitumen definition; Rock Eval pyrolysis and thermal cracking",
+    "url": "https://summons.mit.edu/biomarkers/biomarker-classification/kerogen/"
+  },
+  "openstax-reaction-rates": {
+    "title": "OpenStax: Chemistry 2e",
+    "section": "12.2 Factors Affecting Reaction Rates - The Physical States of the Reactants",
+    "url": "https://openstax.org/books/chemistry-2e/pages/12-2-factors-affecting-reaction-rates"
+  },
+  "usgs-calcination": {
+    "title": "USGS: Heating Limestone - A Major CO2 Culprit in Construction",
+    "section": "Cement's Frequently Overlooked Carbon Footprint - limestone calcination",
+    "url": "https://www.usgs.gov/news/featured-story/heating-limestone-a-major-co2-culprit-construction"
+  },
+  "usda-soil": {
+    "title": "USDA NRCS: What is Soil?",
+    "section": "Soil components and the Soil Taxonomy definition",
+    "url": "https://www.nrcs.usda.gov/resources/education-and-teaching-materials/what-is-soil"
+  },
+  "noaa-sand": {
+    "title": "NOAA: How does sand form?",
+    "section": "Quartz, volcanic and carbonate sources; grain-size classification",
+    "url": "https://oceanservice.noaa.gov/facts/sand.html"
+  },
+  "openstax-fungi": {
+    "title": "OpenStax: Biology 2e",
+    "section": "24.1 Characteristics of Fungi - Growth, Nutrition and Reproduction",
+    "url": "https://openstax.org/books/biology-2e/pages/24-1-characteristics-of-fungi"
+  },
+  "openstax-seeds": {
+    "title": "OpenStax: Biology 2e",
+    "section": "32.2 Pollination and Fertilization - Development of the Seed; Seed Germination",
+    "url": "https://openstax.org/books/biology-2e/pages/32-2-pollination-and-fertilization"
+  },
+  "openstax-photosynthesis": {
+    "title": "OpenStax: Biology 2e",
+    "section": "8.1 Overview of Photosynthesis - organic carbon, light-dependent reactions and water splitting",
+    "url": "https://openstax.org/books/biology-2e/pages/8-1-overview-of-photosynthesis"
+  },
+  "openstax-plant-nutrition": {
+    "title": "OpenStax: Biology 2e",
+    "section": "31.1 Nutritional Requirements of Plants - Essential Nutrients; Macronutrients and Micronutrients",
+    "url": "https://openstax.org/books/biology-2e/pages/31-1-nutritional-requirements-of-plants"
+  },
+  "openstax-bryophytes": {
+    "title": "OpenStax: Biology 2e",
+    "section": "25.3 Bryophytes - nonvascular plants, fertilisation and Mosses",
+    "url": "https://openstax.org/books/biology-2e/pages/25-3-bryophytes"
+  },
+  "openstax-food-webs": {
+    "title": "OpenStax: Biology 2e",
+    "section": "46.2 Energy Flow through Ecosystems - How Organisms Acquire Energy in a Food Web",
+    "url": "https://openstax.org/books/biology-2e/pages/46-2-energy-flow-through-ecosystems"
+  },
+  "openstax-digestion": {
+    "title": "OpenStax: Biology 2e",
+    "section": "34.1 Digestive Systems - Herbivores; microbial cellulose digestion in Ruminants",
+    "url": "https://openstax.org/books/biology-2e/pages/34-1-digestive-systems"
+  },
+  "openstax-nutrition": {
+    "title": "OpenStax: Biology 2e",
+    "section": "34.2 Nutrition and Energy Production - Food Requirements; Organic Precursors",
+    "url": "https://openstax.org/books/biology-2e/pages/34-2-nutrition-and-energy-production"
+  },
+  "smithsonian-insects": {
+    "title": "Smithsonian National Museum of Natural History: Insect Zoo",
+    "section": "Section 3, Thriving through Change; sections 7-9, silk, moth cocoons and pupae",
+    "url": "https://naturalhistory.si.edu/visit/accessibility/audio-and-visual-description/insect-zoo-audio-description-tour"
+  },
+  "openstax-respiration": {
+    "title": "OpenStax: Biology 2e",
+    "section": "39.1 Systems of Gas Exchange - cellular respiration and metabolic gas exchange",
+    "url": "https://openstax.org/books/biology-2e/pages/39-1-systems-of-gas-exchange"
+  },
+  "openstax-animal-development": {
+    "title": "OpenStax: Biology 2e",
+    "section": "27.1 Features of the Animal Kingdom - tissue differentiation; Animal Reproduction and Development",
+    "url": "https://openstax.org/books/biology-2e/pages/27-1-features-of-the-animal-kingdom"
+  },
+  "openstax-levers": {
+    "title": "OpenStax: College Physics",
+    "section": "9.5 Simple Machines - levers, torque and conservation of energy",
+    "url": "https://openstax.org/books/college-physics/pages/9-5-simple-machines"
+  },
+  "ju-belt-drives": {
+    "title": "Jonkoping University: Applied Mechanics",
+    "section": "9.5 Belt Drives - Friction belts: tension, torque and the slip limit",
+    "url": "https://mechanics.ju.se/MachineElements/belts.html"
+  },
+  "niosh-diborane": {
+    "title": "CDC/NIOSH: Pocket Guide to Chemical Hazards - Diborane",
+    "section": "Incompatibilities and Reactivities - water produces hydrogen and boric acid",
+    "url": "https://www.cdc.gov/niosh/npg/npgd0183.html"
+  },
+  "saito-boranes": {
+    "title": "Taro Saito: Inorganic Chemistry (Chemistry LibreTexts)",
+    "section": "4.2(a) Boron - crystalline boron clusters, semiconductor properties and diborane bridge bonding",
+    "url": "https://chem.libretexts.org/Bookshelves/Inorganic_Chemistry/Inorganic_Chemistry_%28Saito%29/04%3A_Chemistry_of_Nonmetallic_Elements/4.02%3A_Main_group_elements_of_2nd_and_3rd_periods_and_their_compounds"
+  },
+  "openstax-solids": {
+    "title": "OpenStax: Chemistry 2e",
+    "section": "10.5 The Solid State of Matter - crystalline and amorphous solids, metallic bonding, ionic conductivity and graphite layers",
+    "url": "https://openstax.org/books/chemistry-2e/pages/10-5-the-solid-state-of-matter"
+  },
+  "openstax-equilibrium": {
+    "title": "OpenStax: Chemistry 2e",
+    "section": "13.3 Shifting Equilibria - pressure, gas-molecule counts and temperature",
+    "url": "https://openstax.org/books/chemistry-2e/pages/13-3-shifting-equilibria-le-chateliers-principle"
+  },
+  "doe-electrolysis": {
+    "title": "US Department of Energy: Hydrogen Production - Electrolysis",
+    "section": "How Does It Work? - electrodes, electrolytes and water splitting",
+    "url": "https://www.energy.gov/cmei/fuels/hydrogen-production-electrolysis"
+  },
+  "eurochlor-electrolysis": {
+    "title": "Euro Chlor: How do you make chlorine?",
+    "section": "Salt-water electrolysis and the joint production of chlorine, hydrogen and caustic soda",
+    "url": "https://eurochlor.org/news/how-do-you-make-chlorine/"
+  },
+  "mit-glass": {
+    "title": "MIT OpenCourseWare: 3.091 Introduction to Solid State Chemistry - Glasses",
+    "section": "Lecture notes 7, sections 1 and 3-6: viscosity, glass formation, network modifiers and cooling",
+    "url": "https://ocw.mit.edu/courses/3-091sc-introduction-to-solid-state-chemistry-fall-2010/89de42af0f13332961162dbddbeddddc_MIT3_091SCF09_aln07.pdf"
+  },
+  "mit-process-analysis": {
+    "title": "MIT OpenCourseWare: 15.772J D-Lab Supply Chains - Process Analysis",
+    "section": "Problem Set 2, problems 1-3: batches, setup, inventory, flow rate and bottlenecks",
+    "url": "https://ocw.mit.edu/courses/15-772j-d-lab-supply-chains-fall-2014/f17bfc0d70c0a4009931352e72ad7716_MIT15_772JF14_ProblemSet2.pdf"
+  },
+  "openstax-power": {
+    "title": "OpenStax: College Physics 2e",
+    "section": "7.7 Power - work per unit time and useful power versus losses",
+    "url": "https://openstax.org/books/college-physics-2e/pages/7-7-power"
+  },
+  "openstax-motors": {
+    "title": "OpenStax: College Physics 2e",
+    "section": "22.8 Torque on a Current Loop: Motors and Meters - magnetic torque and energy conversion",
+    "url": "https://openstax.org/books/college-physics-2e/pages/22-8-torque-on-a-current-loop-motors-and-meters"
+  },
+  "openstax-stability": {
+    "title": "OpenStax: College Physics 2e",
+    "section": "9.3 Stability - centre of gravity, support base and tipping",
+    "url": "https://openstax.org/books/college-physics-2e/pages/9-3-stability"
+  },
+  "underground-conveyors": {
+    "title": "Suchorab-Matuszewska, Kawalec and Krol: Study of Long-Distance Belt Conveying for Underground Copper Mines (2025)",
+    "section": "Abstract: continuous underground conveyor design, belt strength and intermediate drives; not a model of Factorio values",
+    "url": "https://doi.org/10.3390/en18184872"
+  },
+  "usgs-boron": {
+    "title": "USGS: Mineral Commodity Summaries 2026 - Boron",
+    "section": "Production, mineral deposits, extraction from ores and brines; elemental boron does not occur naturally",
+    "url": "https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-boron.pdf"
+  },
+  "borax-decahydrate": {
+    "title": "US Borax: Borax Decahydrate",
+    "section": "Technical details - sodium borate, crystal water and dehydration",
+    "url": "https://www.borax.com/products/borax-decahydrate"
+  },
+  "openstax-acid-strength": {
+    "title": "OpenStax: Chemistry 2e",
+    "section": "14.3 Relative Strengths of Acids and Bases - ionisation equilibria, concentration and conjugate acid-base pairs",
+    "url": "https://openstax.org/books/chemistry-2e/pages/14-3-relative-strengths-of-acids-and-bases"
+  },
+  "borax-optibor": {
+    "title": "US Borax: Optibor Boric Acid",
+    "section": "Technical details - aqueous acidity, staged dehydration to metaboric acid and boron oxide",
+    "url": "https://www.borax.com/products/optibor"
+  },
+  "borax-oxide": {
+    "title": "US Borax: Boric Oxide",
+    "section": "Applications and Technical details - glass formation and borosilicate properties",
+    "url": "https://www.borax.com/products/boric-oxide"
+  },
+  "openstax-matter": {
+    "title": "OpenStax: Chemistry 2e",
+    "section": "1.2 Phases and Classification of Matter - conservation, mixtures, compounds and decomposition of water",
+    "url": "https://openstax.org/books/chemistry-2e/pages/1-2-phases-and-classification-of-matter"
+  },
+  "borax-nuclear": {
+    "title": "US Borax: Boron in Nuclear Energy",
+    "section": "How does boron help control nuclear reactions? - neutron absorption and boron-carbide control rods",
+    "url": "https://www.borax.com/applications/nuclear-energy"
+  },
+  "eia-octane": {
+    "title": "US EIA: Gasoline Explained - Octane in Depth",
+    "section": "What is octane? How does the octane level affect my vehicle? - knock resistance and reference fuels",
+    "url": "https://www.eia.gov/energyexplained/gasoline/octane-in-depth.php"
+  },
+  "usgs-rocks": {"title":"USGS: EarthWord - Rock vs. Mineral","section":"Definition - rocks, mineral aggregates, characteristic composition and crystal structure","url":"https://www.usgs.gov/news/science-snippet/earthword-rock-vs-mineral"},
+  "ju-gears": {"title":"Jonkoping University: Applied Mechanics","section":"9.4 Gear transmissions - power, torque and speed; gear ratios and efficiency","url":"https://mechanics.ju.se/MachineElements/transmissions.html"},
+  "aisi-steel-properties": {"title":"American Iron and Steel Institute: Glossary of Steel Industry Terms","section":"Steel, Carbon Steel, Aging and Annealing - composition, grain structure and mechanical properties","url":"https://www.steel.org/steel-technology/steel-production/glossary/"},
+  "ornl-grid-losses": {"title":"Oak Ridge National Laboratory: Opportunities for Energy Efficiency Improvements in the U.S. Electricity Transmission and Distribution System","section":"Sections 2.1 and 3.1 - conductor and transformer losses; transmission and distribution roles","url":"https://www.energy.gov/sites/prod/files/2015/04/f22/QER%20Analysis%20-%20Opportunities%20for%20Energy%20Efficiency%20Improvements%20in%20the%20US%20Electricity%20Transmission%20and%20Distribution%20System_0.pdf"},
+  "doe-steam": {"title":"US Department of Energy: Improving Steam System Performance","section":"Section 1 - Why Steam?, Generation, Distribution/Piping, Superheaters and End Use","url":"https://www.energy.gov/sites/default/files/2014/05/f15/steamsourcebook.pdf"},
+  "nist-pipe-losses": {"title":"NIST Technical Note 2294: Test Facility for Pressure Losses in Plumbing Pipes and Fittings","section":"Abstract and introduction - pressure losses in pipes and fittings","url":"https://doi.org/10.6028/NIST.TN.2294"},
+  "doe-geothermal": {"title":"US Department of Energy: Geothermal Electricity Generation","section":"Geothermal Power Generation Technologies and Geothermal Power Plants - heat, fluid, permeability and conversion cycles","url":"https://www.energy.gov/hgeo/geothermal/geothermal-electricity-generation"},
+  "epa-creosote": {"title":"US EPA: Overview of Wood Preservative Chemicals","section":"Creosote - coal-tar origin, industrial wood preservation and health/environmental precautions","url":"https://www.epa.gov/ingredients-used-pesticide-products/overview-wood-preservative-chemicals#creosote"},
+  "usgs-niobium": {"title":"USGS: Niobium and Tantalum Statistics and Information","section":"Niobium and Tantalum Insights and Data - alloy additions in steels and superalloys","url":"https://www.usgs.gov/centers/national-minerals-information-center/niobium-and-tantalum-statistics-and-information"},
+  "doe-casting": {"title":"US Department of Energy: Implementation of Metal Casting Best Practices","section":"Section 2, Metal Casting Industry Overview - moulds, molten metal and solidification","url":"https://www1.eere.energy.gov/manufacturing/resources/metalcasting/pdfs/implementation_final.pdf"},
+  "openstax-membranes": {"title":"OpenStax: Biology 2e","section":"5.1 Components and Structure - phospholipid barriers, compartment boundaries and controlled exchange","url":"https://openstax.org/books/biology-2e/pages/5-1-components-and-structure"},
+  "openstax-heat-capacity": {"title":"OpenStax: College Physics 2e","section":"14.2 Temperature Change and Heat Capacity - specific heat, water and thermal equilibration","url":"https://openstax.org/books/college-physics-2e/pages/14-2-temperature-change-and-heat-capacity"},
+  "openstax-thermal-expansion": {"title":"OpenStax: College Physics 2e","section":"13.2 Thermal Expansion of Solids and Liquids - expansion joints and constrained thermal stress","url":"https://openstax.org/books/college-physics-2e/pages/13-2-thermal-expansion-of-solids-and-liquids"},
+  "openstax-colloids": {"title":"OpenStax: Chemistry 2e","section":"11.5 Colloids - suspensions, solutions, colloidal dispersions and coagulation","url":"https://openstax.org/books/chemistry-2e/pages/11-5-colloids"},
+  "openstax-hydrocarbons": {"title":"OpenStax: Chemistry 2e","section":"20.1 Hydrocarbons - molecular structures, isomers and aromatic compounds","url":"https://openstax.org/books/chemistry-2e/pages/20-1-hydrocarbons"},
+  "openstax-dissolution": {"title":"OpenStax: Chemistry 2e","section":"11.1 The Dissolution Process - solutes, solvents and molecular interactions","url":"https://openstax.org/books/chemistry-2e/pages/11-1-the-dissolution-process"},
+  "nist-cryogenics": {"title":"NIST: About Cryogenics","section":"Normal boiling points of common cryogenic fluids","url":"https://www.nist.gov/mml/acmd/cryogenic-technologies-project/about-cryogenics"},
+  "noaa-atmosphere": {"title":"NOAA: The Atmosphere","section":"Dry-air composition table - trace helium","url":"https://www.noaa.gov/jetstream/atmosphere"},
+  "doe-biofuels": {"title":"US DOE: Biofuels - Energy for Transportation","section":"High-temperature deconstruction - pyrolysis gases, char and condensed bio-oil","url":"https://www.energy.gov/cmei/fuels/biofuels-energy-transportation"},
+  "nrel-lignin": {"title":"NREL/BETO: Gas Phase Selective Partial Oxidation of Lignin","section":"2021 project review - lignin pyrolysis vapours and selective phenolic products","url":"https://www.energy.gov/sites/default/files/2021-04/beto-12-peer-review-2021-convlignin-yung.pdf"},
+  "chen-urea": {"title":"Chen and Isa: Thermal Decomposition of Urea and Urea Derivatives","section":"Journal of the Mass Spectrometry Society of Japan 46(4), 299-303 - initial decomposition and subsequent reactions","url":"https://www.jstage.jst.go.jp/article/massspec/46/4/46_4_299/_article"},
+  "epa-cumene": {"title":"US EPA: Source Assessment - Manufacture of Acetone and Phenol From Cumene","section":"Oxidation to cumene hydroperoxide and cleavage to phenol and acetone","url":"https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=9101LXWU.TXT"},
+  "ullmann-anthraquinone": {"title":"Ullmann's Encyclopedia of Industrial Chemistry: Anthraquinone","section":"Section 3.2 - production by oxidation of anthracene","url":"https://doi.org/10.1002/14356007.a02_347"},
+  "usda-tall-oil": {"title":"USDA: Distilled Tall Oil Technical Evaluation Report","section":"Source or origin - black-liquor soaps, fatty acids and resin acids","url":"https://www.ams.usda.gov/sites/default/files/media/NOPDistilledallOil.pdf"},
+  "iupac-polymers": {"title":"IUPAC: Brief Guide to Polymer Nomenclature","section":"Sections 2-3.2 - identified monomers, polymer structure and copolymers","url":"https://iupac.qmul.ac.uk/BriefGuide/polymer.html"},
+  "latex-coagulation": {"title":"Sarabia Ortíz and Rodríguez Caicedo: Comparation of two methods for Hevea brasiliensis latex coagulation","section":"23(1), DOI 10.21897/rta.v23i1.1141 - formic acid as a latex coagulant","url":"https://doi.org/10.21897/rta.v23i1.1141"},
+  "eu-titanium-dioxide": {"title":"European Commission: LVIC-S Best Available Techniques Reference Document","section":"Sections 3.2.2.9-3.2.2.12 - chloride-process oxidation and chlorine recycling","url":"https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/lvic-s_bref_0907.pdf"},
+  "li-copolymer": {"title":"Li et al.: Free-Radical Copolymerization Kinetics of Acrylonitrile and Methyl Acrylate","section":"Journal of Applied Polymer Science 102, 4254-4257 - acrylonitrile/methyl-acrylate copolymerization","url":"https://doi.org/10.1002/app.24726"},
+  "openstax-capacitors": {"title":"OpenStax: University Physics Volume 2","section":"8.1 Capacitors and Capacitance - separated conductors and electric-field energy","url":"https://openstax.org/books/university-physics-volume-2/pages/8-1-capacitors-and-capacitance"},
+  "openstax-resistance": {"title":"OpenStax: University Physics Volume 2","section":"9.3 Resistivity and Resistance - geometry, materials and temperature dependence","url":"https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance"},
+  "openstax-inductors": {"title":"OpenStax: University Physics Volume 2","section":"14.2 Self-Inductance and Inductors - changing current and induced electromotive force","url":"https://openstax.org/books/university-physics-volume-2/pages/14-2-self-inductance-and-inductors"},
+  "openstax-semiconductors": {"title":"OpenStax: University Physics Volume 3","section":"9.7 Semiconductor Devices - junctions, rectification, transistors and integrated devices","url":"https://openstax.org/books/university-physics-volume-3/pages/9-7-semiconductor-devices"},
+  "neets-tubes": {"title":"US Navy: NEETS Module 6, NAVEDTRA 14178A","section":"Chapter 1, Introduction to Electron Tubes - thermionic emission and tube electrodes","url":"https://compatt.com/Tutorials/NEETS/New_PDF/14178A.pdf"},
+  "doe-supercapacitors": {"title":"US DOE: Technology Strategy Assessment - Supercapacitors","section":"July 2023, pages 1 and 3-4 - porous electrodes, electric double layers and storage mechanisms","url":"https://www.energy.gov/sites/default/files/2023-07/Technology%20Strategy%20Assessment%20-%20Supercapacitors.pdf"},
+  "doe-fault-current": {"title":"US DOE: Fault Current Limiters Fact Sheet","section":"Saturable-reactor fault-current limiting and magnetic impedance","url":"https://www.energy.gov/oe/articles/fault-current-limiters-fcl-fact-sheet"},
+  "frolov-pi-junction": {"title":"Frolov et al.: Measurement of the Current-Phase Relation of SFS Pi-Josephson Junctions","section":"Current-phase relation and pi state in superconductor-ferromagnet-superconductor junctions","url":"https://arxiv.org/abs/cond-mat/0402434"},
+  "sparkfun-pcb": {"title":"SparkFun: PCB Basics","section":"What is a PCB? and Composition - conductive tracks, substrate, layers and component connections","url":"https://learn.sparkfun.com/tutorials/pcb-basics/all?print=1"},
+  "sparkfun-assembly": {"title":"SparkFun: Electronics Assembly","section":"Pick and Place; Reflow - component placement is separate from solder-joint formation","url":"https://learn.sparkfun.com/tutorials/electronics-assembly/all?print=1"},
+  "epa-pulping": {"title":"US EPA: AP-42 Chemical Wood Pulping","section":"Section 10.2.1-10.2.2 - cellulose fibres, lignin dissolution and chemical recovery","url":"https://www.epa.gov/sites/default/files/2020-10/documents/c10s02.pdf"},
+  "formica-laminate": {"title":"Formica Group: Laminate... It's Made of Paper!","section":"Kraft paper, phenolic and melamine resins, and pressed layered construction","url":"https://formica.com/en-us/articles/inspiration/2024/laminate-is-made-of-paper"},
+  "acs-ceramics": {"title":"American Ceramic Society: Structure and Properties of Ceramics","section":"Bonding and typical properties - electrical insulation, heat resistance and brittle behaviour","url":"https://ceramics.org/about/what-are-ceramics/structure-and-properties-of-ceramics/"},
+  "openstax-galvanic": {"title":"OpenStax: Chemistry 2e","section":"17.2 Galvanic Cells - separated half-reactions, electron flow and ionic conduction","url":"https://openstax.org/books/chemistry-2e/pages/17-2-galvanic-cells"},
+  "usgs-copper-processing": {"title":"USGS: Copper Recycling in the United States in 2004, Circular 1196-X","section":"Pages 8-10 - mineral preparation, smelting, refining, leaching and solvent extraction/electrowinning","url":"https://pubs.usgs.gov/circ/circ1196x/pdf/circ1196X.pdf"},
+  "openstax-latent-heat": {"title":"OpenStax: College Physics 2e","section":"14.3 Phase Change and Latent Heat - melting, solidification and energy transfer","url":"https://openstax.org/books/college-physics-2e/pages/14-3-phase-change-and-latent-heat"},
+  "nobel-led": {"title":"Royal Swedish Academy of Sciences: Blue LEDs - Filling the World with New Light","section":"2014 Popular Science Background, page 2 - electron-hole recombination and semiconductor-dependent wavelength","url":"https://www.nobelprize.org/uploads/2018/06/popular-physicsprize2014.pdf"},
+  "openstax-doping": {"title":"OpenStax: University Physics Volume 3","section":"9.6 Semiconductors and Doping - donor and acceptor impurities, electrons and holes","url":"https://openstax.org/books/university-physics-volume-3/pages/9-6-semiconductors-and-doping"},
+  "epma-sintering": {"title":"European Powder Metallurgy Association: Conventional Press and Sinter","section":"Basic procedure, Sintering and Post-Sintering - particle bonding, partial melting and residual porosity","url":"https://www.epma.com/what-is-pm/powder-metallurgy-process/conventional-press-sinter/"}
+}

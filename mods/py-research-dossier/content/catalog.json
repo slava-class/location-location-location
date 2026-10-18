@@ -1,0 +1,1842 @@
+{
+  "schemaVersion": 3,
+  "entries": [
+    {
+      "id": "coal-carbonisation", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Carbonisation",
+      "text": "Heating coal without air drives off gases and tar, leaving a carbon-rich solid called coke.",
+      "targets": ["recipe/coal-gas", "recipe/coke-coal"],
+      "sources": ["epa-coke"], "gameSources": ["coal-gas", "coal-recipes"]
+    },
+    {
+      "id": "wood-carbonisation", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Wood pyrolysis",
+      "text": "Heating wood without air releases gases and condensable vapours while leaving charcoal. Some chemical energy remains in each stream rather than all becoming heat.",
+      "targets": ["recipe/coal-gas-from-wood", "recipe/wood-to-coal"],
+      "sources": ["fao-carbonisation"], "gameSources": ["coal-gas", "coal-recipes"]
+    },
+    {
+      "id": "coke-reprocessing", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Volatile matter",
+      "text": "Carbonisation removes most volatile compounds from coal. Reheating the resulting coke yields far less fresh tar because much of that material has already escaped.",
+      "targets": ["recipe/coal-gas-from-coke"],
+      "sources": ["epa-coke"], "gameSources": ["coal-gas"]
+    },
+    {
+      "id": "gas-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Gas conditioning",
+      "text": "Industrial plants can increase hydrogen content by reacting carbon monoxide with steam, forming carbon dioxide too: the water-gas shift reaction.",
+      "targets": ["recipe/syngas"],
+      "sources": ["netl-gasification"], "gameSources": ["syngas"]
+    },
+    {
+      "id": "steam-gasification", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Steam gasification",
+      "text": "At high temperature, carbon reacts with steam to form carbon monoxide and hydrogen. The steam is chemically consumed.",
+      "targets": ["recipe/gasify-coal-dust"],
+      "sources": ["netl-gasification"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "tar-gasification", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Steam reforming",
+      "text": "Steam reforming breaks down tar compounds into carbon monoxide and hydrogen. These reactions consume heat and commonly use catalysts.",
+      "targets": ["recipe/tar-gasification"],
+      "sources": ["netl-tars"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "tar-distillation-boundary", "kind": "recipe", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Separation versus reaction",
+      "text": "Distillation sorts existing compounds by volatility. Forming chemically different products requires reactions as well; boiling alone cannot explain a change in chemical identity.",
+      "targets": ["recipe/tar-distilation"],
+      "sources": ["eia-refining"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "tar-fractionation", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Fractionation",
+      "text": "Different compounds vaporise and condense at different temperatures. Fractionation collects boiling-range mixtures rather than separating every compound individually.",
+      "targets": ["recipe/tar-refining", "recipe/tar-refining-tops"],
+      "sources": ["eia-refining"], "gameSources": ["tar-recipes"]
+    },
+    {
+      "id": "pitch-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Thermal cracking",
+      "text": "Cracking breaks large organic molecules into smaller ones. Heavy residues can also leave carbon-rich coke during thermal conversion.",
+      "targets": ["recipe/pitch-refining"],
+      "sources": ["eia-refining", "netl-tars"], "gameSources": ["tar-recipes"]
+    },
+    {
+      "id": "naphtha-reforming", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Steam reforming",
+      "text": "Hydrocarbons react with steam to produce hydrogen and carbon monoxide. Industrial steam reforming commonly uses nickel catalysts and requires heat.",
+      "targets": ["recipe/naphtha-to-syngas"],
+      "sources": ["netl-tars"], "gameSources": ["petroleum-syngas"]
+    },
+    {
+      "id": "iron-crushing", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Mineral liberation",
+      "text": "Crushing fractures rock, exposing mineral grains previously locked in surrounding waste rock, called gangue.",
+      "targets": ["recipe/grade-1-iron-crush"],
+      "sources": ["sepro-comminution"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-grading", "kind": "recipe", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Size versus grade",
+      "text": "Screens separate particles by size; ore grade measures valuable mineral content. These numbered grades track preparation stages, not purity percentages.",
+      "targets": ["recipe/grade-2-iron"],
+      "sources": ["sepro-classification", "sepro-introduction"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-recrushing", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Mineral liberation",
+      "text": "Some grains remain locked inside mixed mineral fragments after initial crushing. Further breakage can free them for separation.",
+      "targets": ["recipe/grade-2-crush"],
+      "sources": ["sepro-comminution"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-milling", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Comminution",
+      "text": "Tumbling balls grind ore through impacts and abrasion, freeing mineral grains so later separation can distinguish them from waste.",
+      "targets": ["recipe/iron-ore-dust", "recipe/iron-ore-dust-2"],
+      "sources": ["sepro-comminution"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-concentration", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Beneficiation",
+      "text": "Beneficiation rejects unwanted minerals to enrich the useful fraction. Concentrates still contain mineral compounds; concentration alone does not make metal.",
+      "targets": ["recipe/iron-concentrate"],
+      "sources": ["sepro-introduction"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "chromite-flotation", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Froth flotation",
+      "text": "Reagents change mineral surfaces so selected particles attach to bubbles and rise into froth, while other particles remain in the slurry.",
+      "targets": ["recipe/high-chromite"],
+      "sources": ["sepro-flotation"], "gameSources": ["chromium-recipes"]
+    },
+    {
+      "id": "zinc-classification", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Hydraulic classification",
+      "text": "Particles settle through water at different speeds depending on size and density. Hydraulic classifiers exploit this difference to separate them.",
+      "targets": ["recipe/grade-3-zinc"],
+      "sources": ["sepro-classification"], "gameSources": ["zinc-recipes"]
+    },
+    {
+      "id": "copper-washing", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Wet separation",
+      "text": "Water carries fine waste particles away from retained mineral particles. Washing separates material; chemical extraction of copper is a different operation.",
+      "targets": ["recipe/wash-coper-low-dust"],
+      "sources": ["sepro-introduction", "sepro-classification"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "iron-filtration", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Filtration",
+      "text": "A porous medium retains suspended solids while liquid passes through. This recovers solids from a slurry without requiring a chemical reaction.",
+      "targets": ["recipe/high-grade-iron"],
+      "sources": ["uaf-metallurgy"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-reduction", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Oxide reduction",
+      "text": "Reduction removes oxygen bound in iron oxides. A real process must transfer that oxygen into other products; heating or melting alone does not establish that balance.",
+      "targets": ["recipe/reduction-iron"],
+      "sources": ["aisi-ironmaking", "fao-carbonisation"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "coke-material", "kind": "material", "discipline": "metallurgy", "basis": "real",
+      "topic": "Carbonisation",
+      "text": "Carbon-rich residue from heating coal without air. Coke supplies heat and reducing carbon in ironmaking.",
+      "targets": ["item/coke"],
+      "sources": ["epa-coke", "aisi-ironmaking"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "coal-gas-material", "kind": "material", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Coal carbonisation",
+      "text": "A combustible mixture containing hydrogen, methane and carbon monoxide, released when coal is heated without air.",
+      "targets": ["fluid/coal-gas"],
+      "sources": ["netl-gasification"], "gameSources": ["coal-gas"]
+    },
+    {
+      "id": "syngas-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Synthesis gas",
+      "text": "A mixture rich in hydrogen and carbon monoxide, used as fuel or as feedstock for chemicals such as methanol.",
+      "targets": ["fluid/syngas"],
+      "sources": ["netl-gasification"], "gameSources": ["syngas"]
+    },
+    {
+      "id": "tar-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Pyrolysis condensate",
+      "text": "Condensed organic vapours from thermal decomposition. Its many compounds have different boiling ranges, allowing recovery of distinct oil fractions.",
+      "targets": ["fluid/tar"],
+      "sources": ["netl-tars", "fao-carbonisation"], "gameSources": ["coal-gas"]
+    },
+    {
+      "id": "ore-fines", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Mineral liberation",
+      "text": "Grinding exposes mineral grains by reducing particle size. Fine iron-bearing ore is still mineral material, not iron metal powder.",
+      "targets": ["item/iron-ore-dust", "item/iron-dust-concentrate"],
+      "sources": ["sepro-comminution"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "ore-grades", "kind": "material", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Iron grades",
+      "text": "This preparation chain runs Grade 3 → 2 → 1, then milling. Real ore grade measures valuable mineral content, not stage numbers.",
+      "targets": ["item/grade-1-iron", "item/grade-2-iron", "item/grade-3-iron"],
+      "sources": ["sepro-introduction", "sepro-classification"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "iron-concentrate-material", "kind": "material", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Beneficiation",
+      "text": "Ore enriched by removing some waste minerals. Iron may still be chemically bound to oxygen until a later reduction step.",
+      "targets": ["item/iron-concentrate", "item/high-grade-iron"],
+      "sources": ["sepro-introduction", "aisi-ironmaking"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "reduced-iron-material", "kind": "material", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Reduction",
+      "text": "Reduction removes oxygen from iron minerals. The resulting metal can still contain impurities; reduction and purification are separate goals.",
+      "targets": ["item/reduced-iron"],
+      "sources": ["uaf-metallurgy", "aisi-ironmaking"], "gameSources": ["iron-recipes"]
+    },
+    {
+      "id": "tailings-material", "kind": "material", "discipline": "engineering", "basis": "simplified",
+      "topic": "Separation residues",
+      "text": "Waste streams left after mineral separation, often containing water, fine rock, processing chemicals and some unrecovered valuable minerals.",
+      "targets": ["fluid/tailings"],
+      "sources": ["sepro-introduction", "sepro-flotation"], "gameSources": ["iron-recipes", "copper-recipes"]
+    },
+    {
+      "id": "distilator-machine", "kind": "machine", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Thermal processing",
+      "text": "Heating solids without air can decompose them; boiling liquid mixtures can separate compounds by volatility. Feedstock and conditions distinguish chemical conversion from physical separation.",
+      "targets": ["assembling-machine/distilator", "assembling-machine/distilator-mk02", "assembling-machine/distilator-mk03", "assembling-machine/distilator-mk04"],
+      "sources": ["epa-coke", "eia-refining"], "gameSources": ["distilator", "coal-gas", "tar-recipes"]
+    },
+    {
+      "id": "gasifier-machine", "kind": "machine", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Gasification",
+      "text": "Controlled reactions with steam or oxygen turn carbon-rich feedstock into combustible gas, retaining chemical energy instead of burning everything completely.",
+      "targets": ["assembling-machine/gasifier", "assembling-machine/gasifier-mk02", "assembling-machine/gasifier-mk03", "assembling-machine/gasifier-mk04"],
+      "sources": ["netl-gasification"], "gameSources": ["gasifier", "coal-recipes"]
+    },
+    {
+      "id": "tar-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Fractionation",
+      "text": "Heating separates tar into fractions with different boiling ranges. Lighter fractions vaporise more readily; heavy material remains behind.",
+      "targets": ["assembling-machine/tar-processing-unit", "assembling-machine/tar-processing-unit-mk02", "assembling-machine/tar-processing-unit-mk03", "assembling-machine/tar-processing-unit-mk04"],
+      "sources": ["eia-refining"], "gameSources": ["tar-unit", "tar-recipes"]
+    },
+    {
+      "id": "impact-crusher-machine", "kind": "machine", "discipline": "physics", "basis": "real",
+      "topic": "Mineral liberation",
+      "text": "Collisions fracture rock and free mineral grains from surrounding gangue. Liberation makes later separation possible.",
+      "targets": ["assembling-machine/impact-crusher-mk01", "assembling-machine/impact-crusher-mk02", "assembling-machine/impact-crusher-mk03", "assembling-machine/impact-crusher-mk04"],
+      "sources": ["sepro-comminution"], "gameSources": ["impact-crusher"]
+    },
+    {
+      "id": "flotation-machine", "kind": "machine", "discipline": "metallurgy", "basis": "real",
+      "topic": "Froth flotation",
+      "text": "Surface-active reagents make selected minerals attach to air bubbles. The rising froth carries those particles away from the remaining slurry.",
+      "targets": ["assembling-machine/flotation-cell-mk01", "assembling-machine/flotation-cell-mk02", "assembling-machine/flotation-cell-mk03", "assembling-machine/flotation-cell-mk04"],
+      "sources": ["sepro-flotation"], "gameSources": ["flotation-cell"]
+    },
+    {
+      "id": "hydroclassifier-machine", "kind": "machine", "discipline": "physics", "basis": "real",
+      "topic": "Differential settling",
+      "text": "Particles settle at different speeds according to size and density. Controlled water flow turns that difference into a physical separation.",
+      "targets": ["assembling-machine/hydroclassifier-mk01", "assembling-machine/hydroclassifier-mk02", "assembling-machine/hydroclassifier-mk03", "assembling-machine/hydroclassifier-mk04"],
+      "sources": ["sepro-classification"], "gameSources": ["hydroclassifier"]
+    },
+    {
+      "id": "reduction-machine", "kind": "machine", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Chemical reduction",
+      "text": "Reduction removes oxygen from metal oxides through chemical reactions. It is distinct from melting, which changes physical state without necessarily changing composition.",
+      "targets": ["assembling-machine/drp"],
+      "sources": ["aisi-ironmaking", "fao-carbonisation"], "gameSources": ["drp", "iron-recipes"]
+    },
+    {
+      "id": "coal-research", "kind": "technology", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Preparation and conversion",
+      "text": "Crushing prepares coal physically; carbonisation changes it chemically. Heating without air releases gas and tar while leaving coke, so one feedstock can supply several industrial streams.",
+      "targets": ["technology/coal-processing-1"],
+      "sources": ["epa-coke", "sepro-comminution"], "gameSources": ["coal-tech", "coal-recipes"]
+    },
+    {
+      "id": "tar-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Separation and conversion",
+      "text": "Separation and conversion do different jobs. Distillation sorts existing compounds by volatility; cracking breaks molecules apart, while reforming changes their structure or composition.",
+      "targets": ["technology/tar-processing"],
+      "sources": ["eia-refining", "netl-tars"], "gameSources": ["tar-tech", "tar-recipes"]
+    },
+    {
+      "id": "ore-research", "kind": "technology", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Extractive metallurgy",
+      "text": "Ore preparation begins with liberation: breaking rock to free mineral grains. Separation then exploits differences such as density, magnetism or surface chemistry to concentrate useful minerals.",
+      "targets": ["technology/iron-mk01", "technology/iron-mk02", "technology/iron-mk03"],
+      "sources": ["sepro-introduction", "sepro-comminution"], "gameSources": ["iron-tech", "iron-recipes"]
+    },
+    {
+      "id": "reduction-research", "kind": "technology", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Three different transformations",
+      "text": "Concentration selects which minerals remain; reduction changes their chemical state; melting changes solid to liquid. Iron oxide must lose oxygen to become iron, even if it has already been finely ground or melted.",
+      "targets": ["technology/iron-mk04"],
+      "sources": ["uaf-metallurgy", "aisi-ironmaking"], "gameSources": ["iron-tech", "iron-recipes"]
+    },
+    {
+      "id": "zinc-grades", "kind": "material", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Zinc grades",
+      "text": "These preparation stages advance from Grade 1 through 4 before milling. The numbers are not measured zinc percentages or a universal quality scale.",
+      "targets": ["item/grade-1-zinc", "item/grade-2-zinc", "item/grade-3-zinc", "item/grade-4-zinc"],
+      "sources": ["sepro-introduction"], "gameSources": ["zinc-recipes"]
+    },
+    {
+      "id": "coal-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Coalification",
+      "text": "Buried plant remains become coal through heat and pressure over geological time. Coal combines carbon-rich organic matter with minerals; it is not pure carbon.",
+      "targets": ["item/raw-coal"],
+      "sources": ["usgs-coal", "usgs-coal-minerals"], "gameSources": ["raw-ore-items", "coal-recipes"]
+    },
+    {
+      "id": "ash-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Combustion residue",
+      "text": "When fuel burns, much of its carbon leaves as gas. Mineral matter forms ash, often containing silica and metal oxides rather than the original minerals.",
+      "targets": ["item/ash"],
+      "sources": ["usgs-coal-minerals"], "gameSources": ["coal-items", "coal-recipes"]
+    },
+    {
+      "id": "kerogen-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Petroleum precursor",
+      "text": "Insoluble organic matter preserved in sedimentary rocks. Heating can break it into smaller hydrocarbons; unlike bitumen, kerogen does not dissolve in organic solvents.",
+      "targets": ["item/kerogen"],
+      "sources": ["mit-kerogen"], "gameSources": ["petroleum-items", "kerogen-recipes"]
+    },
+    {
+      "id": "coal-dust-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Surface area",
+      "text": "Grinding exposes more surface per unit mass. Fine coal can react faster than large lumps because gases contact more of its surface.",
+      "targets": ["item/coal-dust"],
+      "sources": ["openstax-reaction-rates"], "gameSources": ["coal-items", "coal-recipes"]
+    },
+    {
+      "id": "limestone-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Carbonate rock",
+      "text": "A rock rich in calcium carbonate. Strong heating releases carbon dioxide and leaves calcium oxide, the basis of quicklime.",
+      "targets": ["item/limestone"],
+      "sources": ["usgs-calcination"], "gameSources": ["coal-items", "coal-recipes"]
+    },
+    {
+      "id": "lime-material", "kind": "material", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Calcination",
+      "text": "Making quicklime decomposes calcium carbonate into calcium oxide and carbon dioxide. The gas comes from the rock itself, not only the furnace fuel.",
+      "targets": ["item/lime"],
+      "sources": ["usgs-calcination"], "gameSources": ["coal-items", "coal-recipes"]
+    },
+    {
+      "id": "soil-material", "kind": "material", "discipline": "geology", "basis": "simplified",
+      "topic": "Soil structure",
+      "text": "Soil combines mineral particles, organic matter, water, air and organisms. Its pore spaces store water and allow gases to reach roots.",
+      "targets": ["item/soil"],
+      "sources": ["usda-soil"], "gameSources": ["coal-items", "coal-general-recipes"]
+    },
+    {
+      "id": "sand-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Grain size",
+      "text": "Sand names a grain-size class, not a single mineral. Quartz is common, but sand can also contain carbonate shell fragments or other minerals.",
+      "targets": ["item/sand"],
+      "sources": ["noaa-sand"], "gameSources": ["coal-items", "coal-general-recipes"]
+    },
+    {
+      "id": "washed-sand-material", "kind": "material", "discipline": "engineering", "basis": "simplified",
+      "topic": "Mineral washing",
+      "text": "Washing separates fine clay and silt from coarser grains. It is a physical separation, so the remaining grains keep their mineral identities.",
+      "targets": ["item/pure-sand"],
+      "sources": ["sepro-classification", "noaa-sand"], "gameSources": ["coal-items", "coal-recipes"]
+    },
+    {
+      "id": "fawogae-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Fungal analogue",
+      "text": "Fungi secrete enzymes into their surroundings and absorb the digested nutrients. Unlike plants, they do not make sugars by photosynthesis.",
+      "targets": ["module/fawogae"],
+      "sources": ["openstax-fungi"], "gameSources": ["alienlife-items", "fawogae-recipes"]
+    },
+    {
+      "id": "fawogae-spore-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Fungal analogue",
+      "text": "Spores can disperse and grow into new fungal threads, called hyphae. Unlike a plant seed, a fungal spore contains no embryo.",
+      "targets": ["item/fawogae-spore"],
+      "sources": ["openstax-fungi", "openstax-seeds"], "gameSources": ["alienlife-items", "fawogae-recipes"]
+    },
+    {
+      "id": "fungal-substrate", "kind": "material", "discipline": "biology", "basis": "simplified",
+      "topic": "Growth media",
+      "text": "A fungal substrate supplies organic matter that fungi digest for carbon and energy. Water alone cannot provide the building materials for new biomass.",
+      "targets": ["item/fawogae-substrate"],
+      "sources": ["openstax-fungi"], "gameSources": ["coal-items", "fawogae-recipes"]
+    },
+    {
+      "id": "ralesia-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Photosynthesis analogue",
+      "text": "Plants use light energy to build sugars from carbon dioxide and water. Oxygen released by photosynthesis comes from splitting water, not carbon dioxide.",
+      "targets": ["module/ralesia"],
+      "sources": ["openstax-photosynthesis"], "gameSources": ["coal-items", "ralesia-recipes"]
+    },
+    {
+      "id": "seed-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Seed analogue",
+      "text": "Seeds package a plant embryo with food reserves and a protective coat. Germination draws on those reserves before the seedling can sustain itself.",
+      "targets": ["item/ralesia-seeds", "item/wood-seeds"],
+      "sources": ["openstax-seeds"], "gameSources": ["coal-items", "alienlife-items", "alienlife-general-recipes"]
+    },
+    {
+      "id": "seedling-biology", "kind": "material", "discipline": "biology", "basis": "simplified",
+      "topic": "Seedling growth",
+      "text": "Early growth draws on seed reserves. As leaves develop, photosynthesis supplies sugars, while roots absorb water and mineral nutrients.",
+      "targets": ["item/wood-seedling"],
+      "sources": ["openstax-seeds", "openstax-plant-nutrition"], "gameSources": ["alienlife-items", "alienlife-general-recipes"]
+    },
+    {
+      "id": "moss-biology", "kind": "material", "discipline": "biology", "basis": "simplified",
+      "topic": "Bryophytes",
+      "text": "Mosses reproduce with spores rather than seeds and lack the vascular transport system of trees. Fertilisation needs water for sperm to reach the egg.",
+      "targets": ["module/moss"],
+      "sources": ["openstax-bryophytes"], "gameSources": ["alienlife-items"]
+    },
+    {
+      "id": "native-flora-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Food-web analogue",
+      "text": "Plants capture light energy in organic matter. Herbivores and decomposers consume that biomass, transferring carbon and nutrients through an ecosystem.",
+      "targets": ["item/native-flora"],
+      "sources": ["openstax-food-webs"], "gameSources": ["alienlife-items-two", "ulric-recipes", "auog-raising"]
+    },
+    {
+      "id": "wood-biology", "kind": "material", "discipline": "biology", "basis": "real",
+      "topic": "Plant carbon",
+      "text": "Plants use carbon dioxide to build sugars, then assemble sugars into cellulose. Much of a tree's dry mass ultimately comes from the air.",
+      "targets": ["item/wood"],
+      "sources": ["openstax-photosynthesis", "openstax-plant-nutrition"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "ulric-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Herbivore analogue",
+      "text": "Many herbivores rely on gut microbes to digest cellulose in plant cell walls. Microbial fermentation makes this otherwise inaccessible food useful to the animal.",
+      "targets": ["module/ulric"],
+      "sources": ["openstax-digestion"], "gameSources": ["alienlife-items", "ulric-recipes", "ulric-raising"]
+    },
+    {
+      "id": "ulric-cub-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Growth analogue",
+      "text": "Growing animals need energy and building materials. Digested proteins supply amino acids for making new tissues; food is not just fuel.",
+      "targets": ["item/ulric-cub"],
+      "sources": ["openstax-nutrition"], "gameSources": ["alienlife-items", "ulric-raising"]
+    },
+    {
+      "id": "vrauk-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Metamorphosis analogue",
+      "text": "In complete insect metamorphosis, egg, larva, pupa and adult are distinct stages. Larvae and adults can occupy different habitats and eat different foods.",
+      "targets": ["module/vrauks"],
+      "sources": ["smithsonian-insects"], "gameSources": ["alienlife-items", "vrauk-raising"]
+    },
+    {
+      "id": "vrauk-cocoon-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Cocoon analogue",
+      "text": "In many moths, a caterpillar spins a silk covering around its pupa. The cocoon is that protective covering, not the developing insect itself.",
+      "targets": ["item/cocoon"],
+      "sources": ["smithsonian-insects"], "gameSources": ["alienlife-items", "vrauk-raising"]
+    },
+    {
+      "id": "auog-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Respiration analogue",
+      "text": "Oxygen lets animal cells extract energy from food, producing carbon dioxide and water. This supports movement and maintenance, even when growth has stopped.",
+      "targets": ["module/auog"],
+      "sources": ["openstax-respiration"], "gameSources": ["alienlife-items", "auog-raising"]
+    },
+    {
+      "id": "auog-pup-biology", "kind": "material", "discipline": "biology", "basis": "fictional",
+      "topic": "Development analogue",
+      "text": "Growth is more than getting bigger: cells divide and specialise into different tissues. Development coordinates those changes into a functioning animal.",
+      "targets": ["item/auog-pup"],
+      "sources": ["openstax-animal-development"], "gameSources": ["alienlife-items", "auog-raising"]
+    },
+    {
+      "id": "mechanical-inserter", "kind": "machine", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Pivot torque",
+      "text": "A perpendicular force farther from a pivot produces more torque. Mechanical advantage trades force for distance; it does not supply free energy.",
+      "targets": ["inserter/burner-inserter"],
+      "sources": ["openstax-levers"], "gameSources": ["coal-entity-updates"]
+    },
+    {
+      "id": "transport-belt", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Belt traction",
+      "text": "Friction-driven conveyors use a pulley to pull the belt. Greater tension and wrap angle increase the traction available before the belt slips.",
+      "targets": ["transport-belt/transport-belt", "transport-belt/fast-transport-belt", "transport-belt/express-transport-belt"],
+      "sources": ["ju-belt-drives"], "gameSources": ["base-transport-belts"]
+    },
+    {
+      "id": "diborane-process", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Atom bookkeeping",
+      "text": "Borax contains sodium and oxygen as well as boron. Converting it to diborane must account for those other atoms in coproducts, even when they are not listed.",
+      "targets": ["recipe/diborane"],
+      "sources": ["borax-decahydrate", "saito-boranes", "openstax-matter"], "gameSources": ["diborane", "raw-ore-coal-updates"]
+    },
+    {
+      "id": "diborane-bonding", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Shared electrons",
+      "text": "Diborane has two hydrogen bridges between its boron atoms. Each bridge shares one electron pair across three atoms: a three-centre, two-electron bond.",
+      "targets": ["fluid/diborane"],
+      "sources": ["saito-boranes"], "gameSources": ["diborane"]
+    },
+    {
+      "id": "coal-fuel-material", "kind": "material", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Coal and charcoal",
+      "text": "Coal forms geologically; charcoal comes from heating wood without air. Both are carbon-rich fuels, but their origins and mineral impurities differ.",
+      "targets": ["item/coal"],
+      "sources": ["usgs-coal","fao-carbonisation"], "gameSources": ["coal-gas","coal-recipes"]
+    },
+    {
+      "id": "stock-furnace", "kind": "machine", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Smelting versus melting",
+      "text": "Heating can cause chemical changes before anything melts. Smelting extracts metals through reactions, whereas melting only changes a solid into a liquid.",
+      "targets": ["furnace/stone-furnace","furnace/steel-furnace","furnace/electric-furnace"],
+      "sources": ["aisi-ironmaking","openstax-solids"], "gameSources": ["base-entities","coal-entity-updates"]
+    },
+    {
+      "id": "pressure-furnace", "kind": "machine", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Pressure equilibrium",
+      "text": "Compressing an equilibrium gas mixture can favour reactions producing fewer gas molecules. Temperature shifts equilibrium separately, so pressure alone does not determine a furnace's products.",
+      "targets": ["assembling-machine/hpf","assembling-machine/hpf-mk02","assembling-machine/hpf-mk03","assembling-machine/hpf-mk04"],
+      "sources": ["openstax-equilibrium"], "gameSources": ["pressure-furnace"]
+    },
+    {
+      "id": "water-electrolysis", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Atom balance",
+      "text": "Splitting two water molecules produces two hydrogen molecules and one oxygen molecule. Electrical energy drives this rearrangement; it does not create new atoms.",
+      "targets": ["recipe/hydrogen"],
+      "sources": ["doe-electrolysis"], "gameSources": ["raw-hydrogen"]
+    },
+    {
+      "id": "brine-electrolysis", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Joint products",
+      "text": "Salt-water electrolysis produces chlorine, hydrogen and sodium hydroxide together. The useful outputs are coupled by the chemistry, rather than being independently selectable products.",
+      "targets": ["recipe/chlorine"],
+      "sources": ["eurochlor-electrolysis"], "gameSources": ["raw-chlorine"]
+    },
+    {
+      "id": "electrolyzer-machine", "kind": "machine", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Separated reactions",
+      "text": "An electrolyzer pairs two electrodes with an ion-conducting medium. Electrons travel through an external circuit while ions carry charge internally, connecting the two reaction sites.",
+      "targets": ["assembling-machine/electrolyzer-mk01","assembling-machine/electrolyzer-mk02","assembling-machine/electrolyzer-mk03","assembling-machine/electrolyzer-mk04"],
+      "sources": ["doe-electrolysis"], "gameSources": ["electrolyzer"]
+    },
+    {
+      "id": "electrolysis-research", "kind": "technology", "discipline": "chemistry", "basis": "real",
+      "topic": "Electrochemical work",
+      "text": "An applied voltage can drive a reaction that would not proceed spontaneously. Electrodes exchange electrons with reacting substances, while an electrolyte carries ions between the reaction sites.",
+      "targets": ["technology/electrolysis"],
+      "sources": ["doe-electrolysis"], "gameSources": ["raw-hydrogen","raw-chlorine","electrolyzer"]
+    },
+    {
+      "id": "glass-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Disordered solid",
+      "text": "Glass lacks a repeating crystal lattice. That disordered structure makes it soften over a temperature range rather than melt at one sharp temperature.",
+      "targets": ["item/glass"],
+      "sources": ["openstax-solids"], "gameSources": ["quartz-recipes"]
+    },
+    {
+      "id": "molten-glass-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Viscous flow",
+      "text": "Glass melts become more fluid when heated. Their resistance to flow depends on how easily the connected atomic network can rearrange.",
+      "targets": ["fluid/molten-glass"],
+      "sources": ["mit-glass"], "gameSources": ["raw-molten-glass"]
+    },
+    {
+      "id": "quartz-melting", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Silica melting",
+      "text": "Quartz is crystalline silica. Heating disrupts its ordered arrangement to form a viscous melt; making the final glass also requires controlled cooling.",
+      "targets": ["recipe/glass-1","recipe/glass-2"],
+      "sources": ["openstax-solids","mit-glass"], "gameSources": ["quartz-recipes","alienlife-raw-updates"]
+    },
+    {
+      "id": "glass-forming", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Suppressing crystals",
+      "text": "Cooling a melt without allowing crystals to grow produces glass instead of a crystalline solid. Composition and cooling rate determine whether this happens.",
+      "targets": ["recipe/molten-glass"],
+      "sources": ["mit-glass"], "gameSources": ["quartz-recipes","alienlife-raw-updates"]
+    },
+    {
+      "id": "glassworks-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Network modifiers",
+      "text": "Glassmakers add oxides that modify the atomic network of a melt. Breaking some network links improves fluidity and allows shaping at lower temperatures.",
+      "targets": ["assembling-machine/glassworks-mk01","assembling-machine/glassworks-mk02","assembling-machine/glassworks-mk03","assembling-machine/glassworks-mk04"],
+      "sources": ["mit-glass"], "gameSources": ["glassworks"]
+    },
+    {
+      "id": "glass-research", "kind": "technology", "discipline": "physics", "basis": "real",
+      "topic": "Structure and processing",
+      "text": "The same elements can form a crystal or a glass. Controlling composition and cooling changes atomic order and therefore properties; glass is not simply a transparent version of quartz.",
+      "targets": ["technology/glass"],
+      "sources": ["openstax-solids","mit-glass"], "gameSources": ["quartz-recipes","alienlife-raw-updates"]
+    },
+    {
+      "id": "brine-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Mobile ions",
+      "text": "Dissolved salts provide charged ions that carry electrical current. Their mobility makes brine an electrolyte, unlike the fixed ions in solid salt.",
+      "targets": ["fluid/water-saline"],
+      "sources": ["openstax-solids","eurochlor-electrolysis"], "gameSources": ["raw-chlorine"]
+    },
+    {
+      "id": "hydrogen-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Energy carrier",
+      "text": "Water-derived hydrogen stores energy supplied during production. Reacting it with oxygen releases energy and forms water; the cycle cannot create energy.",
+      "targets": ["fluid/hydrogen"],
+      "sources": ["doe-electrolysis"], "gameSources": ["raw-hydrogen"]
+    },
+    {
+      "id": "chlorine-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Element and ion",
+      "text": "Chlorine gas and chloride in table salt are chemically different. Chloride ions carry an extra electron, which changes their bonding and reactivity.",
+      "targets": ["fluid/chlorine"],
+      "sources": ["openstax-solids","eurochlor-electrolysis"], "gameSources": ["raw-chlorine"]
+    },
+    {
+      "id": "electric-inserters", "kind": "machine", "discipline": "physics", "basis": "real",
+      "topic": "Electric motors",
+      "text": "Current in a magnetic field experiences a force. Motors arrange those forces to produce torque, converting electrical energy into mechanical motion.",
+      "targets": ["inserter/inserter","inserter/fast-inserter"],
+      "sources": ["openstax-motors"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "long-inserter", "kind": "machine", "discipline": "engineering", "basis": "real",
+      "topic": "Reach and torque",
+      "text": "Holding a load farther horizontally from a pivot increases its torque. A longer-reaching arm therefore needs greater supporting torque for the same load.",
+      "targets": ["inserter/long-handed-inserter"],
+      "sources": ["openstax-levers"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "bulk-inserter", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Batch handling",
+      "text": "Moving several objects per cycle can raise throughput without faster motion. Larger batches also increase peak loads and may spend longer waiting to be assembled.",
+      "targets": ["inserter/bulk-inserter"],
+      "sources": ["mit-process-analysis","openstax-levers"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "stack-inserter", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Stable stacks",
+      "text": "Stacking uses vertical space, but taller loads can be less stable during motion. Real handling systems must control sliding and tipping as well as throughput.",
+      "targets": ["inserter/py-stack-inserter"],
+      "sources": ["openstax-stability"], "gameSources": ["py-stack-inserter"],
+      "when": {"featureFlag":"space_travel"}
+    },
+    {
+      "id": "crane-work", "kind": "machine", "discipline": "physics", "basis": "real",
+      "topic": "Work and power",
+      "text": "Lifting a load takes energy. Lifting the same load through the same height faster requires greater power; real mechanisms also lose energy as heat.",
+      "targets": ["inserter/crane-mk01","inserter/crane-mk02","inserter/crane-mk03","inserter/crane-mk04"],
+      "sources": ["openstax-power"], "gameSources": ["cranes"],
+      "when": {"startup":"enable-cranes"}
+    },
+    {
+      "id": "underground-conveyors", "kind": "machine", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Underground conveying",
+      "text": "Underground conveyors need continuous belts, supports and drives, abstracted here as paired entrances and exits. Longer routes face belt-strength and drive-power limits.",
+      "targets": ["underground-belt/underground-belt","underground-belt/fast-underground-belt","underground-belt/express-underground-belt"],
+      "sources": ["underground-conveyors"], "gameSources": ["base-transport-belts"]
+    },
+    {
+      "id": "splitters", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Flow conservation",
+      "text": "A splitter redistributes a stream; it cannot multiply the supply. Sustained output is limited by incoming flow, while temporary imbalances require stored material.",
+      "targets": ["splitter/splitter","splitter/fast-splitter","splitter/express-splitter"],
+      "sources": ["mit-process-analysis"], "gameSources": ["base-transport-belts"]
+    },
+    {
+      "id": "loader-transfer", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Transfer bottlenecks",
+      "text": "Connecting a fast conveyor to a slower receiving machine does not increase that machine's capacity. Transfer points need coordinated rates and somewhere for waiting material.",
+      "targets": ["loader-1x1/aai-loader","loader-1x1/aai-fast-loader","loader-1x1/aai-express-loader"],
+      "sources": ["mit-process-analysis"], "gameSources": ["aai-loaders"],
+      "when": {"mod":"aai-loaders"}
+    },
+    {
+      "id": "logistics-research", "kind": "technology", "discipline": "engineering", "basis": "real",
+      "topic": "System bottlenecks",
+      "text": "A production line cannot sustain more output than its limiting stage can supply. Speeding up a different stage may only increase waiting inventory; useful upgrades depend on the whole route.",
+      "targets": ["technology/logistics","technology/logistics-2","technology/logistics-3"],
+      "sources": ["mit-process-analysis"], "gameSources": ["base-technologies"]
+    },
+    {
+      "id": "inserter-speed-research", "kind": "technology", "discipline": "engineering", "basis": "real",
+      "topic": "Cycle time",
+      "text": "Throughput depends on objects moved per cycle and the time each cycle takes. Faster arm motion reduces only part of that time: picking, placing and waiting can still limit the rate.",
+      "targets": ["technology/fast-inserter"],
+      "sources": ["mit-process-analysis"], "gameSources": ["base-technologies"]
+    },
+    {
+      "id": "inserter-capacity-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Batch capacity",
+      "text": "Carrying more objects per cycle can raise throughput without raising cycle frequency. The tradeoff is a larger load per movement, and possibly longer waits while a batch gathers. Capacity and speed are different design choices.",
+      "targets": ["technology/bulk-inserter","technology/inserter-capacity-bonus-1","technology/inserter-capacity-bonus-2","technology/inserter-capacity-bonus-3","technology/inserter-capacity-bonus-4","technology/inserter-capacity-bonus-5","technology/inserter-capacity-bonus-6","technology/inserter-capacity-bonus-7"],
+      "sources": ["mit-process-analysis","openstax-levers"], "gameSources": ["base-technologies"]
+    },
+    {
+      "id": "belt-capacity-research", "kind": "technology", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Packing and speed",
+      "text": "A conveyor can carry more material by moving faster or by carrying more per length of belt. Stacking changes the second quantity; real designs must also accommodate load stability, belt tension and transfer equipment.",
+      "targets": ["technology/py-transport-belt-capacity-1","technology/py-transport-belt-capacity-2","technology/py-transport-belt-capacity-3","technology/py-transport-belt-capacity-4","technology/py-transport-belt-capacity-5","technology/py-transport-belt-capacity-6","technology/py-transport-belt-capacity-7"],
+      "sources": ["ju-belt-drives","openstax-stability"], "gameSources": ["py-belt-capacity"],
+      "when": {"featureFlag":"space_travel"}
+    },
+    {
+      "id": "batch-manufacturing-research", "kind": "technology", "discipline": "engineering", "basis": "real",
+      "topic": "Manufacturing batches",
+      "text": "Batch production spreads setup effort over several units, but larger lots can increase work in progress and waiting. These recipes change how devices are manufactured, not the device's operating tier.",
+      "targets": ["technology/fast-inserter-2","technology/bulk-inserter-2"],
+      "sources": ["mit-process-analysis"], "gameSources": ["improved-recipes","petroleum-technologies"]
+    },
+    {
+      "id": "loader-research", "kind": "technology", "discipline": "engineering", "basis": "real",
+      "topic": "Buffers and flow",
+      "text": "Buffers absorb short interruptions and timing mismatches between stages; they do not create processing capacity. If average input remains greater than output, the queue continues growing regardless of the transfer equipment's rated speed.",
+      "targets": ["technology/aai-loader","technology/aai-fast-loader","technology/aai-express-loader"],
+      "sources": ["mit-process-analysis"], "gameSources": ["aai-loader-tiers"],
+      "when": {"mod":"aai-loaders"}
+    },
+    {
+      "id": "device-batches", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Batch production",
+      "text": "Several devices are made per production batch. In real factories, batching can spread setup costs over more units, but it also ties up material between operations.",
+      "targets": ["recipe/fast-inserter-2","recipe/long-handed-inserter-2","recipe/bulk-inserter-2","recipe/transport-belt-2","recipe/fast-transport-belt-2","recipe/express-transport-belt-2"],
+      "sources": ["mit-process-analysis"], "gameSources": ["improved-recipes"]
+    },
+    {
+      "id": "raw-borax-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Borate deposits",
+      "text": "Natural boron occurs in compounds such as borate minerals, not as free elemental boron. Major deposits are associated with volcanic activity and dry climates.",
+      "targets": ["item/raw-borax"],
+      "sources": ["usgs-boron"], "gameSources": ["coal-items"]
+    },
+    {
+      "id": "borax-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Water in crystals",
+      "text": "Borax commonly contains water within its crystal structure. Losing this water changes the solid itself; it is not simply drying moisture from the surface.",
+      "targets": ["item/borax"],
+      "sources": ["borax-decahydrate"], "gameSources": ["coal-items"]
+    },
+    {
+      "id": "boric-acid-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Weak versus dilute",
+      "text": "Boric acid is weak, but weak does not mean dilute. Strength describes equilibrium chemistry; concentration describes how much acid is dissolved.",
+      "targets": ["fluid/boric-acid"],
+      "sources": ["openstax-acid-strength","borax-optibor"], "gameSources": ["boric-acid"]
+    },
+    {
+      "id": "boron-oxide-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Glass former",
+      "text": "Boron oxide can build a glass network rather than crystallising. Combining it with silica changes glass properties; borosilicate glass is not simply pure silica.",
+      "targets": ["item/boron-trioxide"],
+      "sources": ["mit-glass","borax-oxide"], "gameSources": ["coal-items"]
+    },
+    {
+      "id": "boron-oxide-powder", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Surface area",
+      "text": "Grinding leaves the chemical formula unchanged but exposes more surface. Finer oxide particles can mix and react more readily than larger lumps.",
+      "targets": ["item/b2o3-dust"],
+      "sources": ["openstax-reaction-rates"], "gameSources": ["fusion-items","fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "boron-mixture-material", "kind": "material", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Mixture and reaction",
+      "text": "A mixture combines substances without requiring a chemical reaction. Reacting its components changes chemical identities; simply blending them changes their distribution.",
+      "targets": ["item/boron-mixture"],
+      "sources": ["openstax-matter"], "gameSources": ["fusion-items","fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "boron-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Metalloid bonding",
+      "text": "Crystalline boron builds complex networks containing twelve-atom clusters. Its bonding produces a hard solid with semiconducting behaviour, rather than a typical conducting metal.",
+      "targets": ["item/boron"],
+      "sources": ["saito-boranes"], "gameSources": ["fusion-items"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "boron-carbide-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Neutron capture",
+      "text": "Boron carbide is used in reactor control rods because boron absorbs neutrons. This affects atomic nuclei, unlike the electron rearrangements in ordinary chemical reactions.",
+      "targets": ["item/boron-carbide"],
+      "sources": ["borax-nuclear"], "gameSources": ["fusion-items"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "borax-miners", "kind": "machine", "discipline": "geology", "basis": "abstracted",
+      "topic": "Two extraction routes",
+      "text": "Borate ores can be excavated, while dissolved borates can be recovered from brines. Mining removes material; separation concentrates the useful compounds.",
+      "targets": ["mining-drill/borax-mine","mining-drill/borax-mine-mk02","mining-drill/borax-mine-mk03","mining-drill/borax-mine-mk04"],
+      "sources": ["usgs-boron"], "gameSources": ["borax-miners","borax-resource"]
+    },
+    {
+      "id": "borax-washing", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Separating minerals",
+      "text": "Washing separates useful minerals from unwanted rock and clay. Rejected solids leave with water as sludge; separation changes the mixture, not the number of boron atoms.",
+      "targets": ["recipe/borax-washing"],
+      "sources": ["sepro-introduction","usgs-boron"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "boric-acid-process", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Hydrolysis",
+      "text": "Diborane reacts with water to form boric acid and hydrogen gas. Hydrogen is a real coproduct of this reaction, even when only the acid is collected.",
+      "targets": ["recipe/boric-acid"],
+      "sources": ["niosh-diborane"], "gameSources": ["boric-acid","raw-ore-coal-updates"]
+    },
+    {
+      "id": "boron-oxide-process", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Dehydration",
+      "text": "Heating boric acid removes water in stages, leaving boron oxide. The released water comes from a chemical transformation, not simply moisture boiling off a wet solid.",
+      "targets": ["recipe/boron-trioxide"],
+      "sources": ["borax-optibor"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "boron-milling", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Size distribution",
+      "text": "Mills produce a range of particle sizes. Classification separates the output so coarse particles can return for further grinding instead of treating every grain as equally fine.",
+      "targets": ["recipe/b2o3-milling"],
+      "sources": ["sepro-comminution","sepro-classification"], "gameSources": ["fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "boron-coproducts", "kind": "recipe", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Coupled outputs",
+      "text": "Producing boron alongside diborane couples two outputs. Demand for either product affects how much of the other stream must be used, stored or processed; coproducts are not independently selectable.",
+      "targets": ["recipe/boron"],
+      "sources": ["mit-process-analysis"], "gameSources": ["fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "simik-boron-analogue", "kind": "recipe", "discipline": "biology", "basis": "fictional",
+      "topic": "Element recycling",
+      "text": "This fictional digestive route illustrates element recycling. Organisms redistribute boron rather than create it; recovering the element requires it to have entered through food or mineral inputs.",
+      "targets": ["recipe/simik-boron","recipe/simik-poop-to-borax"],
+      "sources": ["openstax-plant-nutrition","usgs-boron"], "gameSources": ["simik-metals","atomizer-recipes"]
+    },
+    {
+      "id": "boron-research", "kind": "technology", "discipline": "chemistry", "basis": "real",
+      "topic": "Chemical form",
+      "text": "An element's chemistry depends on its compounds, not just its name. Boron in an oxygen-rich borate behaves differently from boron in a hydride, oxide or carbide; processing connects those forms.",
+      "targets": ["technology/boron"],
+      "sources": ["usgs-boron","saito-boranes"], "gameSources": ["boron-technologies"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "boron-refining-research", "kind": "technology", "discipline": "chemistry", "basis": "real",
+      "topic": "Purity and particle size",
+      "text": "Purity describes chemical composition; particle size describes physical form. A fine powder is not necessarily purer than a coarse solid. Grinding, separation and chemical conversion solve different material-processing problems.",
+      "targets": ["technology/boron-mk02"],
+      "sources": ["sepro-introduction","sepro-comminution"], "gameSources": ["boron-technologies"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "middle-oil-material", "kind": "material", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Middle fractions",
+      "text": "Middle cuts are less volatile than lighter fractions and more volatile than heavier ones. Their composition depends on the feedstock and the chosen collection boundaries.",
+      "targets": ["fluid/middle-oil"],
+      "sources": ["eia-refining"], "gameSources": ["middle-oil","tar-recipes"]
+    },
+    {
+      "id": "gasoline-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Octane rating",
+      "text": "Octane rating measures resistance to engine knock: unwanted auto-ignition under compression. It is not simply the percentage of octane molecules in the fuel.",
+      "targets": ["fluid/gasoline"],
+      "sources": ["eia-octane"], "gameSources": ["gasoline"]
+    },
+    {
+      "id": "oxygen-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Oxidiser",
+      "text": "Oxygen supports combustion but is not itself a fuel. In many burning reactions it combines with other elements, producing oxides and releasing energy.",
+      "targets": ["fluid/oxygen"],
+      "sources": ["openstax-matter"], "gameSources": ["raw-hydrogen"]
+    },
+    {
+      "id": "sodium-hydroxide-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Strong base",
+      "text": "Sodium hydroxide dissolves into sodium and hydroxide ions. Hydroxide accepts protons from acids to form water; the remaining ions determine which salt is present.",
+      "targets": ["item/sodium-hydroxide"],
+      "sources": ["openstax-acid-strength"], "gameSources": ["raw-chlorine","raw-ore-items"]
+    },
+    {
+      "id": "stone-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Rock and mineral",
+      "text": "Rock can combine several minerals, each with its own composition and structure. A rock name therefore does not specify one chemical formula.",
+      "targets": ["item/stone"],
+      "sources": ["usgs-rocks"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "iron-plate-material", "kind": "material", "discipline": "metallurgy", "basis": "real",
+      "topic": "Malleability",
+      "text": "Metallic bonding allows iron to deform under pressure rather than immediately shatter. This makes rolling and shaping possible after the metal has been extracted.",
+      "targets": ["item/iron-plate"],
+      "sources": ["openstax-solids"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "gear-material", "kind": "material", "discipline": "engineering", "basis": "real",
+      "topic": "Gear ratio",
+      "text": "Meshing teeth couple rotation. A larger driven gear turns more slowly but delivers greater torque; the exchange cannot increase power, and friction consumes some.",
+      "targets": ["item/iron-gear-wheel"],
+      "sources": ["ju-gears"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "steel-material", "kind": "material", "discipline": "metallurgy", "basis": "real",
+      "topic": "Alloying",
+      "text": "Small amounts of carbon strongly change iron's properties. Steel is an iron-based alloy whose hardness and formability depend on composition and thermal history.",
+      "targets": ["item/steel-plate"],
+      "sources": ["aisi-steel-properties"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "ball-mill-machine", "kind": "machine", "discipline": "engineering", "basis": "real",
+      "topic": "Grinding media",
+      "text": "Rotating drums lift grinding media that fall and rub against the feed. Impacts and abrasion break particles, exposing mineral grains for later separation.",
+      "targets": ["assembling-machine/ball-mill-mk01","assembling-machine/ball-mill-mk02","assembling-machine/ball-mill-mk03","assembling-machine/ball-mill-mk04"],
+      "sources": ["sepro-comminution"], "gameSources": ["ball-mill"]
+    },
+    {
+      "id": "distribution-poles", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Conductor losses",
+      "text": "Electric current heats resistive conductors. Doubling current quadruples heating at the same resistance; distribution design must consider current as well as connection distance.",
+      "targets": ["electric-pole/small-electric-pole","electric-pole/medium-electric-pole","electric-pole/big-electric-pole"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["base-entities","energy-base-updates"]
+    },
+    {
+      "id": "nexelit-power-pole", "kind": "machine", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Overhead loads",
+      "text": "Conductivity and strength are different properties. Overhead conductors carry current while supporting their own weight and surviving weather; choosing materials involves several tradeoffs.",
+      "targets": ["electric-pole/nexelit-power-pole"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["nexelit-pole"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "substation-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Network junctions",
+      "text": "Switching, protection and voltage conversion are different jobs. Real substations combine equipment for those functions, linking transmission systems to the networks and loads they serve.",
+      "targets": ["electric-pole/substation"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "nexelit-substation-machine", "kind": "machine", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Transformer losses",
+      "text": "Transformers transfer energy through a changing magnetic field. Their windings and cores still dissipate heat, so changing voltage is not perfectly efficient.",
+      "targets": ["electric-pole/nexelit-substation"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["nexelit-substation"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "floating-pole-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Transmission link",
+      "text": "A conductor can connect distant parts of a network without distributing power locally. This waterborne junction provides wire reach rather than a surrounding supply area.",
+      "targets": ["electric-pole/floating-electric-pole"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["floating-pole"],
+      "when": {"mod":"cargo-ships-floating-electric-pole"}
+    },
+    {
+      "id": "ordinary-pipes", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Flow resistance",
+      "text": "Real fluid flow loses pressure to friction along pipes and at fittings. Required pumping effort depends on flow rate, pipe diameter, roughness and length.",
+      "targets": ["pipe/pipe","pipe-to-ground/pipe-to-ground"],
+      "sources": ["nist-pipe-losses","doe-steam"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "niobium-pipes", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Service conditions",
+      "text": "Pipe materials must resist corrosion and mechanical stress. Strength, chemical compatibility and temperature limits are separate requirements; no material is best for every fluid and condition.",
+      "targets": ["pipe/niobium-pipe","pipe-to-ground/niobium-pipe-to-ground"],
+      "sources": ["doe-steam","usgs-niobium"], "gameSources": ["niobium-pipes"],
+      "when": {"mod":"pyindustry"}
+    },
+    {
+      "id": "high-temperature-pipes", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Thermal stress",
+      "text": "Hot pipes expand. Supports and joints must accommodate that movement; constraining it can create stress even when the fluid's pressure is unchanged.",
+      "targets": ["pipe/ht-pipes","pipe-to-ground/ht-pipes-to-ground"],
+      "sources": ["openstax-thermal-expansion"], "gameSources": ["hightech-pipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "combustion-boiler", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Boiling heat",
+      "text": "Combustion heat passes through metal walls into water. Boiling absorbs latent heat, so adding energy need not raise temperature while liquid and vapour coexist.",
+      "targets": ["boiler/boiler"],
+      "sources": ["doe-steam"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "external-heat-boiler", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "External heat",
+      "text": "A boiler can receive heat from another system rather than burning fuel locally. The heat source and the water circuit perform different jobs.",
+      "targets": ["boiler/heat-exchanger"],
+      "sources": ["doe-steam"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "liquid-fuel-boiler", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Exhaust heat",
+      "text": "Hot exhaust carries energy away. Recovering some of that heat into incoming water can improve fuel use; chemical energy and useful steam output are not identical.",
+      "targets": ["assembling-machine/oil-boiler-mk01"],
+      "sources": ["doe-steam"], "gameSources": ["oil-boiler","hardmode-oil-boiler"],
+      "when": {"mod":"pyhardmode"}
+    },
+    {
+      "id": "electric-boiler-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Resistive heating",
+      "text": "Electrical resistance converts current's energy into heat. This avoids combustion at the boiler, but upstream electricity generation still determines the wider energy and emissions cost.",
+      "targets": ["assembling-machine/py-electric-boiler"],
+      "sources": ["ornl-grid-losses","doe-steam"], "gameSources": ["electric-boiler"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "heat-exchanger-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Heat exchange",
+      "text": "Heat crosses a separating wall between hot and cold streams without requiring them to mix. Recovering heat can reduce the additional energy needed elsewhere.",
+      "targets": ["assembling-machine/py-heat-exchanger"],
+      "sources": ["doe-steam"], "gameSources": ["fusion-heat-exchanger"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "advanced-heat-exchangers", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Thermal resistance",
+      "text": "More surface area and a larger temperature difference can increase heat transfer. Deposits add thermal resistance, reducing performance even when both fluid streams still flow.",
+      "targets": ["assembling-machine/py-heat-exchanger-mk02","assembling-machine/py-heat-exchanger-mk03","assembling-machine/py-heat-exchanger-mk04"],
+      "sources": ["doe-steam"], "gameSources": ["heat-exchanger-two","heat-exchanger-three","heat-exchanger-four"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "water-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Thermal buffer",
+      "text": "Water absorbs substantial energy for a small temperature rise. Its high specific heat moderates temperature changes and makes it useful for carrying heat.",
+      "targets": ["fluid/water"],
+      "sources": ["openstax-heat-capacity"], "gameSources": ["base-fluids"]
+    },
+    {
+      "id": "steam-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Steam state",
+      "text": "Steam's energy content is not determined by temperature alone. Pressure and the proportion of liquid droplets also matter, especially near condensation.",
+      "targets": ["fluid/steam"],
+      "sources": ["doe-steam"], "gameSources": ["base-fluids"]
+    },
+    {
+      "id": "steam-engine-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Expansion work",
+      "text": "Pressurised steam expands and pushes moving parts. A heat engine converts only part of its heat input into work; the rest must be rejected.",
+      "targets": ["generator/steam-engine"],
+      "sources": ["doe-steam"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "offshore-pump-machine", "kind": "machine", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Pumping work",
+      "text": "Pumps transfer mechanical energy into fluid, raising pressure or elevation. Moving more water against the same pressure difference requires more power; transport does not create energy.",
+      "targets": ["offshore-pump/offshore-pump"],
+      "sources": ["doe-steam","openstax-power"], "gameSources": ["base-entities"]
+    },
+    {
+      "id": "biofluid-vessels", "kind": "machine", "discipline": "biology", "basis": "fictional",
+      "topic": "Compartmentalisation",
+      "text": "Living systems separate fluids with barriers and controlled exchange. This fictional biofluid conduit follows that principle of dedicated transport rather than serving as an ordinary water pipe.",
+      "targets": ["pipe/vessel","pipe-to-ground/vessel-to-ground"],
+      "sources": ["openstax-membranes"], "gameSources": ["biofluid-vessels"]
+    },
+    {
+      "id": "simik-boiler-machine", "kind": "machine", "discipline": "biology", "basis": "fictional",
+      "topic": "Biological heat analogue",
+      "text": "Metabolism releases heat from food's chemical energy. This fictional animal-powered boiler represents energy conversion; sustained heat output would still require an energy supply.",
+      "targets": ["assembling-machine/simik-boiler"],
+      "sources": ["openstax-respiration","openstax-power"], "gameSources": ["simik-boiler"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "oil-boiler-process", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Fuel versus feed",
+      "text": "Water carries heat rather than supplying fuel energy. Combustion produces flue gas; boiling changes water's phase without turning it into carbon-containing exhaust.",
+      "targets": ["recipe/oil-boiler-water-to-steam"],
+      "sources": ["doe-steam","openstax-matter"], "gameSources": ["hardmode-oil-boiler"],
+      "when": {"mod":"pyhardmode"}
+    },
+    {
+      "id": "electric-boiling-process", "kind": "recipe", "discipline": "physics", "basis": "simplified",
+      "topic": "Phase change",
+      "text": "Heating raises water's temperature until boiling begins at the prevailing pressure. Further energy then vaporises water rather than necessarily raising its temperature.",
+      "targets": ["recipe/electric-boiler-water-to-steam"],
+      "sources": ["doe-steam"], "gameSources": ["electric-boiler"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "salt-water-heat-exchange", "kind": "recipe", "discipline": "engineering", "basis": "simplified",
+      "topic": "Reusable heat carrier",
+      "text": "Molten salt transfers heat to a separate water stream. Cooling the salt need not consume it chemically; the returning cooler fluid can be heated again.",
+      "targets": ["recipe/he-01","recipe/he-02","recipe/he-03","recipe/he-04","recipe/he-05"],
+      "sources": ["doe-steam"], "gameSources": ["heat-exchanger-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "geothermal-steam-process", "kind": "recipe", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Geothermal conversion",
+      "text": "Geothermal systems extract heat carried by underground fluids. Steam may form through a pressure drop, or a heat exchanger can warm a separate working fluid.",
+      "targets": ["recipe/geo-he-00","recipe/geo-he-01","recipe/geo-he-02","recipe/geo-he-03"],
+      "sources": ["doe-geothermal"], "gameSources": ["heat-exchanger-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "simik-steam-process", "kind": "recipe", "discipline": "physics", "basis": "abstracted",
+      "topic": "Heating and state",
+      "text": "Producing hotter steam requires energy as well as water. A temperature label describes a state, not the source or amount of energy needed to reach it.",
+      "targets": ["recipe/steam-250","recipe/steam-500"],
+      "sources": ["doe-steam"], "gameSources": ["simik-boiler-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "pressured-steam-process", "kind": "recipe", "discipline": "physics", "basis": "abstracted",
+      "topic": "Phase and pressure",
+      "text": "Pressure changes water's boiling temperature. Heating and pressurising are different operations; a temperature value alone cannot establish the pressure of an arbitrary steam state.",
+      "targets": ["recipe/pressured-steam-1","recipe/pressured-steam-2","recipe/pressured-steam-3","recipe/pressured-steam-4"],
+      "sources": ["doe-steam"], "gameSources": ["simik-boiler-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "electric-distribution-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Voltage and losses",
+      "text": "Transmitting a given power at higher voltage permits lower current. Resistive heating grows with current squared, so this can reduce line losses while demanding more insulation and clearance.",
+      "targets": ["technology/electric-energy-distribution-1","technology/electric-energy-distribution-2"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["base-technologies","distribution-technologies"]
+    },
+    {
+      "id": "advanced-distribution-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Grid coordination",
+      "text": "A power network must balance generation and demand while limiting losses and protecting equipment. Bigger conductors, voltage conversion and switching solve different problems; none removes the need to manage current.",
+      "targets": ["technology/electric-energy-distribution-3","technology/electric-energy-distribution-4","technology/electric-energy-distribution-5"],
+      "sources": ["ornl-grid-losses"], "gameSources": ["distribution-technologies"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "steam-power-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Energy and working fluid",
+      "text": "Water transports energy through a steam cycle. Pumps add work, boilers add heat, and expansion can produce work. Tracking both energy and material flows prevents treating steam itself as the original fuel.",
+      "targets": ["technology/steam-power"],
+      "sources": ["doe-steam"], "gameSources": ["base-technologies","coal-base-updates"]
+    },
+    {
+      "id": "thermal-power-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Conversion chain",
+      "text": "A thermal power plant converts heat into mechanical work and then electricity. Each stage has losses and operating limits; improving a boiler cannot remove losses in the turbine, generator or electrical network.",
+      "targets": ["technology/nonrenewable-mk01","technology/nonrenewable-mk02","technology/nonrenewable-mk03","technology/nonrenewable-mk04"],
+      "sources": ["doe-steam","ornl-grid-losses"], "gameSources": ["nonrenewable-technologies"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "steam-cycle-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Closing the cycle",
+      "text": "Condensing exhaust steam and pumping the liquid back closes a steam cycle. Fuel type changes how heat is supplied; the working-fluid loop still needs heat input, expansion, cooling and circulation.",
+      "targets": ["technology/coalplant-mk01","technology/coalplant-mk02","technology/coalplant-mk03","technology/coalplant-mk04","technology/oilplant-mk01","technology/oilplant-mk02","technology/oilplant-mk03","technology/oilplant-mk04","technology/biomassplant-mk01","technology/biomassplant-mk02","technology/biomassplant-mk03","technology/biomassplant-mk04","technology/gasplant-mk01","technology/gasplant-mk02","technology/gasplant-mk03","technology/gasplant-mk04"],
+      "sources": ["doe-steam"], "gameSources": ["coalplant-technologies","oilplant-technologies","biomassplant-technologies","gasplant-technologies"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "geothermal-research", "kind": "technology", "discipline": "geology", "basis": "simplified",
+      "topic": "Geothermal resources",
+      "text": "Useful geothermal power needs heat, a fluid to transport it, and connected pathways through rock. A hot rock deposit alone is not a complete generating system; circulation and heat rejection matter too.",
+      "targets": ["technology/geothermal-power-mk01","technology/geothermal-power-mk02","technology/geothermal-power-mk03","technology/geothermal-power-mk04"],
+      "sources": ["doe-geothermal"], "gameSources": ["geothermal-technologies"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "creosote-research", "kind": "technology", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Wood preservation",
+      "text": "Preservation protects organic material against decay rather than making it metallic. Coal-tar creosote is an industrial wood preservative; durability, strength and electrical insulation remain different material properties.",
+      "targets": ["technology/creosote"],
+      "sources": ["epa-creosote"], "gameSources": ["coal-general-recipes","creosote-technologies"]
+    },
+    {
+      "id": "treated-wood-material", "kind": "material", "discipline": "biology", "basis": "simplified",
+      "topic": "Durability",
+      "text": "Preservatives inhibit organisms that degrade wood. Treatment can extend service life, but it does not turn wood into metal or replace electrical insulation.",
+      "targets": ["item/treated-wood"],
+      "sources": ["epa-creosote"], "gameSources": ["coal-items","coal-general-recipes"]
+    },
+    {
+      "id": "creosote-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Coal-tar preservative",
+      "text": "Coal-tar creosote contains compounds that inhibit wood-destroying organisms. Its toxicity also makes it hazardous to people and other organisms.",
+      "targets": ["fluid/creosote"],
+      "sources": ["epa-creosote"], "gameSources": ["creosote-fluid"]
+    },
+    {
+      "id": "niobium-research", "kind": "technology", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Alloy additions",
+      "text": "Niobium is used mainly as an alloying addition in steels and superalloys. Selecting an alloy requires considering strength, corrosion resistance, operating temperature and manufacturing constraints separately.",
+      "targets": ["technology/niobium"],
+      "sources": ["usgs-niobium","doe-steam"], "gameSources": ["niobium-technologies"]
+    },
+    {
+      "id": "casting-research", "kind": "technology", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Shaping by solidification",
+      "text": "Casting uses a mould to shape liquid metal as it freezes. The mould and cooling conditions influence the result; choosing a manufacturing route is separate from deciding how the finished part will be used.",
+      "targets": ["technology/casting-mk01","technology/casting-mk02","technology/casting-mk03","technology/casting-mk04"],
+      "sources": ["doe-casting"], "gameSources": ["casting-technologies","casting-recipes"]
+    },
+    {
+      "id": "biofluid-research", "kind": "technology", "discipline": "biology", "basis": "fictional",
+      "topic": "Dedicated transport",
+      "text": "Living systems maintain separate fluid environments with barriers and controlled exchange. This fictional biofluid network illustrates that distinction: the transport medium and its connections are design choices, not simply larger versions of ordinary plumbing.",
+      "targets": ["technology/biofluid-mk01"],
+      "sources": ["openstax-membranes"], "gameSources": ["biofluid-vessels","biofluid-technologies"]
+    },
+    {
+      "id": "graphite-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Layered carbon",
+      "text": "Graphite's carbon atoms bond strongly within sheets but much more weakly between them. Layers can slide, while mobile electrons also allow electrical conduction.",
+      "targets": ["item/graphite"],
+      "sources": ["openstax-solids"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "pressured-steam-material", "kind": "material", "discipline": "physics", "basis": "abstracted",
+      "topic": "Superheat",
+      "text": "Steam is superheated when hotter than its saturation temperature at a specified pressure. Higher temperature does not, by itself, mean higher pressure.",
+      "targets": ["fluid/pressured-steam"],
+      "sources": ["doe-steam"], "gameSources": ["pressured-steam"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "pressured-water-material", "kind": "material", "discipline": "physics", "basis": "simplified",
+      "topic": "Pressure without boiling",
+      "text": "Pumps do work to raise water's pressure. Pressurising liquid and vaporising it are different operations; neither creates energy.",
+      "targets": ["fluid/pressured-water"],
+      "sources": ["doe-steam","openstax-power"], "gameSources": ["pressured-water"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "copper-cable-material", "kind": "material", "discipline": "engineering", "basis": "real",
+      "topic": "Ductility",
+      "text": "Copper can be drawn into long wires without breaking. Thin conductors use less material, but their higher electrical resistance causes more heating at the same current.",
+      "targets": ["item/copper-cable"],
+      "sources": ["openstax-solids","ornl-grid-losses"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "oil-fractionation", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Boiling ranges",
+      "text": "Fractional distillation separates mixtures into boiling-range cuts. Lighter fractions vaporise more readily; heavy residues remain after more volatile components have been removed.",
+      "targets": ["recipe/oil-refining","recipe/bitumen-refining"],
+      "sources": ["eia-refining"], "gameSources": ["atmospheric-recipes"]
+    },
+    {
+      "id": "cryogenic-gas-separation", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Cryogenic separation",
+      "text": "Cooling and condensing mixed gases can separate components with different phase-change temperatures. Feed composition and pressure determine what can actually be recovered.",
+      "targets": ["recipe/liquid-rich-gas-distilation"],
+      "sources": ["nist-cryogenics"], "gameSources": ["fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "helium-air-separation", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Trace components",
+      "text": "Helium is scarce in air and remains gaseous far below nitrogen's and oxygen's boiling points. Trace-gas recovery requires separation and enrichment, not merely cooling air.",
+      "targets": ["recipe/liquid-air-distilation"],
+      "sources": ["noaa-atmosphere","nist-cryogenics"], "gameSources": ["fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "coal-carbonisation-process", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Coal carbonisation",
+      "text": "Heating coal with little or no oxygen drives off volatile products while leaving a carbon-rich solid. Recoverable gases and condensed vapours depend strongly on the feed.",
+      "targets": ["recipe/distilled-raw-coal"],
+      "sources": ["epa-coke"], "gameSources": ["raw-coal-recipes"]
+    },
+    {
+      "id": "heavy-feed-cracking", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Cracking and coke",
+      "text": "Cracking breaks larger organic molecules into smaller ones. Competing reactions can leave carbon-rich coke rather than converting all carbon into lighter liquid or gaseous products.",
+      "targets": ["recipe/residual-mixture-distillation","recipe/aromatics-from-naphthalene","recipe/anthracene-gasoline-cracking"],
+      "sources": ["eia-refining","netl-tars"], "gameSources": ["residual-recipes","coal-tar-recipes","gasoline-recipes"]
+    },
+    {
+      "id": "light-oil-structure", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Molecular structure",
+      "text": "Hydrocarbons with the same formula can have different atomic arrangements. Branching and ring structures affect combustion behaviour; fuel properties depend on structure, not just carbon content.",
+      "targets": ["recipe/light-oil-aromatics"],
+      "sources": ["openstax-hydrocarbons","eia-octane"], "gameSources": ["coal-tar-recipes"]
+    },
+    {
+      "id": "oleochemical-gasification", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Partial oxidation",
+      "text": "Limited oxidation can produce carbon monoxide and hydrogen instead of fully oxidised products. This is chemical conversion, unlike separating compounds that are already present.",
+      "targets": ["recipe/oleochemicals-distilation"],
+      "sources": ["netl-gasification"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "syngas-shift-chemistry", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Shift chemistry",
+      "text": "Carbon monoxide reacts with water to form carbon dioxide and hydrogen. This increases hydrogen content through a chemical reaction, not a boiling-point separation.",
+      "targets": ["recipe/syngas-distilation"],
+      "sources": ["netl-gasification"], "gameSources": ["raw-general-recipes"]
+    },
+    {
+      "id": "stone-tar-boundary", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Tar-bearing rock",
+      "text": "Tar recovery from rock requires carbon-bearing organic matter. Ordinary silicate minerals and water do not provide the carbon needed to make an organic tar.",
+      "targets": ["recipe/stone-distilation"],
+      "sources": ["usgs-coal","netl-tars"], "gameSources": ["coal-recipes"]
+    },
+    {
+      "id": "slurry-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Slurry processing",
+      "text": "A slurry suspends solid particles in a liquid. Separating the solids changes the mixture, whereas producing different organic molecules requires chemical conversion.",
+      "targets": ["recipe/coal-slurry-fuel"],
+      "sources": ["openstax-colloids","eia-refining"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "bio-oil-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Bio-oil upgrading",
+      "text": "Biomass pyrolysis yields char, gases and condensable vapours. Condensed bio-oil can undergo further conversion, but geological coal formation is a different, much slower process.",
+      "targets": ["recipe/bio-oil-1"],
+      "sources": ["doe-biofuels","usgs-coal"], "gameSources": ["energy-general-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "anthraquinone-oxidation", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Oxidation",
+      "text": "Oxidising anthracene can form anthraquinone's carbonyl groups. This changes chemical structure; sorting a mixture by boiling point cannot supply the required oxygen atoms.",
+      "targets": ["recipe/anthraquinone-from-anthracene"],
+      "sources": ["ullmann-anthraquinone"], "gameSources": ["coal-tar-recipes"]
+    },
+    {
+      "id": "solvent-selectivity", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Solvent selectivity",
+      "text": "Solvents dissolve different substances to different extents. Polarity and molecular interactions influence which components dissolve, helping separate materials without changing their chemical identities.",
+      "targets": ["recipe/naphthalene-solvent"],
+      "sources": ["openstax-dissolution"], "gameSources": ["coal-tar-recipes"]
+    },
+    {
+      "id": "urea-thermal-decomposition", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Thermal decomposition",
+      "text": "Heating urea can release ammonia and isocyanic acid as early products. Further reactions compete, so decomposition is a network of reactions rather than one universal clean split.",
+      "targets": ["recipe/urea-decomposition"],
+      "sources": ["chen-urea"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "cumene-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Coupled products",
+      "text": "The cumene process oxidises cumene, then splits an intermediate into phenol and acetone. These are coupled reaction products, not substances obtained by simply boiling pure cumene.",
+      "targets": ["recipe/cumene-distilation"],
+      "sources": ["epa-cumene"], "gameSources": ["alien-hightech-updates"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "tall-oil-origin", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Tall oil",
+      "text": "Tall oil is recovered from wood-pulping liquors and contains fatty and resin acids. Its name does not mean crude petroleum or arbitrary tar, and it is not a single chemical.",
+      "targets": ["recipe/tar-talloil"],
+      "sources": ["usda-tall-oil"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "plastic-polymer-identity", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Polymer identity",
+      "text": "Polymers are built from repeating molecular units. Different monomers and bonding arrangements give different properties; a generic plastic product leaves the actual polymer and its synthesis unspecified.",
+      "targets": ["recipe/plastics-mk03"],
+      "sources": ["iupac-polymers"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "lignin-conversion", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Breaking lignin",
+      "text": "Lignin is a complex aromatic polymer. Breaking it down can yield mixtures of phenolic compounds; obtaining one purified chemical requires additional selectivity and separation.",
+      "targets": ["recipe/lignin-to-aromatics"],
+      "sources": ["nrel-lignin"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "latex-coagulation-process", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Coagulation",
+      "text": "Latex contains tiny rubber particles dispersed in water. Acid can destabilise the dispersion so particles gather into a solid mass; this is coagulation, not distillation.",
+      "targets": ["recipe/latex-slab"],
+      "sources": ["latex-coagulation","openstax-colloids"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "titanium-chloride-cycle", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Chloride cycle",
+      "text": "Oxidising titanium tetrachloride produces titanium dioxide and releases chlorine. Recovering chlorine lets it serve again in upstream chlorination; recycling a reagent is different from creating it.",
+      "targets": ["recipe/tio2"],
+      "sources": ["eu-titanium-dioxide"], "gameSources": ["mirror-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "acrylic-copolymers", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Copolymers",
+      "text": "Combining different monomers can make a copolymer whose properties differ from either homopolymer. Composition and chain structure matter more than treating all acrylic materials as interchangeable.",
+      "targets": ["recipe/acrylic"],
+      "sources": ["li-copolymer","iupac-polymers"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "coal-tar-condensation", "kind": "recipe", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Tar from coal",
+      "text": "Cooling coal-pyrolysis vapours condenses some compounds into tar. Others remain gaseous; changing temperature affects recovery without making all components share one boiling point.",
+      "targets": ["recipe/coarse-tar"],
+      "sources": ["epa-coke"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "coal-mineral-residues", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Mineral residues",
+      "text": "Coal contains organic matter and minerals. Heating releases gases and vapours while leaving mineral-rich residues; a solid byproduct is not necessarily newly formed carbon.",
+      "targets": ["recipe/tar-to-carbolic"],
+      "sources": ["epa-coke","usgs-coal-minerals"], "gameSources": ["energy-recycling-recipes"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "phenol-selectivity", "kind": "recipe", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Purity versus yield",
+      "text": "Breaking lignin yields many phenolic compounds. Selectivity measures how much reaction favours the desired product; isolating pure phenol also requires separation from chemically similar byproducts.",
+      "targets": ["recipe/phenol-02"],
+      "sources": ["nrel-lignin"], "gameSources": ["alien-hightech-updates"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "inductors-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Induction",
+      "text": "A changing current creates a changing magnetic field, which induces a voltage opposing that change. Inductors store magnetic energy; they do not simply block all current.",
+      "targets": ["item/inductor1","item/inductor2","item/inductor3"],
+      "sources": ["openstax-inductors"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "capacitors-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Capacitance",
+      "text": "A capacitor stores energy in an electric field between separated conductors. Capacitance depends on geometry and dielectric material; it is distinct from the maximum permitted voltage.",
+      "targets": ["item/capacitor1","item/capacitor2","item/capacitor3"],
+      "sources": ["openstax-capacitors"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "resistors-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Power and resistance",
+      "text": "A resistor limits current and dissipates heat. Resistance and power rating are different specifications; higher tiers do not necessarily mean greater resistance or wattage.",
+      "targets": ["item/resistor1","item/resistor2","item/resistor3"],
+      "sources": ["openstax-resistance","openstax-power"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "vacuum-tube-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Thermionic emission",
+      "text": "Heating a cathode releases electrons into a vacuum. Other electrodes collect or control that flow, allowing a tube to rectify or amplify electrical signals.",
+      "targets": ["item/vacuum-tube"],
+      "sources": ["neets-tubes"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "transistor-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Signal control",
+      "text": "Transistors use one electrical signal to control another current. Amplification needs a power supply; the control signal does not create the output energy.",
+      "targets": ["item/transistor"],
+      "sources": ["openstax-semiconductors"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "diodes-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Rectification",
+      "text": "A semiconductor junction conducts much more readily in one direction than the other. This allows rectification: converting alternating current into a one-direction flow.",
+      "targets": ["item/diode","item/diode3"],
+      "sources": ["openstax-semiconductors"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "integrated-devices-material", "kind": "material", "discipline": "engineering", "basis": "real",
+      "topic": "Integration",
+      "text": "Many electronic devices and their interconnections can be fabricated on one substrate. Integration shortens connections, but power consumption and heat removal remain design constraints.",
+      "targets": ["item/microchip","item/processor"],
+      "sources": ["openstax-semiconductors","openstax-power"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "paradiagmatic-resistor-material", "kind": "material", "discipline": "physics", "basis": "abstracted",
+      "topic": "Temperature coefficient",
+      "text": "Resistance changes with temperature as charge transport changes. Stable resistors minimise unwanted drift; the paradiagmatic name supplies no temperature coefficient.",
+      "targets": ["item/paradiamatic-resistor"],
+      "sources": ["openstax-resistance"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "csle-diode-material", "kind": "material", "discipline": "physics", "basis": "abstracted",
+      "topic": "Electroluminescence",
+      "text": "In a light-emitting diode, electrons and holes recombine to emit photons. The semiconductor's energy gap influences colour; CSLE is a game-specific designation.",
+      "targets": ["item/csle-diode"],
+      "sources": ["nobel-led"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "fault-current-inductor-material", "kind": "material", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Current limiting",
+      "text": "Inductors oppose rapid current changes by storing magnetic energy. Fault-current limiting protects equipment, but its performance depends on the circuit and magnetic material.",
+      "targets": ["item/fault-current-inductor"],
+      "sources": ["openstax-inductors","doe-fault-current"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "supercapacitor-material", "kind": "material", "discipline": "physics", "basis": "simplified",
+      "topic": "Double layers",
+      "text": "Porous electrodes expose enormous internal surface area. Charge separation at the electrode-electrolyte interface stores energy, unlike a battery's bulk chemical energy storage.",
+      "targets": ["item/supercapacitor"],
+      "sources": ["doe-supercapacitors"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "pi-junction-material", "kind": "material", "discipline": "physics", "basis": "abstracted",
+      "topic": "Quantum phase",
+      "text": "A Josephson junction carries supercurrent across a weak link. A pi junction favours a half-cycle phase difference between superconductors, not a classical voltage offset.",
+      "targets": ["item/pi-josephson-junction"],
+      "sources": ["frolov-pi-junction"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "circuit-boards-material", "kind": "material", "discipline": "engineering", "basis": "simplified",
+      "topic": "Printed wiring",
+      "text": "Conductive tracks on an insulating substrate connect components. The board provides wiring and mechanical support; mounted components supply the circuit's other functions.",
+      "targets": ["item/pcb1","item/pcb2","item/pcb3","item/pcb3-2","item/pcb4"],
+      "sources": ["sparkfun-pcb"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "assembled-circuits-material", "kind": "material", "discipline": "engineering", "basis": "simplified",
+      "topic": "Circuit topology",
+      "text": "Connections determine circuit behaviour, not merely the parts list. The same components can perform different tasks when arranged into different networks.",
+      "targets": ["item/electronic-circuit","item/advanced-circuit","item/processing-unit"],
+      "sources": ["openstax-semiconductors","sparkfun-pcb"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "ceramic-material", "kind": "material", "discipline": "engineering", "basis": "real",
+      "topic": "Insulating solids",
+      "text": "Many ceramics resist heat and conduct electricity poorly. Their strong bonding can also make them brittle; electrical insulation does not imply resistance to cracks or impact.",
+      "targets": ["item/ceramic"],
+      "sources": ["acs-ceramics"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "formica-material", "kind": "material", "discipline": "engineering", "basis": "abstracted",
+      "topic": "Laminated composite",
+      "text": "Paper or fibre layers reinforce a resin binder. Pressing and curing unite the layers into a composite; the resulting properties depend on both reinforcement and resin.",
+      "targets": ["item/formica"],
+      "sources": ["formica-laminate"], "gameSources": ["hightech-items"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "cellulose-material", "kind": "material", "discipline": "chemistry", "basis": "real",
+      "topic": "Plant fibres",
+      "text": "Cellulose fibres reinforce plant cell walls. In wood, lignin binds those fibres together; chemical pulping separates them by dissolving much of the surrounding lignin.",
+      "targets": ["item/cellulose"],
+      "sources": ["epa-pulping"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "early-batteries-material", "kind": "material", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Electrochemical cells",
+      "text": "Electrode reactions drive electrons through an external circuit. Ions carry charge through the electrolyte; chemical changes provide energy rather than create charge.",
+      "targets": ["item/battery-mk00","item/battery-mk01"],
+      "sources": ["openstax-galvanic"], "gameSources": ["energy-items"],
+      "when": {"mod":"pyalternativeenergy"}
+    },
+    {
+      "id": "electronics-factory-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Device fabrication",
+      "text": "Electronic parts use conductors, insulators and semiconductors to control charge. Making individual devices and connecting them into working circuits require different manufacturing operations.",
+      "targets": ["assembling-machine/electronics-factory-mk01","assembling-machine/electronics-factory-mk02","assembling-machine/electronics-factory-mk03","assembling-machine/electronics-factory-mk04"],
+      "sources": ["openstax-semiconductors","openstax-capacitors"], "gameSources": ["electronics-factory-1","electronics-factory-2","electronics-factory-3","electronics-factory-4"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "chipshooter-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Placement and joining",
+      "text": "Placement machines position components on circuit boards. Soldering then forms electrical and mechanical joints; accurate placement alone does not create a reliable connection.",
+      "targets": ["assembling-machine/chipshooter-mk01","assembling-machine/chipshooter-mk02","assembling-machine/chipshooter-mk03","assembling-machine/chipshooter-mk04"],
+      "sources": ["sparkfun-assembly","sparkfun-pcb"], "gameSources": ["chipshooter-1","chipshooter-2","chipshooter-3","chipshooter-4"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "pcb-factory-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Layered fabrication",
+      "text": "Circuit boards combine insulating substrates with patterned conductors. Layers, holes and connections define the board's structure; fabrication is separate from mounting electronic components.",
+      "targets": ["assembling-machine/pcb-factory-mk01","assembling-machine/pcb-factory-mk02","assembling-machine/pcb-factory-mk03","assembling-machine/pcb-factory-mk04"],
+      "sources": ["sparkfun-pcb"], "gameSources": ["pcb-factory-1","pcb-factory-2","pcb-factory-3","pcb-factory-4"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "pulp-mill-machine", "kind": "machine", "discipline": "engineering", "basis": "simplified",
+      "topic": "Fibre liberation",
+      "text": "Chemical pulping separates cellulose fibres by dissolving much of the lignin that binds wood together. Washing and chemical recovery are separate operations from producing the fibres.",
+      "targets": ["assembling-machine/pulp-mill-mk01","assembling-machine/pulp-mill-mk02","assembling-machine/pulp-mill-mk03","assembling-machine/pulp-mill-mk04"],
+      "sources": ["epa-pulping"], "gameSources": ["pulp-mill-1","pulp-mill-2","pulp-mill-3","pulp-mill-4"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "automated-screener-machine", "kind": "machine", "discipline": "engineering", "basis": "real",
+      "topic": "Screen apertures",
+      "text": "Screens divide particles by whether they pass through an opening. Size separation can assist mineral recovery, but the screen does not directly identify a particle's chemical composition.",
+      "targets": ["assembling-machine/automated-screener-mk01","assembling-machine/automated-screener-mk02","assembling-machine/automated-screener-mk03","assembling-machine/automated-screener-mk04"],
+      "sources": ["sepro-classification"], "gameSources": ["automated-screener-1","automated-screener-2","automated-screener-3","automated-screener-4"],
+      "when": {"mod":"pyfusionenergy"}
+    },
+    {
+      "id": "copper-ore-material", "kind": "material", "discipline": "geology", "basis": "real",
+      "topic": "Ore mineralogy",
+      "text": "Copper-bearing minerals occur mixed with other rock. Mineral composition determines the extraction route; an ore is neither pure metal nor a single fixed compound.",
+      "targets": ["item/copper-ore"],
+      "sources": ["usgs-copper-processing","sepro-introduction"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "copper-plate-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Conductivity",
+      "text": "Mobile electrons carry current and transfer heat through copper. High conductivity makes it useful for wiring and heat transfer, but resistance still produces losses.",
+      "targets": ["item/copper-plate"],
+      "sources": ["openstax-solids","openstax-resistance"], "gameSources": ["base-items"]
+    },
+    {
+      "id": "copper-grade-materials", "kind": "material", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Preparation grades",
+      "text": "Grade 1 is crushed into Grade 2; screening then advances toward Grades 3 and 4. These are preparation stages, not measured copper percentages.",
+      "targets": ["item/grade-1-copper","item/grade-2-copper","item/grade-3-copper","item/grade-4-copper"],
+      "sources": ["sepro-classification"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-fines-material", "kind": "material", "discipline": "engineering", "basis": "real",
+      "topic": "Fine particles",
+      "text": "Fine particles expose more surface area but are harder to recover selectively. Excessive grinding can send valuable mineral grains into waste streams.",
+      "targets": ["item/copper-low-dust"],
+      "sources": ["sepro-comminution","sepro-introduction"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "copper-rejects-material", "kind": "material", "discipline": "metallurgy", "basis": "real",
+      "topic": "Recovery trade-off",
+      "text": "Rejected material can still contain valuable mineral. Recrushing may liberate it from gangue, but extra recovery costs energy, wear and additional separation.",
+      "targets": ["item/copper-rejects"],
+      "sources": ["sepro-comminution"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "low-grade-copper-material", "kind": "material", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Grade and recovery",
+      "text": "Grade describes valuable-material concentration; recovery describes the fraction retrieved from the feed. A high-grade product can still leave metal behind in waste.",
+      "targets": ["item/low-grade-copper"],
+      "sources": ["sepro-introduction"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "high-grade-copper-material", "kind": "material", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Concentrate not metal",
+      "text": "Enrichment raises the valuable-mineral content. A concentrate can still contain compounds and impurities; concentration and chemical reduction are separate operations.",
+      "targets": ["item/high-grade-copper"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "reduced-copper-material", "kind": "material", "discipline": "chemistry", "basis": "abstracted",
+      "topic": "Reduction",
+      "text": "Reduction can turn copper ions into metal by supplying electrons. Purity is a separate measurement; a recipe does not verify the 99.9% label.",
+      "targets": ["item/reduced-copper"],
+      "sources": ["usgs-copper-processing","openstax-galvanic"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "sintered-copper-material", "kind": "material", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Solid-state bonding",
+      "text": "Heating bonds particles without fully melting the mass. The result can retain pores; sintering improves cohesion but does not by itself establish chemical purity.",
+      "targets": ["item/sintered-copper"],
+      "sources": ["epma-sintering"], "gameSources": ["raw-ore-items"]
+    },
+    {
+      "id": "copper-pulps-material", "kind": "material", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Slurry stages",
+      "text": "Mineral pulps suspend particles in liquid. Successive treatment stages change the mixture; a stage number is neither a molecular formula nor a purity measurement.",
+      "targets": ["fluid/copper-pulp-01","fluid/copper-pulp-02","fluid/copper-pulp-03","fluid/copper-pulp-04"],
+      "sources": ["openstax-colloids","sepro-introduction"], "gameSources": ["copper-pulp-01","copper-pulp-02","copper-pulp-03","copper-pulp-04"]
+    },
+    {
+      "id": "copper-solution-material", "kind": "material", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Dissolved ions",
+      "text": "Leaching moves copper from minerals into dissolved chemical species. Dissolution is not the same as melting; dissolved copper still needs recovery from the liquid.",
+      "targets": ["fluid/copper-solution"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-solution"]
+    },
+    {
+      "id": "copper-pregnant-solution-material", "kind": "material", "discipline": "metallurgy", "basis": "real",
+      "topic": "Loaded solution",
+      "text": "A pregnant solution is loaded with dissolved valuable material. The term describes process status, not a new compound or proof that impurities are absent.",
+      "targets": ["fluid/copper-pregnant-solution"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-pregnant-solution"]
+    },
+    {
+      "id": "molten-copper-material", "kind": "material", "discipline": "physics", "basis": "real",
+      "topic": "Latent heat",
+      "text": "Melting requires energy to change solid metal into liquid, beyond raising its temperature. Cooling releases this latent heat again as the metal solidifies.",
+      "targets": ["fluid/molten-copper"],
+      "sources": ["openstax-latent-heat"], "gameSources": ["molten-copper"]
+    },
+    {
+      "id": "copper-screening-process", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Size separation",
+      "text": "Screens sort particles by size, not chemistry. Enrichment is possible when composition correlates with size, but a finer fraction is not automatically purer copper.",
+      "targets": ["recipe/grade-2-copper","recipe/grade-3-copper","recipe/grade-4-copper"],
+      "sources": ["sepro-classification"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-crushing-process", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Liberation",
+      "text": "Crushing can free valuable mineral grains from surrounding rock. It changes particle size and accessibility, not copper atoms; later separation decides which fragments are recovered.",
+      "targets": ["recipe/grade-1-copper-crush","recipe/copper-rejects-recrush"],
+      "sources": ["sepro-comminution"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-classification-process", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Classification",
+      "text": "Particles settle at different rates depending on size, density and shape. Fluid classification exploits those differences; it is not a chemical test of every passing grain.",
+      "targets": ["recipe/classify-low-grade"],
+      "sources": ["sepro-classification"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-solution-recovery", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Solution to solid",
+      "text": "Precipitation forms solid compounds from a solution; electrowinning deposits metal using electric current. These are distinct recovery routes, not consequences of stirring alone.",
+      "targets": ["recipe/high-grade-copper"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-reduction-process", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Electron transfer",
+      "text": "Copper extraction can require changing copper's oxidation state. Reducing agents supply electrons and are themselves oxidised; heat alone does not balance the chemical reaction.",
+      "targets": ["recipe/reduction-copper"],
+      "sources": ["openstax-galvanic","usgs-copper-processing"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-sintering-process", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Particle bonding",
+      "text": "Sintering improves cohesion by joining particles before complete melting. Temperature, time and atmosphere control bond growth and porosity; more heat does not simply mean purer metal.",
+      "targets": ["recipe/sinter-copper-2"],
+      "sources": ["epma-sintering"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-flux-refining", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Flux and slag",
+      "text": "Fluxes help impurities enter a separate slag phase. Melting makes a liquid; refining depends on which substances transfer into slag, gas or another phase.",
+      "targets": ["recipe/molten-copper-01","recipe/molten-copper-02","recipe/molten-copper-03","recipe/molten-copper-04"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-plate-casting", "kind": "recipe", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Casting",
+      "text": "Molten metal takes the shape of a mould as it solidifies. Cooling conditions influence grain structure and defects; casting changes shape but does not purify the metal.",
+      "targets": ["recipe/copper-plate-1","recipe/hotair-copper-plate-1"],
+      "sources": ["doe-casting"], "gameSources": ["copper-recipes","hot-air-recipes"]
+    },
+    {
+      "id": "copper-ore-smelting", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Extraction versus melting",
+      "text": "Smelting extracts metal through chemical reactions, while melting only changes physical state. The extraction route depends on whether copper occurs as oxides, sulfides or native metal.",
+      "targets": ["recipe/copper-plate","recipe/copper-plate-4","recipe/low-grade-smelting-copper"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-leaching-process", "kind": "recipe", "discipline": "metallurgy", "basis": "abstracted",
+      "topic": "Leaching",
+      "text": "Leaching dissolves components from solid feed; later stages recover them from solution. Solvent choice and mineral chemistry determine selectivity, not the number attached to a pulp stream.",
+      "targets": ["recipe/copper-solution","recipe/copper-pulp-01","recipe/copper-pulp-02","recipe/copper-pulp-03","recipe/copper-pulp-04","recipe/copper-pregnant-solution"],
+      "sources": ["usgs-copper-processing"], "gameSources": ["copper-recipes"]
+    },
+    {
+      "id": "copper-research", "kind": "technology", "discipline": "metallurgy", "basis": "simplified",
+      "topic": "Process chains",
+      "text": "Copper extraction combines liberation, separation and chemical conversion. Improvements must consider both recovery and final purity: increasing one stream's grade can leave more valuable metal in another.",
+      "targets": ["technology/copper-mk01","technology/copper-mk02","technology/copper-mk03","technology/copper-mk04","technology/copper-mk05"],
+      "sources": ["sepro-introduction","usgs-copper-processing"], "gameSources": ["copper-technologies"]
+    },
+    {
+      "id": "electronics-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Passive and active",
+      "text": "Resistors dissipate energy; capacitors and inductors store it temporarily. Active devices control currents using power from a supply. Circuit design chooses connections and operating ranges, not just a collection of components.",
+      "targets": ["technology/electronics","technology/basic-electronics","technology/advanced-circuit","technology/integrated-circuits-1","technology/integrated-circuits-2","technology/integrated-circuits-3"],
+      "sources": ["openstax-resistance","openstax-capacitors","openstax-inductors","openstax-semiconductors"], "gameSources": ["electronics-technologies","basic-electronics-technologies","integrated-circuit-technologies","hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "semiconductor-doping-research", "kind": "technology", "discipline": "physics", "basis": "real",
+      "topic": "Controlled impurities",
+      "text": "Small dopant concentrations change the number and type of mobile charge carriers in a semiconductor. N-type and p-type identify the majority carriers: electrons or holes, not negatively or positively charged bulk chunks.",
+      "targets": ["technology/semiconductor-doping"],
+      "sources": ["openstax-doping"], "gameSources": ["semiconductor-doping-technologies"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "electronics-machines-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Throughput and consistency",
+      "text": "Increasing throughput must preserve process control: more components per minute still need consistent material properties, geometry and connections. Faster equipment does not change the electrical principles of the devices it makes.",
+      "targets": ["technology/electronics-machines-1","technology/electronics-machines-2","technology/electronics-machines-3","technology/electronics-machines-4"],
+      "sources": ["sparkfun-assembly","openstax-semiconductors"], "gameSources": ["electronics-machine-technologies"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "ceramic-research", "kind": "technology", "discipline": "engineering", "basis": "real",
+      "topic": "Structure and properties",
+      "text": "Ceramic performance depends on composition, bonding and microstructure. Electrical insulation, heat resistance and mechanical toughness are different properties; improving one does not automatically improve all of them.",
+      "targets": ["technology/ceramic"],
+      "sources": ["acs-ceramics"], "gameSources": ["ceramic-technologies"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "quantum-device-research", "kind": "technology", "discipline": "physics", "basis": "abstracted",
+      "topic": "Quantum behaviour",
+      "text": "Some superconducting devices use phase differences across weak links to control current. Their behaviour follows quantum mechanics; a materials list alone cannot establish whether a circuit performs quantum computation.",
+      "targets": ["technology/quantum-processor"],
+      "sources": ["frolov-pi-junction"], "gameSources": ["quantum-processor-technologies"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "supercapacitor-research", "kind": "technology", "discipline": "physics", "basis": "simplified",
+      "topic": "Energy and power",
+      "text": "Capacitance alone does not measure energy capacity. Stored energy also depends on operating voltage; delivering high power and storing a large amount of energy are different design objectives.",
+      "targets": ["technology/supercapacitor"],
+      "sources": ["doe-supercapacitors"], "gameSources": ["supercapacitor-technologies"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "industrial-machines-research", "kind": "technology", "discipline": "engineering", "basis": "simplified",
+      "topic": "Bottlenecks",
+      "text": "Throughput depends on the slowest stage, not just the speed of each machine. Feed preparation, processing and separation must be matched; faster equipment elsewhere cannot remove an unchanged bottleneck.",
+      "targets": ["technology/machines-mk01","technology/machines-mk02","technology/machines-mk03","technology/machines-mk04","technology/machines-mk05"],
+      "sources": ["mit-process-analysis"], "gameSources": ["machine-technologies"]
+    },
+    {
+      "id": "solvent-research", "kind": "technology", "discipline": "chemistry", "basis": "real",
+      "topic": "Selective dissolution",
+      "text": "A useful solvent need not dissolve everything. Differences in molecular interactions let one component enter a liquid while another remains behind; selecting the solvent helps control separation.",
+      "targets": ["technology/organic-solvent","technology/fluid-separation"],
+      "sources": ["openstax-dissolution"], "gameSources": ["hightech-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "latex-research", "kind": "technology", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Dispersion stability",
+      "text": "A colloid can remain dispersed even though its particles are not dissolved molecules. Changing surface interactions can destabilise it, allowing a dispersed polymer to gather into a recoverable solid.",
+      "targets": ["technology/latex"],
+      "sources": ["openstax-colloids","latex-coagulation"], "gameSources": ["alienlife-general-recipes"]
+    },
+    {
+      "id": "phenolic-feedstock-research", "kind": "technology", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Biomass fractionation",
+      "text": "Wood combines cellulose-rich fibres with lignin and other constituents. Separating these fractions creates distinct feedstocks: recovering fibres and converting aromatic lignin solve different chemical problems.",
+      "targets": ["technology/cellulose-mk02","technology/phenol"],
+      "sources": ["epa-pulping","nrel-lignin"], "gameSources": ["alienlife-general-recipes","alien-hightech-updates"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "polymer-research", "kind": "technology", "discipline": "chemistry", "basis": "simplified",
+      "topic": "Molecular architecture",
+      "text": "Polymer properties depend on monomers, chain structure and composition. A generic plastic label hides these differences; replacing one polymer with another can change stiffness, heat resistance and chemical compatibility.",
+      "targets": ["technology/plastics-mk04","technology/acrylic"],
+      "sources": ["iupac-polymers","li-copolymer"], "gameSources": ["hightech-recipes","alienlife-general-recipes"],
+      "when": {"mod":"pyhightech"}
+    },
+    {
+      "id": "helium-research", "kind": "technology", "discipline": "physics", "basis": "abstracted",
+      "topic": "Cryogenic mixtures",
+      "text": "Gases have different condensation and boiling temperatures, which depend on pressure. Cryogenic separation exploits those differences, but trace components still need enrichment; low temperature does not imply a pure product.",
+      "targets": ["technology/helium-processing","technology/helium-processing-mk02"],
+      "sources": ["nist-cryogenics","noaa-atmosphere"], "gameSources": ["fusion-recipes"],
+      "when": {"mod":"pyfusionenergy"}
+    }
+  ]
+}
