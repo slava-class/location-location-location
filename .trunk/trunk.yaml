@@ -11,9 +11,6 @@ lint:
   enabled:
     - oxlint-bun
     - oxfmt-bun
-    - ruff-native
-    - ruff-format-native
-    - ty-native
     - stylua-native
     - shellcheck-native
     - shfmt-native
@@ -28,16 +25,14 @@ lint:
         [
           node_modules/**,
           .factorio-test/**,
-          .venv/**,
           dist/**,
-          "**/__pycache__/**",
           .trunk/plugins/**,
           .trunk/tools/**,
           .trunk/out/**,
           .trunk/logs/**,
         ]
     - linters: [oxfmt-bun, source-check]
-      paths: [bun.lock, uv.lock, patches/**]
+      paths: [bun.lock, patches/**]
   files:
     - name: workshop-oxfmt
       extensions:
@@ -82,13 +77,11 @@ lint:
           css,
           html,
           lua,
-          py,
           sh,
           cfg,
           txt,
         ]
-      filenames:
-        [.gitignore, .editorconfig, .luacheckrc, .python-version, Dockerfile]
+      filenames: [.gitignore, .editorconfig, .luacheckrc, Dockerfile]
   definitions:
     # Mise owns native binaries; Bun's lockfile owns JS packages and the Effect patch.
     # No second Node/Python runtime or independently installed Oxc copy belongs here.
@@ -120,47 +113,6 @@ lint:
           in_place: true
           formatter: true
           cache_results: false
-    - name: ruff-native
-      files: [python]
-      known_good_version: ""
-      environment: *native_environment
-      commands:
-        - name: lint
-          run: ruff check --no-cache --no-fix --output-format sarif -- ${target}
-          output: sarif
-          read_output_from: stdout
-          success_codes: [0, 1]
-          batch: true
-          cache_results: false
-          disable_upstream: true
-    - name: ruff-format-native
-      files: [python]
-      known_good_version: ""
-      environment: *native_environment
-      commands:
-        - name: format
-          run: ruff format --no-cache -- ${target}
-          output: rewrite
-          success_codes: [0]
-          batch: true
-          in_place: true
-          formatter: true
-          cache_results: false
-    - name: ty-native
-      files: [python]
-      known_good_version: ""
-      environment: *native_environment
-      commands:
-        - name: lint
-          run: ty check --python ${workspace}/.venv --error-on-warning --no-progress --output-format gitlab -- ${target}
-          output: sarif
-          parser:
-            run: bun ${workspace}/tools/quality-report.ts
-          read_output_from: stdout
-          success_codes: [0, 1]
-          batch: true
-          cache_results: false
-          disable_upstream: true
     - name: stylua-native
       files: [workshop-lua]
       known_good_version: ""

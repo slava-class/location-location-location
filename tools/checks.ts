@@ -10,7 +10,7 @@ import {
 import type { ExecutionContext, ResolvedProject } from "./projects.ts";
 import { runCommand } from "./commands.ts";
 import { RunId } from "./logs.ts";
-import { rejectTrunkUserOverrides } from "./quality.ts";
+import { rejectTrunkUserOverrides, trunkCommand } from "./quality.ts";
 import { LuaToolsResult } from "./contracts.ts";
 import { provisionLuaTools } from "./lua-tools.ts";
 import { ApiProvisionResult, provisionApi } from "./api.ts";
@@ -36,7 +36,6 @@ export const Toolchain = Schema.Struct({
 });
 const SetupResult = Schema.Struct({
   toolchain: Toolchain,
-  python: CommandCheck,
   lua: LuaToolsResult,
   api: Schema.Array(ApiProvisionResult),
   extensions: Schema.Array(
@@ -46,19 +45,11 @@ const SetupResult = Schema.Struct({
 export function setupWorkspace(project: ExecutionContext) {
   return Effect.gen(function* () {
     const toolchain = yield* checkToolchain(project);
-    const python = yield* runCommand(project, "setup-python", [
-      "uv",
-      "sync",
-      "--locked",
-      "--project",
-      project.repoRoot,
-    ]);
     const projects = yield* discoverProjects(project.repoRoot);
     return yield* decode(
       SetupResult,
       {
         toolchain,
-        python: { status: "passed", runId: python.run.runId },
         lua: yield* provisionLuaTools(project),
         api: yield* Effect.forEach(projects, provisionApi),
         extensions: yield* Effect.forEach(projects, (selected) =>
@@ -141,10 +132,7 @@ export function checkToolchain(project: ExecutionContext) {
     const commands: ReadonlyArray<readonly [string, string, string[]]> = [
       ["trunk", trunk.cli.version, ["--version"]],
       ["lua", pins.tools.lua!, ["-v"]],
-      ["uv", pins.tools.uv!, ["--version"]],
       ["stylua", pins.tools.stylua!, ["--version"]],
-      ["ruff", pins.tools.ruff!, ["--version"]],
-      ["ty", pins.tools.ty!, ["--version"]],
       ["shellcheck", pins.tools.shellcheck!, ["--version"]],
       ["shfmt", pins.tools.shfmt!, ["--version"]],
       ["actionlint", pins.tools.actionlint!, ["-version"]],
@@ -157,7 +145,7 @@ export function checkToolchain(project: ExecutionContext) {
     ];
     for (const [name, expected, args] of commands) {
       const result = yield* runCommand(project, "tool-version-" + name, [
-        name,
+        ...(name === "trunk" ? trunkCommand : [name]),
         ...args,
       ]);
       const actual = (result.stdout + "\n" + result.stderr).match(

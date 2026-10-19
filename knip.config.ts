@@ -15,7 +15,6 @@ const files = selection
 const isEntry = (path: string) =>
   path === "tools/cli.ts" ||
   path === "tools/source-check.ts" ||
-  path === "tools/quality-report.ts" ||
   path === "knip.config.ts" ||
   /\.test\.(?:ts|mjs)$/.test(path) ||
   path.startsWith("tools/fixtures/") ||
@@ -27,7 +26,6 @@ export default {
   entry: files?.filter(isEntry) ?? [
     "tools/cli.ts",
     "tools/source-check.ts",
-    "tools/quality-report.ts",
     "tools/**/*.test.{ts,mjs}",
     "tools/fixtures/**/*.ts",
     "mods/*/dev.config.ts",

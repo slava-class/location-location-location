@@ -13,7 +13,6 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { checkSources } from "./source-check.ts";
-import { tyIssues } from "./quality-report.ts";
 import {
   rejectTrunkUserOverrides,
   runQuality,
@@ -102,54 +101,6 @@ test("malformed source encodings and NUL bytes remain findings", async () => {
       (issue) => issue.rule,
     ),
   ).toEqual(["invalid-utf8", "nul-byte"]);
-});
-
-test("ty report decoding fails closed on unknown or malformed diagnostic shapes", async () => {
-  const issue = {
-    check_name: "invalid-assignment",
-    description: "Expected int",
-    severity: "major",
-    location: {
-      path: "tools/probe.py",
-      positions: { begin: { line: 2, column: 4 }, end: { line: 2, column: 8 } },
-    },
-  };
-  expect(await Effect.runPromise(tyIssues([issue]))).toEqual([
-    {
-      path: "tools/probe.py",
-      rule: "invalid-assignment",
-      severity: "error",
-      message: "Expected int",
-      line: 2,
-      column: 4,
-    },
-  ]);
-  for (const input of [
-    {},
-    [{ ...issue, severity: "unknown" }],
-    [
-      {
-        ...issue,
-        location: {
-          path: "/tmp/probe.py",
-          positions: issue.location.positions,
-        },
-      },
-    ],
-    [
-      {
-        ...issue,
-        location: {
-          ...issue.location,
-          positions: { begin: { line: 0, column: 1 } },
-        },
-      },
-    ],
-  ]) {
-    expect(Effect.runPromise(tyIssues(input))).rejects.toBeInstanceOf(
-      BoundaryError,
-    );
-  }
 });
 
 test("a source CLI finding keeps stdout valid SARIF while returning failure", async () => {

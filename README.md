@@ -20,7 +20,7 @@ mise run dependencies-provision -- --all
 mise run modkit -- --help
 ```
 
-Mise supplies pinned binaries; Bun owns the single root dependency installation. Shared orchestration uses Effect, boundary contracts use Effect Schema, and commands use Effect CLI. Working Python helpers consume generated schemas through the same boundary rather than maintaining a separate project resolver.
+Mise supplies pinned binaries; Bun owns the single root dependency installation. Shared orchestration uses Effect, boundary contracts use Effect Schema, and commands use Effect CLI. Packaging, archive inspection, Lua provisioning/type overlays and offline save readback run in Bun; Python, uv and a second schema validator are not required.
 
 ```sh
 mise run mods

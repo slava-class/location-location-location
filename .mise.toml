@@ -5,10 +5,7 @@ auto_install = false
 bun = "1.4.3"
 lua = "5.2.4"
 stylua = "2.3.1"
-uv = "0.12.13"
 trunk = "1.3.4"
-ruff = "0.17.1"
-ty = "0.0.89"
 shellcheck = "0.11.0"
 shfmt = "3.14.1"
 actionlint = "1.7.12"
@@ -19,7 +16,7 @@ hadolint = "2.15.1"
 TRUNK_TELEMETRY = "off"
 
 [tasks.setup]
-description = "Verify the pinned toolchain and prepare locked Python/Lua dependencies without launching Factorio"
+description = "Verify the pinned toolchain and prepare locked Lua/API dependencies without launching Factorio"
 run = "bun tools/cli.ts setup"
 
 [tasks.engine-provision]

@@ -14,6 +14,14 @@ import {
 import type { ExecutionContext } from "./projects.ts";
 import { sourceFiles } from "./source.ts";
 
+// Mise pins the JS launcher; force Bun instead of its Node shebang.
+export const trunkCommand = [
+  process.execPath,
+  "run",
+  "--bun",
+  "trunk",
+] as const;
+
 const QualityMode = Schema.Literals(["check", "format-check", "format"]);
 export const QualityResult = Schema.Struct({
   status: Schema.Literal("passed"),
@@ -67,8 +75,7 @@ export function validateTrunkCheck(stdout: string, expectedFiles: number) {
   });
 }
 
-const formatterFilter =
-  "oxfmt-bun,ruff-format-native,stylua-native,shfmt-native";
+const formatterFilter = "oxfmt-bun,stylua-native,shfmt-native";
 const formatterExtensions = new Set([
   ".ts",
   ".tsx",
@@ -85,7 +92,6 @@ const formatterExtensions = new Set([
   ".css",
   ".html",
   ".lua",
-  ".py",
   ".sh",
 ]);
 const binaryExtensions = new Set([
@@ -210,7 +216,7 @@ export function runQuality(
     const command =
       mode === "format"
         ? [
-            "trunk",
+            ...trunkCommand,
             "fmt",
             "--show-existing",
             "--no-progress",
@@ -220,7 +226,7 @@ export function runQuality(
             ...files,
           ]
         : [
-            "trunk",
+            ...trunkCommand,
             "check",
             "--no-fix",
             "--show-existing",

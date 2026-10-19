@@ -40,9 +40,6 @@ test("source seals isolate unrelated mods and invalidate selected, shared and re
       ".trunk/trunk.yaml",
       ".betterleaks.toml",
       "knip.config.ts",
-      "pyproject.toml",
-      "uv.lock",
-      ".python-version",
     ])
       await writeFile(join(root, name), "source input\n");
     await writeFile(
@@ -106,7 +103,7 @@ test("source seals isolate unrelated mods and invalidate selected, shared and re
       ".trunk/trunk.yaml",
       ".oxlintrc.json",
       ".gitignore",
-      "pyproject.toml",
+      "bun.lock",
     ]) {
       const original = await Bun.file(join(root, path)).text();
       await writeFile(join(root, path), original + "-- changed input\n");

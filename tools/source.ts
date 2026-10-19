@@ -31,9 +31,6 @@ const sharedFiles = [
   ".trunk/trunk.yaml",
   ".betterleaks.toml",
   "knip.config.ts",
-  "pyproject.toml",
-  "uv.lock",
-  ".python-version",
 ];
 const optionalGuidance = ["README.md", "AGENTS.md"];
 const excluded = new Set(["node_modules", ".git", ".factorio-test", "dist"]);

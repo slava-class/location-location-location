@@ -57,9 +57,6 @@ export async function releaseFixture(
     ".trunk/trunk.yaml",
     ".betterleaks.toml",
     "knip.config.ts",
-    "pyproject.toml",
-    "uv.lock",
-    ".python-version",
   ])
     await writeFile(join(root, name), "source input\n");
   await writeFile(join(root, ".gitignore"), ".factorio-test/\n");

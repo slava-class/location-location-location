@@ -3,9 +3,9 @@
 ## Canonical boundaries
 
 - `mods/<mod-id>/info.json` owns product identity and dependencies. Discover products through `tools/projects.ts`; never infer a default product or maintain a second registry.
-- `tools/cli.ts` is the Effect CLI entrypoint. Mise tasks only forward arguments. Keep orchestration in Bun + Effect and runtime contracts in Effect Schema; derive types and helper wire schemas from those contracts.
+- `tools/cli.ts` is the Effect CLI entrypoint. Mise tasks only forward arguments. Keep orchestration in Bun + Effect and runtime contracts in Effect Schema; derive types from those contracts.
 - Shared tooling, dependency pins and formatting configuration belong at root. Runtime, locales, sprites, storage types, test scenes and product-specific rules remain with their product.
-- Preserve working Python helpers behind the existing validated protocol. Do not introduce duplicate validators, silent fallbacks or automatic retries of mutations.
+- Keep archive, provisioning and offline-save boundaries in Bun with the canonical Effect contracts. Do not introduce a second interpreter, duplicate validators, silent fallbacks or automatic retries of mutations.
 - Read the selected product's guidance and documentation for its ownership and behavior constraints. Preserve attribution and packaged licenses.
 
 ## Development and verification
