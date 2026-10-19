@@ -87,7 +87,7 @@ description = "Render a mod's native Extreme-quality gallery; select --language"
 run = "bun tools/cli.ts gallery"
 
 [tasks.verify]
-description = "Verify one explicit mod or --all with source-bound coverage"
+description = "Verify the workspace or one selected mod; --plan previews without running checks"
 run = "bun tools/cli.ts verify"
 
 [tasks.runs]
@@ -151,9 +151,9 @@ description = "PUBLISH only prepared listing fields for the latest Portal versio
 run = "bun tools/cli.ts listing-publish"
 
 [tasks.checkpoint]
-description = "Verify every mod and commit the whole worktree locally; never pushes"
+description = "Verify every mod and commit locally; --plan is read-only; never pushes"
 run = "bun tools/cli.ts checkpoint"
 
 [tasks.vac]
-description = "Verify every mod, commit the whole worktree, and explicitly push the exact verified commit"
+description = "Verify every mod, commit and push the exact commit; --plan is read-only"
 run = "bun tools/cli.ts vac"

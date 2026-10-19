@@ -22,7 +22,7 @@ import { setupWorkspace, testModels } from "./checks.ts";
 import { smokePackage } from "./smoke.ts";
 import { runQuality } from "./quality.ts";
 import { setVersion } from "./release-info.ts";
-import { verifyProjects } from "./verification.ts";
+import { planVerification, verifyProjects } from "./verification.ts";
 import { modStatus, mutateMod, restoreMod } from "./local-mod.ts";
 import { checkpointWorkspace } from "./checkpoint.ts";
 import { prepareRelease } from "./release.ts";
@@ -690,19 +690,30 @@ const verify = Command.make(
     mod: Argument.String("mod").pipe(Argument.optional),
     all: Flag.Boolean("all").pipe(Flag.withDefault(false)),
     backend: backendFlag,
+    plan: Flag.Boolean("plan").pipe(Flag.withDefault(false)),
   },
-  ({ mod, all, backend }) =>
+  ({ mod, all, backend, plan }) =>
     Effect.gen(function* () {
-      if (Option.isSome(mod) === all)
+      if (Option.isSome(mod) && all)
         return yield* Effect.fail(
           new BoundaryError({
             boundary: "verify",
-            message: "Select exactly one mod or --all",
+            message: "A mod selector and --all are mutually exclusive",
           }),
         );
-      const projects = all
-        ? yield* discoverProjects(root)
-        : [yield* resolveProject(root, Option.getOrThrow(mod), process.cwd())];
+      const projects = Option.isSome(mod)
+        ? [yield* resolveProject(root, mod.value, process.cwd())]
+        : yield* discoverProjects(root);
+      if (plan) {
+        yield* Console.log(
+          JSON.stringify(
+            yield* planVerification(projects, backend, "verify"),
+            null,
+            2,
+          ),
+        );
+        return;
+      }
       const report = yield* verifyProjects(projects, backend);
       yield* Console.log(JSON.stringify(report, null, 2));
       if (report.status === "failed")
@@ -719,16 +730,48 @@ const verify = Command.make(
 function checkpointCommand(name: "checkpoint" | "vac") {
   return Command.make(
     name,
-    { message: Argument.String("message"), backend: backendFlag },
-    ({ message, backend }) =>
+    {
+      message: Argument.String("message").pipe(Argument.optional),
+      backend: backendFlag,
+      plan: Flag.Boolean("plan").pipe(Flag.withDefault(false)),
+    },
+    ({ message, backend, plan }) =>
       Effect.gen(function* () {
+        if (plan) {
+          yield* Console.log(
+            JSON.stringify(
+              yield* planVerification(
+                yield* discoverProjects(root),
+                backend,
+                name,
+              ),
+              null,
+              2,
+            ),
+          );
+          return;
+        }
+        if (Option.isNone(message))
+          return yield* Effect.fail(
+            new BoundaryError({
+              boundary: name,
+              message:
+                "An explicit commit message is required unless --plan is used",
+            }),
+          );
         const workspace = yield* resolveWorkspace(root);
         const result = yield* checkpointWorkspace(
           workspace,
-          { mode: name === "vac" ? "publish" : "local", message },
+          {
+            mode: name === "vac" ? "publish" : "local",
+            message: message.value,
+          },
           () =>
             discoverProjects(root).pipe(
               Effect.flatMap((projects) => verifyProjects(projects, backend)),
+              Effect.tap((report) =>
+                Console.log(JSON.stringify(report, null, 2)),
+              ),
             ),
         );
         yield* Console.log(JSON.stringify(result, null, 2));

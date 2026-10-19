@@ -52,6 +52,50 @@ const Phase = Schema.Literals([
   "engine",
   "seal",
 ]);
+
+const VerificationPlan = Schema.Struct({
+  schema: Schema.Literal(1),
+  status: Schema.Literal("planned"),
+  command: Schema.Literals(["verify", "checkpoint", "vac"]),
+  phases: Schema.Array(Phase),
+  projects: Schema.Array(
+    Schema.Struct({
+      mod: ModIdentity,
+      capabilities: Capabilities,
+      backend: Schema.NullOr(Backend),
+    }),
+  ).check(Schema.isMinLength(1)),
+  commit: Schema.Literals(["none", "local", "push"]),
+});
+
+/** Metadata only: no source seal, prerequisite checks, processes, or run allocation. */
+export function planVerification(
+  projects: readonly ResolvedProject[],
+  backend: typeof Backend.Type,
+  command: typeof VerificationPlan.Type.command,
+) {
+  return decode(
+    VerificationPlan,
+    {
+      schema: 1,
+      status: "planned",
+      command,
+      phases: Phase.literals,
+      projects: projects.map((project) => ({
+        mod: { name: project.info.name, version: project.info.version },
+        capabilities: project.capabilities,
+        backend: project.capabilities.profiles.length > 0 ? backend : null,
+      })),
+      commit:
+        command === "vac"
+          ? "push"
+          : command === "checkpoint"
+            ? "local"
+            : "none",
+    },
+    "verification plan",
+  );
+}
 const Identity = Schema.Struct({
   schema: Schema.Literal(1),
   runId: RunId,

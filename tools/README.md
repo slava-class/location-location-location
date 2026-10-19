@@ -80,7 +80,8 @@ Explicit dependency provisioning downloads missing pins using existing local Mod
 
 ## Commands
 
-- `mise run verify -- <mod>` or `mise run verify -- --all`: source quality, whitespace, metadata/locale audit, project-aware Lua checks, toolkit/model tests, packaging, and all declared real-engine [FactorioTest](https://github.com/GlassBricks/FactorioTest) profiles. Offline-only projects must explicitly declare that narrower contract.
+- `mise run verify`: verify the whole workspace. `mise run verify -- <mod>` selects one product; `--all` remains an explicit workspace selector. Coverage includes source quality, whitespace, metadata/locale audit, project-aware Lua checks, toolkit/model tests, packaging, and all declared real-engine [FactorioTest](https://github.com/GlassBricks/FactorioTest) profiles. Offline-only projects must explicitly declare that narrower contract.
+- `mise run verify -- --plan`: preview selected identities, capabilities, engine backends and phase order without checking prerequisites, sealing sources, allocating runs or launching processes. Accepts a mod selector or `--all`, but not both. `status: planned` is not verification evidence.
 - `mise run test -- <mod> --profile base` or `--profile space-age`: one declared engine profile.
 - `test`, `test-ui`, `gallery`, `perf` and the read-only `resolve` command accept repeated `--companion <exact-mod-id>` options. These add to declared companions for that selection only; self, duplicate, missing, aliased and malformed targets fail before engine work. The source seal includes selected companions, and the receipt records the primary suite and actual mod set. Run each primary explicitly for coexistence; this never replaces standalone coverage or enables companions in independent `package-smoke`.
   - The first extracted-product coexistence campaign passed detector **34 base / 35 Space Age** cases and planner **104 base / 112 Space Age** cases, each as the primary, using the standalone 2.1.21 engine. Run IDs are `b54ced03-c2fa-425d-a352-2c0178ff8630`, `f0e8c6fb-7577-46be-8c62-770f40593c65`, `dd930fa2-5563-48f7-ad3b-3e7a03a76e90` and `236a2287-1a14-40b8-a1c5-a3ccb716a062`. Resolver/source-closure regressions passed separately; these are point-in-time receipts, not a substitute for final release sealing.
@@ -113,6 +114,10 @@ Prepared state is `absent`, `unusable` or `ready`. `ready` uses the same full so
 ## Workspace checkpoints
 
 `checkpoint` and `vac` are canonical Effect CLI commands, not per-mod tasks. They discover and verify every workspace mod before staging **all tracked and non-ignored untracked changes**. Neither accepts a mod selector. One ownership lock serializes checkpoint operations.
+
+`mise run checkpoint -- --plan` and `mise run vac -- --plan` need no message and cannot stage, commit or push. Their readback states the intended commit policy (`local` versus `push`), not a publication result. Execution still requires a nonblank explicit message. Both commands print the complete aggregate verification summary, including failed run IDs, before the transaction result or failure.
+
+Formatting remains an explicit `mise run format -- --all` operation; verification and checkpointing never hide source mutations behind a check. These commands borrow Shivai's workspace gate and plan-before-execution ergonomics without its WIP/advisory-green mode, duplicate aliases or deployment machinery.
 
 Verification uses a private Git index. Failed verification, source/HEAD drift, a branch switch, or changed real staging stops before checkpoint staging/commit; concurrent user staging is not restored over. A changed tree is committed with the literal supplied message. A hook-altered commit is retained locally but not pushed. An unchanged worktree creates no commit, leaves staging intact and does not push.
 

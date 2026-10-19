@@ -1,6 +1,6 @@
 # First-party Factorio mod monorepo migration
 
-Status: the local monorepo pilot and agreed offline Polytechnic import are implemented and verified. LLL 1.2.0, Reversed Underground Belt Detector 1.0.0 and Polytechnic 0.6.0 share the typed toolkit. Both engine products have frozen local release bundles; all three reproduce from a fresh source export. Implementation remains uncommitted except for the explicitly authorized history-only import `2fde4ed0430099e38b2496fcd77471f91462b526`. No installation, push or publication occurred. Historical probes certify only their recorded source identities; later fleet-scale work and public-release gates remain unchecked below.
+Status: the local monorepo pilot and agreed offline Polytechnic import are implemented, verified and committed locally as `ef6599128f6ea8d8dc1293751c0e43c407b03b79`, following history-only import `2fde4ed0430099e38b2496fcd77471f91462b526`. LLL 1.2.0, Reversed Underground Belt Detector 1.0.0 and Polytechnic 0.6.0 share the typed toolkit. Both engine products have point-in-time frozen local release bundles; all three reproduced from a fresh source export. No installation, push or publication occurred. Historical probes certify only their recorded source identities; later fleet-scale work and public-release gates remain unchecked below.
 
 ## Goal and scope
 
@@ -29,6 +29,7 @@ The [migration sequence](#migration-sequence) is the execution checklist; [verif
 - [x] Triage the later roster: **Pyanodons Polytechnic only** is an agreed later import. Brood Engineering and the complete personal pY bundle are not selected. Lumberyard is an idea for now, not an import/extraction commitment.
 - [x] Record [Tram and the idea backlog](MOD_IDEAS.md): Tram targets base, Space Age and pY separately; electricity and very slow movement are agreed, other limitations deferred.
 - [x] Place real two-client detector multiplayer proof **before public release**, not before local pilot sign-off. Until it passes, report multiplayer as unverified and publication as blocked.
+- [x] Review Shivai's developer commands and adopt whole-workspace `verify`, read-only `--plan` for verify/checkpoint/VAC, and aggregate verification summaries during checkpointing. `checkpoint` remains local-only; `vac` verifies, commits and pushes the exact commit. Formatting stays explicit, with no advisory-green mode or hidden `--fix`. Disposable-workspace CLI plans and Git transaction safety controls passed; see [workspace checkpoints](tools/README.md#workspace-checkpoints).
 
 ### Before starting the migration journey
 
