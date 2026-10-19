@@ -35,6 +35,6 @@
     "mods/*/dev.config.ts",
     "mods/*/dev/**/*.ts",
     "mods/*/dev/**/*.mjs",
-    "knip.config.ts"
+    ".config/knip.ts"
   ]
 }

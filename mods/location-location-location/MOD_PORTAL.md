@@ -1,19 +1,6 @@
-# Mod Portal listing — Location Location Location
+# Location Location Location
 
-The listing is [Location Location Location](https://mods.factorio.com/mod/location-location-location), owned by **arrayjam**. Version **1.0.0** was first published on 3 October 2026 UTC (4 October in Melbourne); its downloadable archive was verified. This file owns the long description and the listing fields below. `info.json` is canonical for the current title, summary, homepage, and release version; use `mise run release-status` for live publication state.
-
-## Listing fields
-
-- **Mod ID:** `location-location-location`
-- **Title:** Location Location Location
-- **Author:** slava-class
-- **Portal owner:** arrayjam
 - **Category:** Utilities
-- **Tags:** none
-- **Release:** declared in `info.json`; live state is read by `release-status`
-- **Factorio:** 2.1, minimum build 2.1.20
-- **Required mod:** Factorio Library (`flib`) 0.17.2 or later
-- **Optional:** Space Age; FactorioTest 3.1.0 or later for development tests
 - **License:** MIT
 - **Source:** [slava-class/location-location-location](https://github.com/slava-class/location-location-location)
 

@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
-    - Extract reversed underground belt detection from Location Location Location into an independent mod, with directional warning arrows and default-on per-player map alerts.
-    - Preserve pulsing, steady and off overlay modes, pair-specific hover suppression, and bounded background validation.
+    - Warn about reversed underground belt pairs with directional arrows and default-on per-player map alerts.
+    - Offer pulsing, steady and off overlay modes; hide only the hovered connection's span and spread background validation across ticks.
   Changes:
-    - Use independent settings and storage; previous Location Location Location preferences are not imported.
+    - Use separate alert and overlay preferences; previous Location Location Location choices are not imported.
     - Require Location Location Location 1.2.0 or newer only when both mods are installed, preventing duplicate detectors without requiring the planner mod or flib.

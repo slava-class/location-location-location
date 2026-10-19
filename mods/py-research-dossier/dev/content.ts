@@ -258,7 +258,7 @@ export function compileContent(
           "stylua",
           "--verify",
           "--config-path",
-          join(project.repoRoot, "stylua.toml"),
+          join(project.repoRoot, ".config/stylua.toml"),
           "--",
           candidate,
         ],

@@ -6,16 +6,14 @@ Version: 1.2.0
 Version: 1.1.8
   Changes:
     - Enable reversed underground map alerts by default while preserving saved player choices.
-    - Development: format authored sources and consolidate pinned formatting, linting, type, and offline safety checks behind the shared Bun/Effect tooling.
-    - Development: move shared commands to the typed workspace CLI, keep bootstrap explicit, and seal exact release packages with native captures, independent smoke evidence, and persistent publication-attempt records.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.7
   Changes:
-    - Bound periodic underground validation across simulation ticks, stagger native alert renewal, and expand real-engine lifecycle, overload, and mod-reload regression coverage.
+    - Spread periodic underground validation across simulation ticks and stagger map-alert renewal to reduce concentrated background work.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.6
   Changes:
-    - Optimize active-warning sweeps without reducing validation frequency, hide only the hovered underground connection's span, and use the requested entrance/exit alert labels.
+    - Reduce active-warning sweep overhead without reducing validation frequency, hide only the hovered connection's span, and shorten entrance/exit alert labels.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.5
   Changes:
@@ -23,13 +21,12 @@ Version: 1.1.5
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.4
   Changes:
-    - Adopt the tuned underground warning appearance, add per-player pulsing/steady/off overlays, and hide span arrows during belt hover.
+    - Adjust the warning-arrow appearance, add per-player pulsing/steady/off overlays, and hide span arrows during belt hover.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.3
   Changes:
     - Correct the stock underground triangle's yellow mask for runtime tinting.
     - Make warning arrows breathe softly over 3.6 seconds, fading opacity while staying red; keep the mouths strong and the span muted.
-    - Development previews use the maximum graphics preset and native antialiased GIF frames without changing normal game settings.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.2
   Changes:
@@ -38,17 +35,12 @@ Version: 1.1.2
 Version: 1.1.1
   Changes:
     - Added automatic reversed-underground warnings with force-scoped map alerts.
-    - Repaired obsolete single-recipe regression expectations, exercised cross-surface selections end to end, and isolated temporary chart tags so failed tests cannot contaminate later cases.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
   Changes:
     - Add multi-recipe plans, output destinations and consumer lookup; preserve existing single-recipe plans.
-    - Added reversible local mod load, unload, status, and restore tasks with verified save backups and deployment receipts; these tasks never launch Factorio.
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
-  Changes:
-    - Added a repeatable developer gallery task with five native 1920x1080 screenshots, 125% UI scale, and Nauvis scene fixtures.
-    - Added explicit release versioning, preparation, Portal status, release publishing, and standalone gallery/listing publishing tasks with sealed artifacts and publication receipts.
   Bugfixes:
     - Fixed unwanted gaps between product-picker category buttons in partial rows.
 ---------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import { BunServices } from "@effect/platform-bun";
 import { Effect, Schema } from "effect";
 import type { KnipConfig } from "knip";
-import { readJSON, RelativePath } from "./tools/projects.ts";
+import { readJSON, RelativePath } from "../tools/projects.ts";
 
 const selection = process.env.MODKIT_SOURCE_SELECTION;
 const files = selection
@@ -15,7 +15,7 @@ const files = selection
 const isEntry = (path: string) =>
   path === "tools/cli.ts" ||
   path === "tools/source-check.ts" ||
-  path === "knip.config.ts" ||
+  path === ".config/knip.ts" ||
   /\.test\.(?:ts|mjs)$/.test(path) ||
   path.startsWith("tools/fixtures/") ||
   /^mods\/[^/]+\/(?:dev\.config\.ts|dev\/tooling\.ts|dev\/tuners\/[^/]+\/(?:descriptor|verify)\.ts)$/.test(

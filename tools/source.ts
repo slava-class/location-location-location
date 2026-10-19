@@ -20,19 +20,26 @@ export const SourceSeal = Schema.Struct({
 const sharedFiles = [
   "package.json",
   "bun.lock",
-  ".mise.toml",
+  ".config/mise.toml",
   "tsconfig.json",
-  "stylua.toml",
+  ".config/stylua.toml",
   "license.txt",
   ".gitignore",
   ".editorconfig",
   ".oxlintrc.json",
   ".oxfmtrc.json",
   ".trunk/trunk.yaml",
-  ".betterleaks.toml",
-  "knip.config.ts",
+  ".config/betterleaks.toml",
+  ".config/knip.ts",
+  ".config/emmy.json",
+  ".config/workshop-luacheck.lua",
 ];
-const optionalGuidance = ["README.md", "AGENTS.md"];
+const optionalGuidance = [
+  "README.md",
+  "AGENTS.md",
+  "ARCHITECTURE.md",
+  "MOD_IDEAS.md",
+];
 const excluded = new Set(["node_modules", ".git", ".factorio-test", "dist"]);
 export function sourceFiles(project: ResolvedProject) {
   return Effect.gen(function* () {

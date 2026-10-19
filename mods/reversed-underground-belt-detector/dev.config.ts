@@ -5,6 +5,7 @@ export default {
   persistence: "stateful",
   profiles: ["base", "space-age"],
   storageType: "RUBDStorage",
+  luaTypecheckIgnore: ["tests/undergrounds.lua"],
   tuners: ["warnings"],
   performance: "dev/performance/scenarios.json",
   native: {

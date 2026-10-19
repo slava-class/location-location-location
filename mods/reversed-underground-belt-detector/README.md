@@ -37,7 +37,7 @@ That is a background-validation budget, **not a blanket UPS guarantee**: install
 - Space Age is optional. FactorioTest 3.1.0 or later is optional for development only.
 - If Location Location Location is also enabled, it must be **1.2.0 or later**. Older versions embed another detector and are deliberately rejected.
 
-For manual installation, use `reversed-underground-belt-detector_<version>.zip` in Factorio's `mods` directory. This checkout prepares the initial 1.0.0 release locally; it does not imply a published Portal listing or release.
+For manual installation, put `reversed-underground-belt-detector_<version>.zip` in Factorio's `mods` directory and enable it.
 
 ### Moving from Location Location Location
 
@@ -57,7 +57,7 @@ Use the [shared developer guide](../../tools/README.md#setup) for explicit boots
 
 Native scenes require the explicit standalone full client. Presentation captures, including thumbnail and pulse frames, use Extreme in an isolated profile. Development tuners and fixtures are excluded from release archives. Local verification/preparation does not install into the normal game, commit or publish.
 
-The [migration checklist](../../MONOREPO_MIGRATION_PLAN.md#b-extract-detector-and-retire-llls-implementation) records completed and pending acceptance, including upgrade, exact-package behavior, performance and multiplayer limits. A passing package-startup smoke alone does not prove detection or cleanup.
+The [architecture notes](../../ARCHITECTURE.md#release-and-human-gates) retain the public-release gates, including real two-client multiplayer proof. [Product guidance](AGENTS.md) records implementation and regression constraints. A passing package-startup smoke alone does not prove detection or cleanup.
 
 ## Credits and license
 

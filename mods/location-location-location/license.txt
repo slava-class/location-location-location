@@ -1,5 +1,6 @@
 MIT License
 
+Copyright (c) 2026 slava-class
 Copyright 2021-2026 majoca
 Copyright (c) 2026 Claude Metz (Factory Planner picker code and styles)
 

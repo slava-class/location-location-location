@@ -136,6 +136,7 @@ const DevConfig = Schema.Struct({
   persistence: Schema.optionalKey(Schema.Literals(["stateful", "stateless"])),
   storageType: Schema.optionalKey(LuaTypeName),
   flibStyleType: Schema.optionalKey(LuaTypeName),
+  luaTypecheckIgnore: Schema.optionalKey(Schema.Array(RelativePath)),
   native: Schema.optionalKey(
     Schema.Struct({
       suite: Schema.NonEmptyString,

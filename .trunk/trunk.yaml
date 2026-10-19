@@ -58,7 +58,7 @@ lint:
     - name: workshop-workflow
       regexes: ['^\.github/workflows/.*\.ya?ml$']
     - name: workshop-knip
-      regexes: ['^knip\.config\.ts$']
+      regexes: ['^\.config/knip\.ts$']
     - name: workshop-text
       extensions:
         [
@@ -119,7 +119,7 @@ lint:
       environment: *native_environment
       commands:
         - name: format
-          run: stylua --verify --config-path ${workspace}/stylua.toml -- ${target}
+          run: stylua --verify --config-path ${workspace}/.config/stylua.toml -- ${target}
           output: rewrite
           success_codes: [0]
           batch: true
@@ -184,7 +184,7 @@ lint:
       environment: *native_environment
       commands:
         - name: lint
-          run: betterleaks dir --config ${workspace}/.betterleaks.toml --redact=100 --validation=false --no-banner --exit-code=101 --report-format=sarif --report-path=- -- ${target}
+          run: betterleaks dir --config ${workspace}/.config/betterleaks.toml --redact=100 --validation=false --no-banner --exit-code=101 --report-format=sarif --report-path=- -- ${target}
           output: sarif
           read_output_from: stdout
           success_codes: [0, 101]
@@ -215,7 +215,7 @@ lint:
           value: "${env.MODKIT_SOURCE_SELECTION}"
       commands:
         - name: lint
-          run: bun ${workspace}/node_modules/knip/bin/knip-bun.js --no-progress --reporter sarif --treat-config-hints-as-errors
+          run: bun ${workspace}/node_modules/knip/bin/knip-bun.js --config ${workspace}/.config/knip.ts --no-progress --reporter sarif --treat-config-hints-as-errors
           output: sarif
           read_output_from: stdout
           success_codes: [0, 1]

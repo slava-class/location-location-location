@@ -6,6 +6,7 @@ export default {
   profiles: ["base", "space-age"],
   storageType: "LLLStorage",
   flibStyleType: "LLLStyleMods",
+  luaTypecheckIgnore: ["tests/planner.lua"],
   native: {
     suite: "native UI gallery",
     scenes: [

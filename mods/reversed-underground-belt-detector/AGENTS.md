@@ -1,0 +1,32 @@
+# Reversed Underground Belt Detector
+
+## Ownership and behavior
+
+- `info.json` owns identity/dependencies; `reversed_underground_belt_detector/` owns runtime, appearance and preference names. `control.lua` registers product behavior and optional FactorioTest suites. Keep the detector independent of LLL and flib.
+- Preserve the versioned optional dependency on LLL 1.2.0 or later to prevent dual detectors. The new mod does not import LLL storage or per-player preferences; LLL owns its shipped retirement migration.
+- Preserve the narrow connected-pair/opposing-exterior-belts predicate, all cardinal directions and supported tiers, force ownership and no automatic rotation. Keep default-on alerts independent of per-player pulsing/steady/off overlays and preserve saved choices.
+- `underground_preferences.lua` is the canonical setting-name and audience boundary. Selection changes refresh only the previous/new connection; moving between its two mouths does not refresh it again. Hovered mouth IDs persist so load/join does not change branch decisions. Force/settings/lifecycle changes reconstruct current audience state.
+- Suppress only the selected connection's span for its viewer. Input mouths alone own interior arrows; other belts, connections, viewers and foreign alerts/render objects remain unaffected.
+
+## Scheduling and rendering constraints
+
+- Lifecycle events deduplicate current/previous partners into next-tick dirty work. Background validation uses a persistent constant-time queue and population credit, with at most 64 scheduled mouth entries per tick. Preserve fairness during shrink/churn and eventual coverage above capacity; never drop work to make a timing look better.
+- Normal validation covers up to 3,840 mouths within 60 ticks; overload takes longer. An entry may examine its partner, so the cap is not a native-query count or a bound on all mod work. Surveys, construction bursts, pulse and alert renewal have separate costs.
+- Reuse intact renderings and repair lost mouths without losing queue membership. Keep the efficient 1 Hz native-alert batch offset from the six-tick pulse; clear alerts when the last warning disappears. Silent changes can take a validation cycle plus an alert-renewal cycle to disappear from alerts.
+- Exterior lookups may reuse a proven point/surface and belt reference only after checking validity, force and direction. Misses query again; do not cache negative results. This relies on Factorio's [transport-belt teleport restriction](https://lua-api.factorio.com/2.1.20/classes/LuaControl.html#teleport), not a general immobility assumption.
+- Use stock core arrow artwork without redistributing extracted assets. The hollow-triangle crop and additive inverted complement produce a neutral tint mask; retain the blue tint probe to catch yellow-source multiplication. Runtime RGBA must be premultiplied, with stronger mouths and subordinate span arrows.
+- Canonical appearance source owns defaults. The shared 216-tick pulse changes existing objects' opacity every six ticks; avoid walking warnings when nobody requests pulsing. Steady layers exist only while requested; off mode hides the layers rather than proving they cost nothing.
+
+## Verification and studios
+
+Use the [shared developer guide](../../tools/README.md) and [architecture requirements](../../ARCHITECTURE.md). Keep authored tests/scenes/tuners with this product and generated profiles, captures and receipts ignored. Presentation uses the standalone full client at Extreme; neither verification nor preparation authorizes installation or publication.
+
+- Behavioral cases cover orientations, native tiers/reach, adjacency, unpaired/mixed-tier/foreign-force negatives, construction/removal/rotation/relinking, cloning/revival/death, surface removal, surveys, render repair, alert ownership, per-player modes and a full pulse cycle.
+- Queue cases cover multiple offsets through the 60-tick cycle, shrinking queues, empty-to-active restart, overload beyond 1,920 pairs, eventual progress and event-driven correction while background work remains. `after_reload_mods` exercises `game.reload_mods`; scenario-only reload is not equivalent. Neither replaces a fresh-process disk-save test.
+- Exact-package checks exercise detection, correction/destruction and resource cleanup, queued work and partial validation across disk loads, preserving foreign circles/tags/same-icon alerts. FactorioTest or a production test-only remote API must not supply that proof.
+- Native tests own direction, neutral tint, premultiplied opacity, mouth/span hierarchy and selected-mouth suppression. Pulse frames use known ticks; GIF export must not upscale them. Gallery/native metadata must describe the actual drawable, locale and scale.
+- `dev/performance/scenarios.json` owns fixture identities and workload declarations. Compare equivalent modes/scales and actual warning/resource populations; include idle, burst/recovery and audience changes. Saved-player fixtures have no connected viewer and cannot prove native custom-alert delivery or renderer cost.
+- For callback diagnosis, a representative scenario is 1,000 reversed pairs on charted terrain, one pulsing player, 180 warm-up ticks and 600 measured ticks per alert setting. Compare complete simulation windows as well as callback sums, with independent baseline/candidate runs and profiling disabled controls. Do not sum maxima from different ticks or confuse this scenario with every fixed-save benchmark's window.
+- Standalone detector fixtures and old embedded-LLL fixtures are distinct workloads. An ownership-cutover comparison must explicitly preserve equivalent planner/detector/foreign state; do not bypass strict comparison guards or invent an old standalone-detector baseline.
+- The warning studio uses proxy rendering, not the product renderer. Its preview can enumerate product render objects beyond the small displayed fixture: include large factories when measuring studio overhead. Preview-only controls cannot become source settings; verify promotion, restoration, revision conflicts and real reload, then verify the actual package with the tuner absent.
+- Public release requires the [real two-client multiplayer gate](../../ARCHITECTURE.md#release-and-human-gates). Model players, synthetic events and headless benchmarks do not establish it. High contrast remains an [idea](../../MOD_IDEAS.md#underground-detector-high-contrast-option), not an implemented preference.

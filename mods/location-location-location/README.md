@@ -83,7 +83,7 @@ For manual installation, put `location-location-location_<version>.zip` in Facto
 
 This is a separate mod, not an in-place upgrade. Both can remain enabled, but private storage from `map-tag-generator` does **not** transfer automatically. Back up an existing save before switching; there is no cross-ID recipe-tag migration. The old generic tag generator and eraser are not part of this mod.
 
-The [Mod Portal listing](https://mods.factorio.com/mod/location-location-location) is published. [MOD_PORTAL.md](MOD_PORTAL.md) owns its long-form copy; `info.json` owns the title, summary, and release identity.
+See [changelog.txt](changelog.txt) for release history.
 
 ## Development
 

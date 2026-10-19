@@ -1,18 +1,6 @@
-# Mod Portal listing — Reversed Underground Belt Detector
+# Reversed Underground Belt Detector
 
-Local listing copy for the initial independent release; availability and ownership must be checked before any separately authorized publication. `info.json` owns the current title, summary, homepage and version.
-
-## Listing fields
-
-- **Mod ID:** `reversed-underground-belt-detector`
-- **Title:** Reversed Underground Belt Detector
-- **Author:** slava-class
 - **Category:** Utilities
-- **Tags:** none
-- **Release:** declared in `info.json`; not published by local preparation
-- **Factorio:** 2.1, minimum build 2.1.20
-- **Required mod:** base only
-- **Optional:** Space Age; FactorioTest 3.1.0 or later for development; Location Location Location 1.2.0 or later if enabled
 - **License:** MIT
 - **Source:** [slava-class/location-location-location](https://github.com/slava-class/location-location-location)
 

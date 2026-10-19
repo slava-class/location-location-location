@@ -126,7 +126,7 @@ export function lintProject(project: ResolvedProject) {
     const tools = yield* resolveLuaTools(project),
       cache = tools.cache;
     const env = {
-      LUA_PATH: `${cache}/luacheck-1.2.0/src/?.lua;${cache}/luacheck-1.2.0/src/?/init.lua;${cache}/argparse-0.7.1/src/?.lua;;`,
+      LUA_PATH: `${project.repoRoot}/.config/?.lua;${cache}/luacheck-1.2.0/src/?.lua;${cache}/luacheck-1.2.0/src/?/init.lua;${cache}/argparse-0.7.1/src/?.lua;;`,
       LUA_CPATH: `${cache}/?.so;;`,
     };
     const shared = inventory.filter(
@@ -203,12 +203,13 @@ export function typecheckProject(project: ResolvedProject) {
     const api = yield* resolveApi(project);
     const config = yield* readJSON(
       EmmyConfig,
-      join(project.modRoot, ".emmyrc.json"),
+      join(project.repoRoot, ".config/emmy.json"),
     );
     const tools = yield* resolveLuaTools(project);
     const directory = join(project.outputRoot, "types", crypto.randomUUID());
     yield* prepareOutputDirectory(directory);
-    const typeRequirements = luaTypeRequirements(yield* requirements(project));
+    const dependencies = yield* requirements(project);
+    const typeRequirements = luaTypeRequirements(dependencies);
     let flib: (typeof TypesRequest.Type)["flib"] = null;
     if (typeRequirements.length > 0) {
       const pin = yield* dependencyPin("flib");
@@ -243,6 +244,26 @@ export function typecheckProject(project: ResolvedProject) {
         ...config,
         workspace: {
           ...config.workspace,
+          ignoreGlobs: [
+            ...config.workspace.ignoreGlobs,
+            ...(project.development.luaTypecheckIgnore ?? []),
+          ],
+          moduleMap: [
+            ...config.workspace.moduleMap,
+            ...(flib ? [{ pattern: "^__flib__\\.(.*)$", replace: "$1" }] : []),
+            ...(dependencies.some(
+              (dependency) =>
+                dependency.name === "factorio-test" &&
+                dependency.kind !== "incompatible",
+            )
+              ? [
+                  {
+                    pattern: "^__factorio-test__[/\\.]init$",
+                    replace: "factorio-test-init",
+                  },
+                ]
+              : []),
+          ],
           ignoreDir: config.workspace.ignoreDir.map((path) =>
             resolve(project.modRoot, path),
           ),

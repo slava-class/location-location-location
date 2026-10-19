@@ -16,7 +16,6 @@
     ".trunk/logs/**",
     "dist/**",
     "patches/**",
-    "bun.lock",
-    "uv.lock"
+    "bun.lock"
   ]
 }

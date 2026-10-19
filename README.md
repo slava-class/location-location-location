@@ -38,6 +38,16 @@ Every owned subprocess announces its run ID and exact live-log command. Generate
 
 `mise run mods` is the offline fleet overview: declared capabilities, source freshness of the latest readable verification, actual profile coverage, prepared-release usability, blockers and exact next commands. It does not launch Factorio or contact the Portal; use explicit `release-status -- <mod>` when a live Portal readback is wanted.
 
+## Licensing and attribution
+
+The shared toolkit and original contributions are [MIT licensed](license.txt), with `slava-class` credited for those contributions.
+
+LLL retains its Map Tag Generator ancestry and Factory Planner adaptations. Preserve upstream copyright and permission notices for their respective contributions, including when moving or editing derived code.
+
+Each product's `license.txt` is included in its independent ZIP. All products use MIT; the Portal publisher supports MIT selection. A different product license requires an explicit licensing and tooling change.
+
+Third-party dependencies, Factorio artwork, scientific publications and pY source retain their own terms; the root license does not relicense them. In particular, Polytechnic's separately licensed upstream Lua helper stays in a private development cache and is not vendored or packaged.
+
 ## Delivery boundaries
 
 - Verification, packaging and release preparation do not install a mod into normal play, commit, push or publish.
@@ -45,4 +55,4 @@ Every owned subprocess announces its run ID and exact live-log command. Generate
 - `checkpoint` verifies all products and commits locally; `vac` additionally pushes source. Neither is a routine verification command.
 - Portal publication selects one exact mod and prepared version with separate authorization. A local preparation or successful check is not publication authority.
 
-Read the [developer guide](tools/README.md) for command contracts and recovery behavior, the [migration checklist](MONOREPO_MIGRATION_PLAN.md) for current scope and evidence, and the [verification plan](VERIFICATION_PLAN.md) for required proof and remaining gates. Product attribution and licensing remain in each product's own documentation and package.
+Read the [developer guide](tools/README.md) for command contracts and recovery behavior, and [architecture notes](ARCHITECTURE.md) for design decisions, verification requirements and the remaining development checklist. Product attribution and licensing remain in each product's own documentation and package.

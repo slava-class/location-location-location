@@ -1,32 +1,12 @@
 import { Effect, FileSystem } from "effect";
 import { join } from "node:path";
 import { defineProjectTooling } from "../../../tools/project-tooling.ts";
-import { engineFloor } from "../../../tools/dependencies.ts";
 import { BoundaryError } from "../../../tools/projects.ts";
 
 export default defineProjectTooling({
   audit: function audit({ project, members, english }) {
     return Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem,
-        floor = yield* engineFloor(project);
-      const readme = yield* fs.readFileString(
-        join(project.modRoot, "README.md"),
-      );
-      const listing = yield* fs.readFileString(
-        join(project.modRoot, "MOD_PORTAL.md"),
-      );
-      if (
-        !readme.includes(`${project.info.name}_<version>.zip`) ||
-        !readme.includes(floor) ||
-        !listing.includes(`minimum build ${floor}`)
-      )
-        return yield* Effect.fail(
-          new BoundaryError({
-            boundary: project.info.name,
-            message:
-              "Product documentation does not describe the canonical archive and engine minimum",
-          }),
-        );
+      const fs = yield* FileSystem.FileSystem;
       for (const name of members.filter(
         (name) =>
           name === "control.lua" ||

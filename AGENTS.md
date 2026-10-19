@@ -4,7 +4,7 @@
 
 - `mods/<mod-id>/info.json` owns product identity and dependencies. Discover products through `tools/projects.ts`; never infer a default product or maintain a second registry.
 - `tools/cli.ts` is the Effect CLI entrypoint. Mise tasks only forward arguments. Keep orchestration in Bun + Effect and runtime contracts in Effect Schema; derive types from those contracts.
-- Shared tooling, dependency pins and formatting configuration belong at root. Runtime, locales, sprites, storage types, test scenes and product-specific rules remain with their product.
+- Shared tooling and dependency pins are workspace-owned. Put relocatable tool configurations in `.config/`; retain native discovery/path anchors where required. Runtime, locales, sprites, storage types, test scenes and product-specific rules remain with their product.
 - Keep archive, provisioning and offline-save boundaries in Bun with the canonical Effect contracts. Do not introduce a second interpreter, duplicate validators, silent fallbacks or automatic retries of mutations.
 - Read the selected product's guidance and documentation for its ownership and behavior constraints. Preserve attribution and packaged licenses.
 
@@ -15,7 +15,8 @@
 - Native scenes and presentation assets use the explicit standalone full client. Presentation captures must use Extreme. Record actual viewport, locale and scale; never relax capture checks to hide a display mismatch.
 - Use the canonical owned-process, logs and source-seal boundaries. Keep generated state under ignored `.factorio-test/`; never signal unrelated Factorio processes or use normal saves as disposable fixtures.
 - Changed shared tooling affects its consumers. A stale or incomplete receipt is not current evidence, and an engine suite is not equivalent to a test-framework-free exact-package smoke.
-- The migration and verification checklists distinguish implemented behavior, observed proof and pending gates. Update evidence honestly; do not mark intended behavior as passed.
+- Follow [the architecture notes](ARCHITECTURE.md) for verification requirements and unfinished gates. Qualified current run/release records supply evidence; a completed checklist is not proof for changed source.
+- Keep Markdown durable: architecture, operating contracts, product guidance and ideas. Do not append completed execution diaries, run-ID/checksum dumps or historical research reports; retain lasting constraints in their canonical homes.
 
 ## Authority
 

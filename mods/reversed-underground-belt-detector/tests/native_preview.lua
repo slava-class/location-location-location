@@ -1,5 +1,14 @@
 local underground_appearance = require("reversed_underground_belt_detector.appearance")
 local underground_preferences = require("reversed_underground_belt_detector.underground_preferences")
+---@type defines.transport_line[]
+local belt_lanes = { defines.transport_line.left_line, defines.transport_line.right_line }
+---@type defines.transport_line[]
+local underground_lanes = {
+    defines.transport_line.left_line,
+    defines.transport_line.right_line,
+    defines.transport_line.left_underground_line,
+    defines.transport_line.right_underground_line,
+}
 ---@type LuaPlayer
 local player
 ---@type boolean
@@ -41,7 +50,7 @@ describe("underground native", function()
         settings.get_player_settings(player)[underground_preferences.overlay_setting] = { value = original_overlay }
     end)
     test("01 reversed-underground", function()
-        async(underground_appearance.pulse_period * 2 + 120)
+        async(underground_appearance.pulse_period * 2 + 240)
         settings.get_player_settings(player)[underground_preferences.alert_setting] = { value = false }
         assert(player.gui.screen["factorio-test-test-gui"], "FactorioTest GUI was not initialized").visible = false
         local surface = player.surface
@@ -88,23 +97,46 @@ describe("underground native", function()
                 second_endpoints[#second_endpoints + 1] = entity
             end
         end
+        ---@type LuaEntity[]
         local thumbnail_mouths = {}
-        for part, x in ipairs({ 17.5, 18.5, 22.5, 23.5 }) do
-            local mouth = part == 2 or part == 3
-            local entity = assert(surface.create_entity({
-                name = mouth and "underground-belt" or "transport-belt",
-                position = { x, 20.5 },
-                force = player.force,
-                direction = mouth and defines.direction.west or defines.direction.east,
-                type = mouth and (part == 2 and "output" or "input") or nil,
-                raise_built = true,
-            }))
-            if mouth then
-                thumbnail_mouths[#thumbnail_mouths + 1] = entity
+        ---@type LuaEntity[]
+        local thumbnail_feed_belts = {}
+        ---@type LuaEntity[]
+        local thumbnail_empty_belts = {}
+        for x = 14, 26 do
+            local mouth = x == 18 or x == 22
+            if mouth or x < 18 or x > 22 then
+                local entity = assert(surface.create_entity({
+                    name = mouth and "underground-belt" or "transport-belt",
+                    position = { x + 0.5, 20.5 },
+                    force = player.force,
+                    direction = mouth and defines.direction.west or defines.direction.east,
+                    type = mouth and (x == 18 and "output" or "input") or nil,
+                    raise_built = true,
+                }))
+                if mouth then
+                    thumbnail_mouths[#thumbnail_mouths + 1] = entity
+                elseif x < 18 then
+                    thumbnail_feed_belts[#thumbnail_feed_belts + 1] = entity
+                else
+                    thumbnail_empty_belts[#thumbnail_empty_belts + 1] = entity
+                end
             end
         end
+        local thumbnail_captured = false
+        local function feed_thumbnail()
+            if thumbnail_captured then
+                return
+            end
+            local source = assert(thumbnail_feed_belts[1])
+            for _, lane in ipairs(belt_lanes) do
+                source.get_transport_line(lane).insert_at_back({ name = "iron-plate", count = 1 })
+            end
+            after_ticks(1, feed_thumbnail)
+        end
+        feed_thumbnail()
         player.teleport({ 0, 0 }, surface)
-        after_ticks(61, function()
+        after_ticks(161, function()
             ---@type RUBDWarning?
             local input_warning
             for index, entity in ipairs(endpoints) do
@@ -157,9 +189,34 @@ describe("underground native", function()
                     path = string.format("underground-pulse/frame-%02d.png", frame),
                 })
                 if frame == 0 then
+                    for _, belt in ipairs(thumbnail_feed_belts) do
+                        for _, lane in ipairs(belt_lanes) do
+                            assert(
+                                belt.get_transport_line(lane).get_item_count("iron-plate") == 4,
+                                "The thumbnail feeding belt must back up with full iron-plate lanes"
+                            )
+                        end
+                    end
+                    for _, belt in ipairs(thumbnail_empty_belts) do
+                        for _, lane in ipairs(belt_lanes) do
+                            assert(
+                                belt.get_transport_line(lane).get_item_count() == 0,
+                                "The reversed connection must leave downstream belts empty"
+                            )
+                        end
+                    end
                     for _, mouth in ipairs(thumbnail_mouths) do
+                        local max_line = mouth.get_max_transport_line_index()
+                        for _, lane in ipairs(underground_lanes) do
+                            if lane <= max_line then
+                                assert(
+                                    mouth.get_transport_line(lane).get_item_count() == 0,
+                                    "Iron plates must not enter the reversed underground connection"
+                                )
+                            end
+                        end
                         local warnings = assert(storage.reversed_underground_belt_detector).warnings
-                        local thumbnail_warning = assert(warnings[mouth.unit_number])
+                        local thumbnail_warning = assert(warnings[assert(mouth.unit_number)])
                         assert(
                             thumbnail_warning.sprite.valid
                                 and thumbnail_warning.sprite.visible
@@ -178,13 +235,14 @@ describe("underground native", function()
                         player = player,
                         position = { 20.5, 20.5 },
                         resolution = { 256, 256 },
-                        zoom = 1.25,
+                        zoom = 1,
                         anti_alias = true,
                         force_render = true,
                         show_gui = false,
                         show_entity_info = false,
                         path = "detector-thumbnail.png",
                     })
+                    thumbnail_captured = true
                 end
                 if frame + 1 < frame_count then
                     after_ticks(underground_appearance.pulse_interval, function()

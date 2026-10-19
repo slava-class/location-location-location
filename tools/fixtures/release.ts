@@ -39,6 +39,7 @@ export async function releaseFixture(
     "tools",
     "patches",
     ".trunk",
+    ".config",
     `mods/${name}/dev`,
     "mods/unrelated",
   ])
@@ -46,17 +47,19 @@ export async function releaseFixture(
   for (const name of [
     "package.json",
     "bun.lock",
-    ".mise.toml",
+    ".config/mise.toml",
     "tsconfig.json",
-    "stylua.toml",
+    ".config/stylua.toml",
     "license.txt",
     ".gitignore",
     ".editorconfig",
     ".oxlintrc.json",
     ".oxfmtrc.json",
     ".trunk/trunk.yaml",
-    ".betterleaks.toml",
-    "knip.config.ts",
+    ".config/betterleaks.toml",
+    ".config/knip.ts",
+    ".config/emmy.json",
+    ".config/workshop-luacheck.lua",
   ])
     await writeFile(join(root, name), "source input\n");
   await writeFile(join(root, ".gitignore"), ".factorio-test/\n");

@@ -78,7 +78,9 @@ export function checkToolchain(project: ExecutionContext) {
         true,
       );
     yield* rejectTrunkUserOverrides(project);
-    const text = yield* fs.readFileString(join(project.repoRoot, ".mise.toml"));
+    const text = yield* fs.readFileString(
+      join(project.repoRoot, ".config/mise.toml"),
+    );
     const parsed = yield* Effect.try({
       try: (): unknown => Bun.TOML.parse(text),
       catch: () =>

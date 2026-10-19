@@ -26,6 +26,7 @@ Originally based on Map Tag Generator, with UX inspired by Factory Planner.
 - Draft edits remain private until Apply. Discard changes restores the latest saved draft in place, or returns an unsaved draft to the list; X closes. Manual placement moves only the recipe marker, never buildings or blueprints.
 - A selected recipe can save without sources or a marker. No label hides map text without losing the recipe-list name.
 - Keep appearance policy shared. Explicit dark titlebar sprites must not also undergo native hover inversion. Recipe-row geometry must account for the native button-child inset, not just caption padding.
+- Picker category slots and their table must remain non-stretching: native table justification otherwise inserts gaps in partial rows. Keep their widths aligned with the shared background tiling.
 - View location changes remote view, not the physical character's position, and must preserve the private draft.
 - The new mod ID has separate storage; do not promise automatic migration from the old ID or introduce silent fallback paths.
 
@@ -35,6 +36,8 @@ Originally based on Map Tag Generator, with UX inspired by Factory Planner.
 - Run `mise run test-ui -- location-location-location --language <language>` for the actual FactorioTest native suite; keep its `native-ui` tag excluded from headless profiles.
 - Run `mise run verify -- location-location-location` for source quality, metadata, Lua checks, model/toolkit tests and both real-engine profiles. `mise run test -- location-location-location --profile base` runs only the selected engine suite.
 - Verify UI changes in the isolated native preview as well as tests. Screenshots, fixture mods, configs, saves, and logs belong under ignored `.factorio-test/` and must not enter release packages.
+- Planner fixtures clear chart tags only on their dedicated test surface. Cross-surface selection tests perform source, marker or machine selection and assert saved plans remain unchanged, rather than pinning private selection-mode names.
+- Do not repeat the maintainer's manual pY compatibility acceptance without a new compatibility issue. Simulated actors/forces do not establish real-client multiplayer coverage; native rendering/key parity does not certify translations.
 - Keep the preview sandbox limited to this mod and required dependencies. Add other mods only for an explicit compatibility check, then remove them from the sandbox.
 - Never alter normal Factorio saves, configuration, or installed mods without an explicit installation request.
 - Update README and changelog for permanent behavioral changes. Keep package identity derived from `info.json`.

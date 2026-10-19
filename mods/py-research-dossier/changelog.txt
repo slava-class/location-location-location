@@ -9,18 +9,7 @@ Date: 2026-10-14
   Changes:
     - Renamed the independent companion to Pyanodons Polytechnic; the internal py-research-dossier ID and local feedback path remain stable.
     - Rewrote 20 existing explanations, including underground conveying, the distilator, ore grades and repeated game-comparison caveats.
-    - Extended flag-family mapping to circuit-board production, circuit assembly and automated screeners; retained full technology packages and recursive prerequisites.
-    - Excluded hidden d2o-distilation and the cracker-category benzene-aromatics recipe from direct distilator membership, with explicit evidence.
-    - Added source-backed optional-mod ordering and retained fail-fast missing-target behavior without compatibility fallbacks.
-    - Consolidated development into the multi-mod workshop: shared Effect CLI, schema-validated offline audits, supervised Lua/Python helpers and one pinned formatter/toolchain.
-    - Removed implicit installed-profile and sibling-repository dependencies from setup and verification; preserved explicit historical/source-review inputs and upstream attribution.
-    - Added minimum-version API typechecking and explicit owned-window/target contracts; preserved draft migration and byte-exact Lua text generation.
-  Notes:
-    - All 31 offline regression tests, content budgets, Lua formatting and lint checks passed; development-only Lua fixtures remain outside release packages.
-    - Replayed 456 targets, 116 actual item/entity pairs and 797 historical Crafting routes; gameplay fields and original descriptions were preserved.
-    - The latest saved scope has 38 covered current family routes and one crane route with an unverified startup condition.
-    - Across the wider current prerequisite slice, 218 recipes remain without a lesson, down from 268 on the same save. These remain recorded gaps, not completed coverage.
-    - Factorio was not launched. Native rendering and the current modpack's complete engine data stage remain unverified.
+    - Load after supported optional mods and report missing required annotation targets.
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 2026-10-14
@@ -29,16 +18,10 @@ Date: 2026-10-14
     - Added inserter/crane families, underground belts, splitters, optional AAI loaders, capacity upgrades and batch-production explanations.
     - Added borate and boron materials/processes, electrolysis, glass, stock and high-pressure furnaces, middle oil and gasoline.
   Changes:
-    - Audited both logged flags and the reported Diborane attempt through related families, complete recovered technology packages, recursive prerequisites and Py upgrade choices.
-    - Recorded 489 technologies across current and future scope, with exact coverage gaps rather than treating repaired seeds as a completed upstream content set.
-    - Added explicit source creation conditions shared by annotation and feedback catalogues; absent optional families do not cause false missing-target failures.
+    - Match annotation and feedback availability to optional content, avoiding missing-target errors for absent optional families.
   Bugfixes:
     - Separated geological raw coal from the fuel item also used for charcoal.
     - Replaced Diborane's misplaced hydrolysis lesson with atom bookkeeping; hydrolysis now belongs to the boric-acid recipe.
-  Notes:
-    - Replayed 204 annotation targets, 66 item/entity pairs and 515 historical Crafting routes without changing gameplay fields.
-    - All 11 current family Crafting recipes have a lesson; the wider current prerequisite slice still contains 266 recipes without a dossier note.
-    - Current progression was read offline from the save, separately from the historical prototype replay. Factorio was not launched; native rendering remains unverified.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.0
 Date: 2026-10-14
@@ -46,17 +29,12 @@ Date: 2026-10-14
     - Added a searchable, paged selector for the force's unlocked Crafting recipes, including machine-only recipes and fluid-only outputs.
     - Added distinct Diborane process and bonding notes, plus Mechanical inserter and Transport belt explanations from player flags.
   Changes:
-    - Made E -> Crafting the explicit coverage contract: process notes on recipe cards, material/equipment notes on their product cards without copied paragraphs.
-    - Reused flib dictionary translation for displayed-name search; internal IDs remain searchable while translations prepare.
+    - Show process notes on recipe cards and material/equipment notes on product cards without repeating paragraphs.
+    - Search Crafting recipes by translated names; internal IDs remain searchable while translations prepare.
     - Expanded to 69 sourced notes across 102 targets, retaining compact paragraph budgets and entity-only equipment ownership.
-    - Derived valid item/entity target types from the pinned Factorio API rather than an assembling-machine-only list.
   Bugfixes:
-    - Retained exact hovered recipe identity independently of choose-elem widget readback; recipe and fluid namespaces remain distinct.
+    - Preserve the exact hovered recipe when picker readback differs; keep recipe and fluid identities distinct.
     - Preserved unfinished 0.3.0 drafts while migrating to typed selection.
-  Notes:
-    - Checked current Diborane overrides and the mechanical inserter's abstracted energy source before authoring their notes.
-    - Exercised 27 item/entity pairs, 397 covered historical Crafting routes and the real flag entrypoints with an offline API model.
-    - Native hover-event delivery and UI rendering remain unverified. The failed player attempt had no log record; no reproduced engine bug is claimed. Factorio was not launched.
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.0
 Date: 2026-10-14
@@ -64,10 +42,8 @@ Date: 2026-10-14
     - Added Ctrl+Shift+K and a pencil shortcut to flag the exact prototype under the cursor, including recipes and items in GUIs.
     - Added separate expansion, missing-flavour-text and change requests, with optional notes and an explicit target picker.
     - Appended local JSONL feedback records with qualified IDs, item subtypes, placement-entity ownership, existing note references and active mod versions.
-  Notes:
+  Info:
     - Flags are written only to the flagging player's script-output/py-research-dossier/flags.jsonl; nothing is sent externally.
-    - Kept the existing 65-note catalogue and all gameplay mechanics unchanged.
-    - Exercised the real entrypoints with an offline API-boundary model and disposable append-only log. Native rendering and real-engine input/file delivery remain untested; Factorio was not launched.
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2026-10-14
@@ -82,11 +58,8 @@ Date: 2026-10-14
   Bugfixes:
     - Removed duplicate machine tooltip notes by annotating only the entity, not its placement item, across all 25 covered machines.
   Compatibility:
-    - Now requires Py Alien Life 3.1.8 or later for the exact biological module targets.
+    - Require Py Alien Life 3.1.8 or later for the biological module targets.
     - Preserved original descriptions, compost information, existing tooltip fields and all gameplay properties.
-  Notes:
-    - Passed four offline regression tests and the real entrypoint replay for 98 targets and 25 placement-item pairs.
-    - Used 29 scientific source locators and 35 fingerprinted game-source files. Current-engine loading and native rendering of this update remain untested; Factorio was not launched.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2026-10-14
@@ -99,6 +72,5 @@ Date: 2026-10-14
     - Used Py's existing description helper after postprocessing, preserving original descriptions and tooltip fields.
     - Changed no recipe ingredients, yields, times, unlocks, productivity, fuel values or machine statistics.
     - Added no runtime scripts, migrations, settings or new gameplay prototypes.
-  Notes:
+  Info:
     - English content; deliberately curated coverage, not annotations for every Py recipe.
-    - Verified offline with the installed Py text helper and a historical resolved Py/Hardmode prototype capture. Current-engine loading and native rendering remain untested; Factorio was not launched.

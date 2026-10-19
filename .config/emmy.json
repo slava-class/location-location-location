@@ -7,14 +7,10 @@
   "strict": { "requirePath": true, "arrayIndex": true },
   "workspace": {
     "ignoreDir": ["node_modules", "dev", ".git", ".factorio-test"],
-    "ignoreGlobs": ["tests/undergrounds.lua"],
+    "ignoreGlobs": [],
     "library": ["types"],
     "moduleMap": [
-      { "pattern": "^__core__\\.lualib\\.(.*)$", "replace": "core.lualib.$1" },
-      {
-        "pattern": "^__factorio-test__[/\\.]init$",
-        "replace": "factorio-test-init"
-      }
+      { "pattern": "^__core__\\.lualib\\.(.*)$", "replace": "core.lualib.$1" }
     ]
   }
 }

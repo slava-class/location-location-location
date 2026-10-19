@@ -50,8 +50,9 @@ async function fixture(verify = "git diff --check HEAD") {
     JSON.stringify({ private: true, type: "module" }),
   );
   await writeFile(join(cwd, ".gitignore"), ".factorio-test/\n");
+  await mkdir(join(cwd, ".config"));
   await writeFile(
-    join(cwd, ".mise.toml"),
+    join(cwd, ".config/mise.toml"),
     `[tasks.verify]\nrun = ${JSON.stringify(verify)}\n`,
   );
   await writeFile(join(cwd, "content.txt"), "initial\n");
