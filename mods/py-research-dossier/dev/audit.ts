@@ -3,7 +3,7 @@ import { stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { AbsolutePath } from "../../../tools/contracts.ts";
 import { hashFile } from "../../../tools/files.ts";
-import { runHelper } from "../../../tools/helpers.ts";
+import { readSavedProgress } from "./read-save.ts";
 import {
   assertCanonicalPath,
   BoundaryError,
@@ -20,7 +20,6 @@ import {
   FlagReadback,
   ReferenceContext,
   SaveReadback,
-  SaveRequest,
 } from "./contracts.ts";
 import {
   CorpusInventory,
@@ -91,15 +90,6 @@ function stableBytes(path: string) {
     );
     return { bytes, identity };
   });
-}
-export function readSavedProgress(project: ResolvedProject, save: string) {
-  return runHelper(
-    project,
-    "mods/py-research-dossier/dev/read-save.py",
-    SaveRequest,
-    SaveReadback,
-    { schema: 1, save },
-  );
 }
 function latestSave(profile: string) {
   return Effect.gen(function* () {
@@ -237,7 +227,7 @@ export function runAudit(project: ResolvedProject, input: unknown) {
     if (mode === "progress" || mode === "scope") {
       const save =
         options.save === "latest" ? yield* latestSave(profile) : options.save;
-      progress = yield* readSavedProgress(project, save);
+      progress = yield* readSavedProgress(save);
       yield* writeReport("progress", ProgressReport, {
         schemaVersion: 1,
         ...progress,

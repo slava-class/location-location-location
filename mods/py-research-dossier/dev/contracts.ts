@@ -281,7 +281,3 @@ export const SaveReadback = Schema.Struct({
   saveMtimeUtc: Schema.NonEmptyString,
   saveSha256: Sha256,
 });
-export const SaveRequest = Schema.Struct({
-  schema: Schema.Literal(1),
-  save: AbsolutePath,
-});

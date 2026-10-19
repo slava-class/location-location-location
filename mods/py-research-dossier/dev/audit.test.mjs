@@ -1,11 +1,13 @@
 import { test, expect } from "bun:test";
 import { BunServices } from "@effect/platform-bun";
 import { Effect } from "effect";
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rename, rm, utimes } from "node:fs/promises";
 import { join } from "node:path";
-import { runCommand } from "../../../tools/commands.ts";
+import { deflateSync } from "node:zlib";
+import { writeZip } from "../../../tools/archives.ts";
+import { BoundaryError } from "../../../tools/projects.ts";
 import { readFlags, auditScope, validateContext } from "./audit-model.mjs";
-import { readSavedProgress } from "./audit.ts";
+import { readSavedProgress } from "./read-save.ts";
 import { project } from "./test-support.ts";
 
 const mods = {
@@ -400,7 +402,7 @@ function saveFixture() {
     ...forces,
   ]);
 }
-function scriptFixture() {
+function scriptFixture(pairs = Object.entries(mods), extra = Buffer.alloc(0)) {
   const uint = (value) =>
     value < 255
       ? Buffer.from([value])
@@ -421,13 +423,14 @@ function scriptFixture() {
     Buffer.from([4]),
     text("installed_mods"),
     Buffer.from([5]),
-    uint(Object.keys(mods).length),
-    ...Object.entries(mods).flatMap(([name, value]) => [
+    uint(pairs.length),
+    ...pairs.flatMap(([name, value]) => [
       Buffer.from([4]),
       text(name),
       Buffer.from([4]),
       text(value),
     ]),
+    extra,
   ]);
   const count = Buffer.alloc(4);
   count.writeUInt32LE(1);
@@ -440,42 +443,26 @@ function scriptFixture() {
     Buffer.from([0]),
   ]);
 }
-const archiveScript = [
-  "import base64,sys,zipfile,zlib",
-  "with zipfile.ZipFile(sys.argv[1], 'w', zipfile.ZIP_DEFLATED) as archive:",
-  " archive.writestr('fixture/level.dat0', zlib.compress(base64.b64decode(sys.argv[2])))",
-  " archive.writestr('fixture/script.dat', base64.b64decode(sys.argv[3]))",
-].join("\n");
 async function withSave(level, use) {
   await mkdir(project.outputRoot, { recursive: true });
   const directory = await mkdtemp(join(project.outputRoot, "save-fixture-"));
   try {
     const save = join(directory, "fixture.zip");
-    const rewrite = (data) =>
-      Effect.runPromise(
-        runCommand(
-          project,
-          "offline-save-fixture",
-          [
-            "uv",
-            "run",
-            "--locked",
-            "--no-sync",
-            "--offline",
-            "--no-python-downloads",
-            "--project",
-            project.repoRoot,
-            "python",
-            "-B",
-            "-c",
-            archiveScript,
-            save,
-            data.toString("base64"),
-            scriptFixture().toString("base64"),
-          ],
-          { cwd: project.repoRoot },
-        ).pipe(Effect.provide(BunServices.layer)),
+    const rewrite = async (data, options = {}) => {
+      const temporary = join(directory, crypto.randomUUID() + ".zip");
+      await Effect.runPromise(
+        writeZip(temporary, [
+          ...(options.chunks ?? [
+            { name: "fixture/level.dat0", bytes: deflateSync(data) },
+          ]),
+          {
+            name: "fixture/script.dat",
+            bytes: options.script ?? scriptFixture(),
+          },
+        ]).pipe(Effect.provide(BunServices.layer)),
       );
+      await rename(temporary, save);
+    };
     await rewrite(level);
     return await use(save, rewrite);
   } finally {
@@ -485,7 +472,7 @@ async function withSave(level, use) {
 test("saved-force readback preserves typed progression and saved mod identity through the real ZIP protocol", async () => {
   await withSave(saveFixture(), async (save) => {
     const result = await Effect.runPromise(
-      readSavedProgress(project, save).pipe(Effect.provide(BunServices.layer)),
+      readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
     );
     expect(result.forces.player.enabledRecipes).toEqual(["enabled"]);
     expect(result.forces.player.researchedTechnologies).toEqual(["early"]);
@@ -500,7 +487,7 @@ test("saved-force readback preserves typed progression and saved mod identity th
 test("unsupported save versions fail rather than reusing an old progression result", async () => {
   await withSave(saveFixture(), async (save, rewrite) => {
     const prior = await Effect.runPromise(
-      readSavedProgress(project, save).pipe(Effect.provide(BunServices.layer)),
+      readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
     );
     expect(prior.factorioVersion).toBe("2.1.21-11");
     const data = saveFixture();
@@ -508,10 +495,186 @@ test("unsupported save versions fail rather than reusing an old progression resu
     await rewrite(data);
     expect(
       Effect.runPromise(
-        readSavedProgress(project, save).pipe(
-          Effect.provide(BunServices.layer),
-        ),
+        readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
       ),
     ).rejects.toThrow();
+  });
+});
+
+test("numeric chunk ordering joins split records and reads only the supported first nine chunks", async () => {
+  const data = saveFixture();
+  await withSave(data, async (save, rewrite) => {
+    const chunks = Array.from({ length: 11 }, (_, index) => ({
+      name: `fixture/level.dat${index}`,
+      bytes:
+        index < 9
+          ? deflateSync(
+              data.subarray(
+                Math.floor((data.length * index) / 9),
+                Math.floor((data.length * (index + 1)) / 9),
+              ),
+            )
+          : Buffer.from("outside the supported parsing window"),
+    })).reverse();
+    await rewrite(data, { chunks });
+    const result = await Effect.runPromise(
+      readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
+    );
+    expect(result.decompressedBytes).toBe(data.length);
+    expect(result.forces.player.enabledRecipes).toEqual(["enabled"]);
+    expect(result.forces.player.researchedTechnologies).toEqual(["early"]);
+  });
+});
+test("prototype serialization order does not replace numeric research identities", async () => {
+  const data = saveFixture();
+  data.writeUInt16LE(2, data.indexOf("enabled") + "enabled".length);
+  data.writeUInt16LE(1, data.indexOf("disabled") + "disabled".length);
+  await withSave(data, async (save) => {
+    const result = await Effect.runPromise(
+      readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
+    );
+    expect(result.recipePrototypeNames).toEqual(["enabled", "disabled"]);
+    expect(result.forces.player.enabledRecipes).toEqual(["disabled"]);
+  });
+});
+test.each(
+  Object.entries({
+    "duplicate prototype table": (data) =>
+      Buffer.concat([data, data.subarray(9, data.indexOf("\x0atechnology"))]),
+    "duplicate prototype ID": (data) => {
+      data.writeUInt16LE(2, data.indexOf("enabled") + 7);
+      return data;
+    },
+    "invalid prototype UTF-8": (data) => {
+      data[data.indexOf("early")] = 255;
+      return data;
+    },
+    "ambiguous normal force": (data) =>
+      Buffer.concat([data, Buffer.from("\x03\x07neutral")]),
+    "ambiguous player vectors": (data) => {
+      const player = data.indexOf("\x01\x06player") + 8,
+        enemy = data.indexOf("\x02\x05enemy");
+      return Buffer.concat([
+        data.subarray(0, enemy),
+        data.subarray(player, enemy),
+        data.subarray(enemy),
+      ]);
+    },
+    "invalid enabled-recipe flag": (data) => {
+      data[data.indexOf("\x01\x06player") + 14] = 2;
+      return data;
+    },
+    "unsupported technology prefix": (data) => {
+      data.writeUInt16LE(2, data.indexOf("\x01\x06player") + 28);
+      return data;
+    },
+    "unsupported research trigger": (data) => {
+      data.writeUInt16LE(1, data.indexOf("\x01\x06player") + 40);
+      return data;
+    },
+    "technology vector crossing the next force": (data) => {
+      const enemy = data.indexOf("\x02\x05enemy");
+      return Buffer.concat([data.subarray(0, enemy - 1), data.subarray(enemy)]);
+    },
+  }),
+)(
+  "saved progression rejects %s rather than producing plausible flags",
+  async (_name, change) => {
+    await withSave(change(saveFixture()), async (save) => {
+      const error = await Effect.runPromise(
+        Effect.flip(readSavedProgress(save)).pipe(
+          Effect.provide(BunServices.layer),
+        ),
+      );
+      expect(error).toBeInstanceOf(BoundaryError);
+    });
+  },
+);
+test.each(
+  Object.entries({
+    "trailing mod-state framing": () =>
+      Buffer.concat([scriptFixture(), Buffer.from([0])]),
+    "missing Factory Planner state": () => {
+      const bytes = scriptFixture();
+      bytes[bytes.indexOf("mod-factoryplanner")] = 120;
+      return bytes;
+    },
+    "duplicate installed-mod identity": () =>
+      scriptFixture([...Object.entries(mods), ["base", "2.1.21"]]),
+    "ambiguous installed-mod table": () =>
+      scriptFixture(
+        Object.entries(mods),
+        Buffer.concat([
+          Buffer.from([4, 14]),
+          Buffer.from("installed_mods"),
+          Buffer.from([5, 0]),
+        ]),
+      ),
+    "unsupported script version": () => {
+      const bytes = scriptFixture();
+      bytes.writeUInt16LE(22, 4);
+      return bytes;
+    },
+  }),
+)("saved mod evidence rejects %s", async (_name, script) => {
+  await withSave(saveFixture(), async (save, rewrite) => {
+    await rewrite(saveFixture(), { script: script() });
+    const error = await Effect.runPromise(
+      Effect.flip(readSavedProgress(save)).pipe(
+        Effect.provide(BunServices.layer),
+      ),
+    );
+    expect(error).toBeInstanceOf(BoundaryError);
+  });
+});
+test.each([
+  ["missing chunk", ["fixture/level.dat0", "fixture/level.dat2"]],
+  ["duplicate chunk index", ["fixture/level.dat0", "other/level.dat0"]],
+])("saved progression rejects %s", async (_name, names) => {
+  await withSave(saveFixture(), async (save, rewrite) => {
+    await rewrite(saveFixture(), {
+      chunks: names.map((name) => ({
+        name,
+        bytes: deflateSync(saveFixture()),
+      })),
+    });
+    const error = await Effect.runPromise(
+      Effect.flip(readSavedProgress(save)).pipe(
+        Effect.provide(BunServices.layer),
+      ),
+    );
+    expect(error).toBeInstanceOf(BoundaryError);
+  });
+});
+test("nested level decompression is bounded before binary parsing", async () => {
+  const data = Buffer.alloc(16 * 1024 * 1024 + 1);
+  saveFixture().copy(data);
+  await withSave(data, async (save) => {
+    const error = await Effect.runPromise(
+      Effect.flip(readSavedProgress(save)).pipe(
+        Effect.provide(BunServices.layer),
+      ),
+    );
+    expect(error).toBeInstanceOf(BoundaryError);
+    expect(error.boundary).toBe("fixture/level.dat0");
+  });
+});
+test("save identity retains whole-second and microsecond UTC timestamps", async () => {
+  await withSave(saveFixture(), async (save) => {
+    for (const [seconds, expected] of [
+      [1700000000, "2023-11-14T22:13:20+00:00"],
+      [1700000000.125, "2023-11-14T22:13:20.125000+00:00"],
+    ]) {
+      await utimes(save, seconds, seconds);
+      const result = await Effect.runPromise(
+        readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
+      );
+      expect(result.saveMtimeUtc).toBe(expected);
+      expect(result.saveSha256).toBe(
+        new Bun.CryptoHasher("sha256")
+          .update(await Bun.file(save).arrayBuffer())
+          .digest("hex"),
+      );
+    }
   });
 });

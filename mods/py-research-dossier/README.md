@@ -89,7 +89,7 @@ The local 0.6.0 audit applies this contract to all nine logged flags, carrying f
 
 ## Repeatable corpus and feedback workflow
 
-Run these from the monorepo root. [tooling.ts](dev/tooling.ts) registers product-owned Effect CLI commands; [audit.ts](dev/audit.ts) uses the shared supervised-process and generated Effect Schema/Python protocol boundaries. No Polytechnic development task launches Factorio, changes the installed mod, writes to the profile, or acknowledges/deletes player feedback.
+Run these from the monorepo root. [tooling.ts](dev/tooling.ts) registers product-owned Effect CLI commands; [audit.ts](dev/audit.ts) and the bounded [save reader](dev/read-save.ts) run in Bun + Effect with canonical Effect Schema contracts. Native tools use the shared supervised-process boundary. No Polytechnic development task launches Factorio, changes the installed mod, writes to the profile, or acknowledges/deletes player feedback.
 
 | Task                                                  | Result                                                                                                                                                                                                                                       |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -108,6 +108,7 @@ mise run project -- py-research-dossier -- flags --since-report .factorio-test/p
 `--since-report` selects only appended records by a verified **byte prefix**, not a maximum tick: save reloads can move ticks backwards, and repeated flags must not disappear. It does not close earlier findings or consume the source log. Changed/truncated prefixes, malformed records and incomplete final lines fail explicitly. Original records and the selection receipt remain in the report. Without this option, every log record is considered.
 
 `--profile PATH`, `--log PATH` and `--save PATH` select explicit inputs; `--save latest` is the default. Save readback supports the validated **2.1.21-11** format, normal player/enemy/neutral forces and the saved Factory Planner mod-version table. It validates unique prototype mappings and adjacent recipe/research vectors within the first nine level chunks. An unfamiliar or ambiguous layout fails rather than reusing an old result. Availability is point-in-time saved state, not a claim about the running game.
+The save reader uses the shared ZIP integrity/ownership boundary and native zlib. Each of the first nine numbered level chunks is bounded to 16 MiB before and after its nested inflation; `script.dat` is bounded to 128 MiB, inside the shared archive limits. These are explicit resource ceilings, not a claim to decode every Factorio save. Header/version ambiguity, duplicate IDs or saved mods, invalid UTF-8, unsupported flags/triggers, malformed framing and changing source identity fail closed. Save timestamps retain the established UTC/microsecond readback format; source-change checks retain nanosecond precision.
 
 ### Reviewed relationship inputs
 
@@ -171,7 +172,7 @@ After editing content, run the product `generate` command; after editing source,
 
 Packaging writes a unique directory under `.factorio-test/projects/py-research-dossier/packages/`, containing the canonical `py-research-dossier_<version>.zip` and a source-bound manifest. Only runtime/data-stage Lua, locale, metadata, changelog and license files are shipped; development tools, type declarations, tests, audit inventories, upstream archives and replay data are excluded. ZIP members have fixed timestamps, stable order and byte-for-byte verification against source.
 
-Every Lua/Python subprocess prints an exact run ID and `logs` command. Readers can follow it live or inspect sealed diagnostics afterward without controlling the producer. Installation remains a separately authorized operation through the shared local-mod workflow; do not manually edit the profile or select an old save by assumption.
+Every supervised subprocess prints an exact run ID and `logs` command. Readers can follow it live or inspect sealed diagnostics afterward without controlling the producer. In-process saved-progression readback reports the exact save/hash and fails directly through the same CLI; it no longer launches a Python helper. Installation remains a separately authorized operation through the shared local-mod workflow; do not manually edit the profile or select an old save by assumption.
 
 ## Verification evidence and limits
 
