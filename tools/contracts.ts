@@ -40,7 +40,6 @@ export const PackageResult = Schema.Struct({
 });
 export type Packaged = typeof PackageResult.Type;
 export const LuaToolsRequest = Schema.Struct({
-  schema: Schema.Literal(2),
   cache: AbsolutePath,
   inputSha256: Sha256,
   sources: Schema.Struct({
@@ -51,7 +50,7 @@ export const LuaToolsRequest = Schema.Struct({
   emmy: PinnedFile,
 });
 export const LuaToolsResult = Schema.Struct({
-  schema: Schema.Literal(2),
+  schema: Schema.Literal(3),
   cache: AbsolutePath,
   inputSha256: Sha256,
   luacheck: Schema.Literal("1.2.0"),
@@ -59,6 +58,9 @@ export const LuaToolsResult = Schema.Struct({
   lua: Schema.Literal("5.2.4"),
   build: Schema.Struct({
     compiler: Schema.NonEmptyString,
+    compilerExecutableSha256: Sha256,
+    bun: Schema.NonEmptyString,
+    bunRevision: Schema.NonEmptyString,
     luaExecutableSha256: Sha256,
   }),
   files: Schema.Record(RelativePath, Sha256),
@@ -69,8 +71,6 @@ export const ApiDocuments = Schema.Struct({
   prototype: PinnedFile,
 });
 export const TypesRequest = Schema.Struct({
-  schema: Schema.Literal(2),
-  repository: AbsolutePath,
   overlay: AbsolutePath,
   api: ApiDocuments,
   storageType: Schema.NullOr(LuaTypeName),

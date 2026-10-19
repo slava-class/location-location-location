@@ -1,6 +1,6 @@
 import { Effect, FileSystem, Schema } from "effect";
 import { join, relative, resolve } from "node:path";
-import { AbsolutePath, TypesRequest, TypesResult } from "./contracts.ts";
+import { AbsolutePath, TypesRequest } from "./contracts.ts";
 import {
   BoundaryError,
   decode,
@@ -17,7 +17,7 @@ import {
   resolveDependency,
   requirements,
 } from "./dependencies.ts";
-import { runHelper } from "./helpers.ts";
+import { prepareTypes } from "./types.ts";
 import { runCommand } from "./commands.ts";
 import { packageInventory } from "./packaging.ts";
 import { RunId } from "./logs.ts";
@@ -200,8 +200,7 @@ export function typecheckProject(project: ResolvedProject) {
         },
         "typecheck result",
       );
-    const api = yield* resolveApi(project),
-      version = api.version;
+    const api = yield* resolveApi(project);
     const config = yield* readJSON(
       EmmyConfig,
       join(project.modRoot, ".emmyrc.json"),
@@ -232,27 +231,12 @@ export function typecheckProject(project: ResolvedProject) {
         styleType: project.development.flibStyleType ?? null,
       };
     }
-    const types = yield* runHelper(
-      project,
-      "tools/prepare-types.py",
-      TypesRequest,
-      TypesResult,
-      {
-        schema: 2,
-        repository: project.repoRoot,
-        overlay: join(directory, "overlay"),
-        api,
-        storageType: project.development.storageType ?? null,
-        flib,
-      },
-    );
-    if (types.version !== version)
-      return yield* Effect.fail(
-        new BoundaryError({
-          boundary: project.info.name,
-          message: "Type helper returned another engine version",
-        }),
-      );
+    const types = yield* prepareTypes(project, {
+      overlay: join(directory, "overlay"),
+      api,
+      storageType: project.development.storageType ?? null,
+      flib,
+    });
     const generatedConfig = yield* decode(
       GeneratedEmmyConfig,
       {

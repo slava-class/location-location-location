@@ -4,6 +4,7 @@ import { Effect, Schema } from "effect";
 import {
   access,
   copyFile,
+  cp,
   mkdir,
   mkdtemp,
   readFile,
@@ -31,11 +32,8 @@ async function fixture() {
     join(root, "package.json"),
     JSON.stringify({ private: true, type: "module" }),
   );
-  await mkdir(join(root, "tools"));
-  await copyFile(
-    join(import.meta.dir, "setup-lua-tools.py"),
-    join(root, "tools/setup-lua-tools.py"),
-  );
+  await cp(import.meta.dir, join(root, "tools"), { recursive: true });
+  await copyFile(join(import.meta.dir, "../bun.lock"), join(root, "bun.lock"));
   return {
     root,
     workspace: await Effect.runPromise(

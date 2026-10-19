@@ -1,5 +1,5 @@
 import { Effect, Exit, FileSystem } from "effect";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { LuaToolsRequest, LuaToolsResult } from "./contracts.ts";
 import {
@@ -13,7 +13,9 @@ import type { ExecutionContext } from "./projects.ts";
 import { hashFile, inventoryFiles, provisionPinnedFile } from "./files.ts";
 import { getBytes } from "./network.ts";
 import { withOwnedLock } from "./locks.ts";
-import { runHelper } from "./helpers.ts";
+import { runCommand } from "./commands.ts";
+import { archiveLimits } from "./archives.ts";
+import { readTar } from "./tar.ts";
 
 const sources: Readonly<Record<string, { url: string; sha256: string }>> = {
   "luacheck-1.2.0": {
@@ -47,6 +49,16 @@ const targets: Readonly<Record<string, { target: string; sha256: string }>> = {
     sha256: "e4a700af4921e2d908e2f7299eaa86e3e1b3b265e27225ab33c7eb03ebc2187d",
   },
 };
+// These sources and the lockfile determine archive policy and built bytes.
+const builderFiles = [
+  "tools/lua-tools.ts",
+  "tools/archives.ts",
+  "tools/tar.ts",
+  "tools/files.ts",
+  "tools/contracts.ts",
+  "tools/projects.ts",
+  "bun.lock",
+];
 function inputs(project: ExecutionContext) {
   return Effect.gen(function* () {
     const platform = process.platform + "-" + process.arch;
@@ -58,11 +70,23 @@ function inputs(project: ExecutionContext) {
           message: "No reviewed Lua tool archive for this platform",
         }),
       );
-    const builder = join(project.repoRoot, "tools/setup-lua-tools.py");
-    yield* assertCanonicalPath(builder);
-    const builderSha256 = yield* hashFile(builder);
+    const builder = new Map<string, string>();
+    for (const name of builderFiles) {
+      const path = join(project.repoRoot, name);
+      yield* assertCanonicalPath(path);
+      builder.set(name, yield* hashFile(path));
+    }
     const inputSha256 = new Bun.CryptoHasher("sha256")
-      .update(JSON.stringify({ platform, sources, emmy, builderSha256 }))
+      .update(
+        JSON.stringify({
+          platform,
+          sources,
+          emmy,
+          bun: Bun.version,
+          bunRevision: Bun.revision,
+          builder: Object.fromEntries(builder),
+        }),
+      )
       .digest("hex");
     const root = join(project.repoRoot, ".factorio-test/cache/lua");
     const archive = (name: string, sha256: string) => ({
@@ -73,7 +97,6 @@ function inputs(project: ExecutionContext) {
     const request = yield* decode(
       LuaToolsRequest,
       {
-        schema: 2,
         cache: join(root, platform, inputSha256),
         inputSha256,
         sources: Object.fromEntries(
@@ -88,10 +111,135 @@ function inputs(project: ExecutionContext) {
     );
     return {
       request,
-      builder,
-      builderSha256,
       emmyUrl: `https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-${emmy.target}.tar.gz`,
     };
+  });
+}
+function buildLuaTools(
+  project: ExecutionContext,
+  request: typeof LuaToolsRequest.Type,
+) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    yield* assertCanonicalPath(request.cache);
+    if ((yield* fs.readDirectory(request.cache)).length !== 0)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: request.cache,
+          message: "Build requires an empty owned cache",
+        }),
+      );
+    const limits = {
+      ...archiveLimits,
+      expandedBytes: 128 * 1024 * 1024,
+      entryBytes: 128 * 1024 * 1024,
+    };
+    for (const [root, pin] of Object.entries(request.sources)) {
+      const files = yield* readTar(
+        { pin, root, limits },
+        (entry) => !entry.directory,
+      );
+      for (const [name, bytes] of files) {
+        const target = join(request.cache, name);
+        yield* prepareOutputDirectory(dirname(target));
+        yield* fs.writeFile(target, bytes, { flag: "wx" });
+      }
+    }
+    const luaPath = Bun.which("lua"),
+      compilerPath = Bun.which(process.env.CC ?? "cc");
+    if (luaPath === null || compilerPath === null)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "Lua provisioning",
+          message: "Explicit setup requires Lua 5.2.4 and a C compiler on PATH",
+        }),
+      );
+    const lua = yield* fs.realPath(luaPath),
+      compiler = yield* fs.realPath(compilerPath);
+    const luaExecutableSha256 = yield* hashFile(lua),
+      compilerExecutableSha256 = yield* hashFile(compiler);
+    const luaVersion = yield* runCommand(
+      project,
+      "lua-build-version",
+      [lua, "-v"],
+      { deadlineMs: 30000 },
+    );
+    if (!(luaVersion.stdout + luaVersion.stderr).startsWith("Lua 5.2.4"))
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: lua,
+          message: "Expected Lua 5.2.4 for native tool compilation",
+        }),
+      );
+    const compilerVersion = yield* runCommand(
+      project,
+      "lua-build-compiler",
+      [compiler, "--version"],
+      { deadlineMs: 30000 },
+    );
+    const flags =
+      process.platform === "darwin"
+        ? ["-bundle", "-undefined", "dynamic_lookup"]
+        : ["-shared", "-fPIC"];
+    yield* runCommand(
+      project,
+      "lua-build-filesystem",
+      [
+        compiler,
+        "-O2",
+        ...flags,
+        "-I" + join(dirname(dirname(lua)), "include"),
+        join(request.cache, "luafilesystem-1_8_0/src/lfs.c"),
+        "-o",
+        join(request.cache, "lfs.so"),
+      ],
+      { deadlineMs: 120000 },
+    );
+    if (
+      (yield* hashFile(lua)) !== luaExecutableSha256 ||
+      (yield* hashFile(compiler)) !== compilerExecutableSha256
+    )
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: request.cache,
+          message:
+            "Native compiler or Lua executable changed during provisioning",
+        }),
+      );
+    const emmy = (yield* readTar(
+      { pin: request.emmy, limits },
+      (entry) => entry.name === "emmylua_check",
+    )).get("emmylua_check");
+    if (emmy === undefined)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: request.emmy.path,
+          message: "EmmyLua archive has no unique bounded executable",
+        }),
+      );
+    const executable = join(request.cache, "emmylua_check");
+    yield* fs.writeFile(executable, emmy, { flag: "wx" });
+    yield* fs.chmod(executable, 0o755);
+    return yield* decode(
+      LuaToolsResult,
+      {
+        schema: 3,
+        cache: request.cache,
+        inputSha256: request.inputSha256,
+        luacheck: "1.2.0",
+        emmy: "0.25.1",
+        lua: "5.2.4",
+        build: {
+          compiler: compilerVersion.stdout.trim(),
+          compilerExecutableSha256,
+          luaExecutableSha256,
+          bun: Bun.version,
+          bunRevision: Bun.revision,
+        },
+        files: yield* inventoryFiles(request.cache),
+      },
+      "built Lua tools",
+    );
   });
 }
 function validate(
@@ -148,7 +296,7 @@ export function resolveLuaTools(project: ExecutionContext) {
 export function provisionLuaTools(project: ExecutionContext) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const { request, builder, builderSha256, emmyUrl } = yield* inputs(project);
+    const { request, emmyUrl } = yield* inputs(project);
     return yield* withOwnedLock(
       request.cache + ".lock",
       "Lua tool build",
@@ -177,17 +325,13 @@ export function provisionLuaTools(project: ExecutionContext) {
         const manifest = request.cache + ".json",
           temporary = manifest + ".part";
         return yield* Effect.gen(function* () {
-          const result = yield* runHelper(
-            project,
-            "tools/setup-lua-tools.py",
-            LuaToolsRequest,
-            LuaToolsResult,
-            request,
-          );
-          if ((yield* hashFile(builder)) !== builderSha256)
+          const result = yield* buildLuaTools(project, request);
+          if (
+            (yield* inputs(project)).request.inputSha256 !== request.inputSha256
+          )
             return yield* Effect.fail(
               new BoundaryError({
-                boundary: builder,
+                boundary: request.cache,
                 message: "Lua builder changed during provisioning",
               }),
             );
