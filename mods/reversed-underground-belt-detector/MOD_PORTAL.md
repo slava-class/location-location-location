@@ -6,20 +6,23 @@
 
 ## Description
 
-**See which way your underground belts actually run.**
+Underground belts can end up facing the wrong way while you're building or rearranging your factory. In a busy spaghetti base, a reversed connection is easy to overlook.
 
-If the ordinary belts immediately outside both mouths point against a connected underground pair, orange arrows show the underground's actual direction. Strong mouth arrows and smaller span arrows make the problem visible without rotating anything.
+Reversed Underground Belt Detector marks these connections with orange direction arrows and adds a map alert so you can find and fix them. Alerts are on by default. The mod does not rotate or change your belts.
 
 ### Features
 
-- Checks all four directions and available underground-belt tiers.
-- Surveys existing factories on installation/configuration change, then responds to local construction, rotation, removal and replacement events.
-- Pulsing arrows by default, with per-player **Steady** and **Off** modes.
-- Hovering either mouth hides only that connection's span in your view, leaving stock indicators clear and other players unaffected.
-- Optional per-player map alerts, **on by default**, with separately clickable entrance and exit entries.
-- Bounded background validation: at most 64 queued mouths per tick. Initial surveys, construction bursts, animation and alert renewal have separate costs.
+- Map alerts are **on by default**, with clickable entries for both ends of the connection. You can turn them off independently of the arrows.
+- Orange arrows pulse by default, with **Steady** and **Off** options in your per-player settings.
+- Checks your existing factory when added to a save and keeps watching as you build and rearrange belts.
+- Works in all four directions and across available underground-belt tiers.
+- Hovering either end hides that connection's span arrows in your view, so the game's own indicators stay clear.
 
-This is a narrow direction check, not a general belt validator. Unpaired mouths, missing exterior belts, turns and side-loading arrangements without opposing belts at both mouths are not flagged. Other mods' custom alerts are preserved.
+### What it catches
+
+The mod flags a connected underground pair when the ordinary belts immediately outside **both ends** point against the underground's actual direction.
+
+This is a direction check, not a general belt validator. Unpaired ends, missing exterior belts, turns and side-loading arrangements without opposing belts at both ends are not flagged. Other mods' alerts are preserved.
 
 ### Requirements
 
