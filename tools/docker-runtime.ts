@@ -27,8 +27,8 @@ const pins = {
     file: "factorio-headless.tar.xz",
   },
   bun: {
-    url: "https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/bun-linux-aarch64.zip",
-    sha256: "54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7",
+    url: "https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-linux-aarch64.zip",
+    sha256: "efa9813da5ed72423bf847f916e8d2c47c0d776add972354026a75e10da9aa21",
     origin: "github-release",
     file: "bun-linux-aarch64.zip",
   },
