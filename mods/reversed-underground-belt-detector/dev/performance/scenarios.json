@@ -1,0 +1,432 @@
+{
+  "schema": 2,
+  "scenarios": [
+    {
+      "name": "warnings-0",
+      "description": "Frozen 1.1.8 migration fixture: planner closed, saved plan and unrelated tag/render retained, no underground warnings; minimum 120 settled ticks before serialization.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-0.zip",
+        "sha256": "13924894648992828048f9a32de54e6171645ccbae8374ad858076ecb1d67c82"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 0,
+        "mouths": 0,
+        "surface_belts": 0,
+        "warning_sprites": 0,
+        "visible_sprites": 0,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-100",
+      "description": "Frozen 1.1.8 migration fixture: 100 reversed west-facing normal-tier pairs at four-tile spacing, one saved player with pulsing mode and alerts enabled, no connected client, planner closed; minimum 120 settled ticks before serialization. Visible-object flags are not renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-100.zip",
+        "sha256": "9630f6ef328b0e064d118c5358fb05cb1cfd59e830b2c9a7860a3ef4f2ba3f23"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 100,
+        "mouths": 200,
+        "surface_belts": 200,
+        "warning_sprites": 500,
+        "visible_sprites": 500,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-500",
+      "description": "Derived from the frozen 1000-pair migration fixture by removing rows at y >= -30, retaining 500 reversed west-facing normal-tier pairs and unrelated planner/tag/render state. Settled for at least 121 observed native ticks before save completion; one saved pulsing player with alerts enabled, no connected client. Native builder run 5e8dd0bc-2072-4cff-ba9a-f45be1e98817; visible-object flags are not renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-500.zip",
+        "sha256": "d53908b7a131af3871f8c66aa765ed737800f640be21920cbd5b0f96b911612e"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 500,
+        "mouths": 1000,
+        "surface_belts": 1000,
+        "warning_sprites": 2500,
+        "visible_sprites": 2500,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-1000",
+      "description": "Frozen 1.1.8 migration fixture: 1000 reversed west-facing normal-tier pairs at four-tile spacing, one saved player with pulsing mode and alerts enabled, no connected client, planner closed; minimum 120 settled ticks before serialization. Visible-object flags are not renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-1000.zip",
+        "sha256": "dff1479d99df8583528d9e39b4399ec2719887d8ac4607c3341e500f19d2453f"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 1000,
+        "mouths": 2000,
+        "surface_belts": 2000,
+        "warning_sprites": 5000,
+        "visible_sprites": 5000,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-burst-1000",
+      "description": "Start from the empty frozen fixture, create 1000 reversed pairs through raised native construction events at update 120, then destroy the 4000 owned entities with raised events at update 600. Separate controls require complete warning construction and cleanup within two updates, preserving unrelated planner/tag/render state. Timings include the identical activity driver; no connected client or renderer is measured.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-0.zip",
+        "sha256": "13924894648992828048f9a32de54e6171645ccbae8374ad858076ecb1d67c82"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/burst.lua",
+        "sha256": "2240d32b411f2a1acf5f7fa75e2bb3aa52c9599925fa404ef181ead2712a7380",
+        "checkpoints": [
+          {
+            "update": 122,
+            "workload": {
+              "pairs": 1000,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "warning_sprites": 5000,
+              "visible_sprites": 5000,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 0,
+              "fixture_force_players": 1,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          },
+          {
+            "update": 602,
+            "workload": {
+              "pairs": 0,
+              "mouths": 0,
+              "surface_belts": 0,
+              "warning_sprites": 0,
+              "visible_sprites": 0,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 0,
+              "fixture_force_players": 1,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pairs": 0,
+        "mouths": 0,
+        "surface_belts": 0,
+        "warning_sprites": 0,
+        "visible_sprites": 0,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-audience-1000",
+      "description": "One saved pulsing player, no connected client: perform 120 native selection changes, leave and rejoin the fixture force, then restore the initial state. Separate checkpoints verify render-resource counts, visibility flags, selected-mouth and force membership. Does not model mixed viewers, native pixels, join/leave networking, settings transitions or custom-alert delivery.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-1000.zip",
+        "sha256": "dff1479d99df8583528d9e39b4399ec2719887d8ac4607c3341e500f19d2453f"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/audience.lua",
+        "sha256": "b3fbe106fb3f517609023ecc35e54f886e474f0708c89bba73b79a34cedc7619",
+        "checkpoints": [
+          {
+            "update": 482,
+            "workload": {
+              "pairs": 1000,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "warning_sprites": 5000,
+              "visible_sprites": 4997,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 1,
+              "fixture_force_players": 1,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          },
+          {
+            "update": 602,
+            "workload": {
+              "pairs": 1000,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "warning_sprites": 5000,
+              "visible_sprites": 5000,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 0,
+              "fixture_force_players": 1,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          },
+          {
+            "update": 962,
+            "workload": {
+              "pairs": 1000,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "warning_sprites": 2000,
+              "visible_sprites": 0,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 0,
+              "fixture_force_players": 0,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          },
+          {
+            "update": 1082,
+            "workload": {
+              "pairs": 1000,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "warning_sprites": 5000,
+              "visible_sprites": 5000,
+              "unrelated_renders": 1,
+              "chart_tags": 2,
+              "players": 1,
+              "connected_players": 0,
+              "selected_mouth_players": 0,
+              "fixture_force_players": 1,
+              "pulsing_players": 1,
+              "steady_players": 0,
+              "overlay_off_players": 0,
+              "alerts_enabled_players": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pairs": 1000,
+        "mouths": 2000,
+        "surface_belts": 2000,
+        "warning_sprites": 5000,
+        "visible_sprites": 5000,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-steady-1000",
+      "description": "Derived from the frozen 1000-pair save using the setting owner's console context, with one saved steady-mode player and alerts enabled. Observed 127 settling ticks and native save completion in run 25bbc847-d90d-40af-bed8-a0622ebe94b1. No connected client; 2000 hidden pulsing mouth objects plus 5000 visible steady objects are expected.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-steady-1000.zip",
+        "sha256": "6aed7919ee9c53cc39152e17cc0760a65ceb6c10cd974ec9ad67328d3d624493"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 1000,
+        "mouths": 2000,
+        "surface_belts": 2000,
+        "warning_sprites": 7000,
+        "visible_sprites": 5000,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 0,
+        "steady_players": 1,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-off-1000",
+      "description": "Derived from the frozen 1000-pair save using the setting owner's console context, with one saved overlay-off player and alerts enabled. Observed 124 settling ticks and native save completion in run 4d4fc3c2-4435-4fa3-993d-592450d1711b. No connected client; 2000 retained hidden mouth objects are expected, not zero resources.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-off-1000.zip",
+        "sha256": "7c72b82293e3f2543edb6e2eeb9c9361efc7adb529dd311fa9684042eeddb07c"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 1000,
+        "mouths": 2000,
+        "surface_belts": 2000,
+        "warning_sprites": 2000,
+        "visible_sprites": 0,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 0,
+        "steady_players": 0,
+        "overlay_off_players": 1,
+        "alerts_enabled_players": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "warnings-alerts-off-1000",
+      "description": "Derived from the frozen 1000-pair save using the setting owner's console context, with one saved pulsing player and alerts disabled. Observed 123 settling ticks and native save completion in run 8c164716-ba6c-438f-bce1-cdbf380c99d0. No connected client; visible-object flags and effective settings are not renderer or alert-delivery proof.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/warnings-alerts-off-1000.zip",
+        "sha256": "be3c6e31a22eb2352233513d6692b1d7fef79bb6be6f75d8da8f2e863aec74ed"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "pairs": 1000,
+        "mouths": 2000,
+        "surface_belts": 2000,
+        "warning_sprites": 5000,
+        "visible_sprites": 5000,
+        "unrelated_renders": 1,
+        "chart_tags": 2,
+        "players": 1,
+        "connected_players": 0,
+        "selected_mouth_players": 0,
+        "fixture_force_players": 1,
+        "pulsing_players": 1,
+        "steady_players": 0,
+        "overlay_off_players": 0,
+        "alerts_enabled_players": 0
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    }
+  ]
+}

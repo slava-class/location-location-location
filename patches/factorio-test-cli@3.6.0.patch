@@ -18,3 +18,19 @@
              }
              else if (handler.getResultMessage() !== undefined) {
                  resolve();
+--- a/process-utils.js
++++ b/process-utils.js
+@@ -1,2 +1,4 @@
+ import { spawn } from "child_process";
++import { createRequire } from "node:module";
+ import { CliError } from "./cli-error.js";
++const fmtk = createRequire(import.meta.url).resolve("factoriomod-debug/dist/fmtk-cli.js");
+@@ -7,3 +9,6 @@
+-export function runScript(...command) {
+-    return runProcess(verbose, "npx", ...command);
++export function runScript(command, ...args) {
++    if (command !== "fmtk") {
++        throw new CliError(`Unsupported framework tool: ${command}`);
++    }
++    return runProcess(verbose, process.execPath, fmtk, ...args);
+ }

@@ -1,6 +1,12 @@
 .mise.local.toml
 *.zip
+!mods/*/dev/performance/fixtures/*.zip
 .DS_Store
 node_modules/
 .factorio-test/
 *.zip.sha256
+.venv/
+__pycache__/
+.ruff_cache/
+.trunk/*
+!.trunk/trunk.yaml

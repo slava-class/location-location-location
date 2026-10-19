@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "profiles": ["base", "space-age", "native", "gallery"],
+  "cases": [
+    {
+      "path": "tests.native_gallery > Mod Portal gallery > 01 source-survey",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_gallery > Mod Portal gallery > 02 planner",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_gallery > Mod Portal gallery > 03 recipe-picker",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_gallery > Mod Portal gallery > 04 marker-placement",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_gallery > Mod Portal gallery > 05 recipe-alternatives",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 01 list",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 02 editor",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 03 pinned",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 04 picker",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 05 no-results",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 06 delete-confirm",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 07 retired",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 08 error",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native UI gallery > 09 sourcefree",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > closest-source eligibility and navigation > an uncharted producer is not disclosed even when it is closer",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > closest-source eligibility and navigation > equidistant producers resolve deterministically and destroyed producers are excluded",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > closest-source eligibility and navigation > Find navigates without assigning sources and repeated Add closest does not duplicate them",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > closest-source eligibility and navigation > fluid ingredients find recipes producing the matching fluid",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > closest-source eligibility and navigation > lookup ignores empty machines, other products, and another force's nearer producer",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > a recipe tag can save a chosen marker before assigning sources",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > compact Discard restores saved sources and placement without closing",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > compact draft and manual marker selection survive script reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > Discard reloads the latest saved revision and cancels active selection",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > manual marker placement is private until Apply and does not select sources",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > manual position mode is dirty even when its coordinates equal the suggestion",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > marker selection ignores additive drags and foreign surfaces and can be paused",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > New opens the product picker without creating a saved plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > pinned Add closest edits only the private ingredient sources",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > pinning and expanding preserve the titlebar anchor after dragging either mode",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > pinning preserves a private draft across walking, selection, and expansion",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > compact drafting and marker placement > Selecting toggles off without discarding edits and another ingredient switches selection",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > closest_2 enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > find_2 enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > machine enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > move_marker enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > move_marker without a marker enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > select_1 enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > cross-surface world actions > select_1 without a marker enters remote view without moving the character or saving",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > Factorio 2.1 probability outputs > lookup and picker exclude zero-chance outputs and retain possible outputs",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > long saved-tag lists > retirement filtering in an overflowing list keeps all remaining tags reachable",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > long saved-tag lists > the final tag stays editable through scrolling, Apply, and reopening",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multi-recipe connections > full output selection stays distinct from the same input",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multi-recipe connections > picker toggles recipes privately and removes only the selected recipe",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multi-recipe connections > pinned output selection stays distinct from the same input",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multiplayer model and lifecycle simulation > another actor cannot mutate, retire or delete a foreign force's plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multiplayer model and lifecycle simulation > configuration changes preserve shared plans and preferences while discarding private sessions",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multiplayer model and lifecycle simulation > leave and rejoin clear personal pins and rebuild highlights without publishing a draft",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > multiplayer model and lifecycle simulation > two actors keep preferences and private drafts separate while sharing applied plans",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > full closest_1 recovers from a blocked Apply and repeated empty lookups",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > full find_1 recovers from a blocked Apply and repeated empty lookups",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > full tooltips follow recipe changes from items to fluids",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > marker and ingredient selection omit standalone hints while machine guidance remains available",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > pinned closest_1 recovers from a blocked Apply and repeated empty lookups",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > pinned find_1 recovers from a blocked Apply and repeated empty lookups",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > native feedback and tooltip regressions > pinned tooltips follow recipe changes from items to fluids",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > picker invalidation and draft preservation > a recipe locked after opening the picker is rejected and can be chosen after research returns",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > picker invalidation and draft preservation > research refresh preserves filtered browsing and private ingredient assignments",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > a stale revision cannot retire a newer saved plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > a surface without a custom display name is not reported as missing",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > closest-source lookup rejects a draft from another force",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > detaching the modal editor for world selection does not close the planner",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > Discard restores saved source highlights while keeping the editor open",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > Discard returns new drafts to the list without closing the planner",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > net changes count source sets and remove reverted names and placement edits",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > product group navigation survives reopening and searches reveal matching groups",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > products with multiple recipes require an explicit recipe choice",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > recipe diffs count discarded source sets but not automatic recipe-name updates",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > recipe filter preference survives reopening the planner",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > retiring and reactivating a plan updates highlights without deleting its marker",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > right-drag removal updates highlights before Apply and preserves other active plans",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > search indicator follows filtering, clearing, and picker navigation",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > shared anchors are highlighted once and survive original entity removal",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > source lookup feedback is dismissible and clears on source edits without losing the draft",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > surface navigation isolates plans and discards private edits without relocating sources",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the close button dismisses an editor directly without saving its draft",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the close button dismisses the recipe picker and underlying draft together",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the normal GUI close event dismisses the editor",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the picker excludes blueprint parameters with no assignable ingredients",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the picker keeps its draft and workspace through modal navigation and normal close",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the planner shortcut toggles an open editor closed",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner interface > the recipe filter distinguishes current research from prototype defaults",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > planner minimap framing > fits distant sources and a manual marker, then tightens when they are removed",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > assigning and clearing the last source creates and removes only the recipe tag marker",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > choosing a recipe prepares ingredients without creating a plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > copy from machine adds its configured recipe without replacing the plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > Copy from machine leaves the product picker and fills the same private draft",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > copying several machines adds distinct recipes without duplicating existing selections",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > each assigned ingredient has equal weight regardless of its anchor count",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > foreign tools and cross-surface selections do not change ingredient sources",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > ingredient selection accepts empty chests and belts and retains the window position",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > new recipe tags save an icon-only marker before assigning connections",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > No label is private, reversible, and persists an icon-only marker without losing its name",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > partial plans exclude unassigned ingredients and visibly label the marker",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > recipe changes retain only matching ingredient assignments",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > recipe planner selection > source-free recipe tags save and reopen from either editor mode",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > release workflows > a fluid recipe copied from a machine retains sources and manual placement after reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > release workflows > new, picker back, empty search and source-free Apply all leave a recoverable workspace",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > release workflows > producer lookup includes each output of a multi-output fluid recipe",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > release workflows > survey, pin, navigate, place, discard, apply, retire and delete one recipe tag",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > another force cannot list, load, modify, or delete the plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > Apply restores an externally moved marker without leaving an orphan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > Apply saves, list reopens, and Back leaves the saved marker unchanged",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > clearing the cursor pauses selection without losing a draft",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > destroying original sources does not change saved or reopened anchor positions",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > externally deleted markers are recreated only on Apply",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > force merging transfers plan ownership without duplicating its marker",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > missing recipes fail cleanly while leaving a saved plan deletable",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > missing surfaces fail cleanly while leaving a saved plan deletable",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > plan deletion requires GUI confirmation and preserves unrelated markers",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > reapplying updates the existing marker rather than adding another",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > saved plans and pending edits survive script reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > stale drafts cannot overwrite or delete a teammate's revision",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved recipe plans > surface changes close an unsaved editor without creating a plan",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved-list overflow boundaries > retired filtering preserves access to plans across list overflow",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > saved-tag navigation availability > Back is disabled in the list and enabled only while a saved tag or new draft is open",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > source navigation > Find replaces and expires only its own navigation pin",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > source navigation > removed targets and dismissed pins leave no stale guidance",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > aquilo: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > fulgora: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > gleba: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > nauvis: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > platform private sources and manual position survive script reload",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > platform renaming follows the real name and deletion leaves saved plans recoverable",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > platform: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > Space Age real planets and platforms > vulcanus: full survey, source navigation, marker lifecycle and surface isolation",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.planner > planner regression suite > viewing a recipe location > pins and focuses remote view across surfaces without moving the character or saving edits",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    }
+  ]
+}

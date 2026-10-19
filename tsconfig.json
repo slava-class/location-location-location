@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "types": ["bun"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnostics": false,
+        "allowedUnstableApis": [
+          "effect/cli",
+          "effect/FileSystem",
+          "effect/PlatformError",
+          "effect/http",
+          "effect/process",
+          "@effect/platform-bun"
+        ]
+      }
+    ]
+  },
+  "include": [
+    "tools/**/*.ts",
+    "tools/**/*.mjs",
+    "mods/*/dev.config.ts",
+    "mods/*/dev/**/*.ts",
+    "mods/*/dev/**/*.mjs",
+    "knip.config.ts"
+  ]
+}

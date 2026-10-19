@@ -1,0 +1,4 @@
+# The exact Mise binary pin also freezes its embedded rule corpus.
+# Review rule changes on upgrades; checks explicitly disable live validation.
+[extend]
+useDefault = true

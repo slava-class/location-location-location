@@ -1,0 +1,14 @@
+{
+  "name": "reversed-underground-belt-detector",
+  "version": "1.0.0",
+  "title": "Reversed Underground Belt Detector",
+  "author": "slava-class",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "base >= 2.1.20",
+    "? factorio-test >= 3.1.0",
+    "? location-location-location >= 1.2.0"
+  ],
+  "description": "Spot connected underground belts facing against the belts at both mouths. Show directional warning arrows and optional map alerts without changing your factory.",
+  "homepage": "https://github.com/slava-class/location-location-location"
+}

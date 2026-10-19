@@ -1,7 +1,0 @@
-{
-  "name": "py-research-dossier-tools",
-  "private": true,
-  "type": "module",
-  "scripts": {"test": "bun test mise-tasks/annotations.test.mjs"},
-  "devDependencies": {"luaparse": "0.3.1"}
-}

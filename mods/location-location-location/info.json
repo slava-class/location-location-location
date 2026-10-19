@@ -1,0 +1,14 @@
+{
+  "name": "location-location-location",
+  "version": "1.2.0",
+  "title": "Location Location Location",
+  "author": "slava-class",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "base >= 2.1.20",
+    "flib >= 0.17.2",
+    "? factorio-test >= 3.1.0"
+  ],
+  "description": "Plan where your next production line belongs. Choose recipes, survey ingredient sources and output destinations, and save a suggested or hand-picked site as a shared map tag.",
+  "homepage": "https://github.com/slava-class/location-location-location"
+}

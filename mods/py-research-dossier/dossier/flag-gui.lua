@@ -4,10 +4,22 @@ local dictionary = require("__flib__.dictionary")
 local window_name = "py-research-dossier-flag-window"
 local export = { events = {} }
 
+---@param player LuaPlayer
+---@return DossierWindow?
+local function find_window(player)
+    local window = player.gui.screen[window_name]
+    if window then
+        ---@cast window DossierWindow
+        return window
+    end
+end
+
 local function caption(key, ...)
     return { "py-research-dossier.flag-" .. key, ... }
 end
 
+---@return_overload nil, nil
+---@return_overload DossierTarget, DossierPrototype
 local function selected(window)
     local target = window.tags.target
     if target then
@@ -17,7 +29,11 @@ end
 
 local function refresh(window)
     local target, prototype = selected(window)
-    window.body.target.caption = target and { "", prototype.localised_name, "\n", target.id } or caption("no-target")
+    if target then
+        window.body.target.caption = { "", prototype.localised_name, "\n", target.id }
+    else
+        window.body.target.caption = caption("no-target")
+    end
     for _, reason in ipairs(flags.reasons) do
         window.body.actions[reason].enabled = target ~= nil
     end
@@ -37,7 +53,7 @@ local function show_recipes(player, window, page)
     local first = (page - 1) * recipes.page_size + 1
     local last = math.min(#matches, first + recipes.page_size - 1)
     for i = first, last do
-        local recipe = matches[i]
+        local recipe = assert(matches[i])
         local button = browser.results.add({
             type = "button",
             name = "recipe-" .. i,
@@ -81,12 +97,13 @@ local function close(player, window)
     end
 end
 
+---@return DossierWindow
 local function open(player, selection)
-    local existing = player.gui.screen[window_name]
+    local existing = find_window(player)
     if existing then
         existing.bring_to_front()
         player.opened = existing
-        return -- Repeated shortcuts must not discard an unfinished note.
+        return existing -- Repeated shortcuts must not discard an unfinished note.
     end
     local target = selection and flags.resolve(selection.base_type, selection.name)
     local items, index = {}, 1
@@ -140,11 +157,13 @@ local function open(player, selection)
     window.auto_center = true
     window.force_auto_center()
     player.opened = window
+    ---@cast window DossierWindow
+    return window
 end
 
 local function owned_event(event)
     local player = game.get_player(event.player_index)
-    local window = player and player.gui.screen[window_name]
+    local window = player and find_window(player)
     local element = event.element
     while window and element and element.valid do
         if element == window then
@@ -195,7 +214,7 @@ end
 
 export.events[dictionary.on_player_dictionaries_ready] = function(event)
     local player = game.get_player(event.player_index)
-    local window = player and player.gui.screen[window_name]
+    local window = player and find_window(player)
     if window and window.body.recipes.visible then
         show_recipes(player, window, window.body.recipes.tags.page)
     end
@@ -248,7 +267,7 @@ end
 
 export.events[defines.events.on_gui_closed] = function(event)
     local player = game.get_player(event.player_index)
-    local window = player and player.gui.screen[window_name]
+    local window = player and find_window(player)
     if window and event.element == window then
         close(player, window)
     end
@@ -258,7 +277,7 @@ export.on_init = recipes.build_dictionary
 export.on_configuration_changed = function(event)
     recipes.build_dictionary()
     for _, player in pairs(game.players) do
-        local window = player.gui.screen[window_name]
+        local window = find_window(player)
         if window then
             local target
             local change = event.mod_changes["py-research-dossier"]
@@ -271,8 +290,7 @@ export.on_configuration_changed = function(event)
             end
             local note = window.body.note.text
             close(player, window)
-            open(player, target)
-            player.gui.screen[window_name].body.note.text = note
+            open(player, target).body.note.text = note
         end
     end
 end

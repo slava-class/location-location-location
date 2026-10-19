@@ -1,0 +1,282 @@
+version: 0.1
+cli:
+  version: 1.25.0
+plugins:
+  sources:
+    - id: trunk
+      ref: d1e3af5752059371e206fe8f242b15d7f4205555
+      uri: https://github.com/trunk-io/plugins
+lint:
+  default_max_file_size: 16777216
+  enabled:
+    - oxlint-bun
+    - oxfmt-bun
+    - ruff-native
+    - ruff-format-native
+    - ty-native
+    - stylua-native
+    - shellcheck-native
+    - shfmt-native
+    - actionlint-native
+    - hadolint-native
+    - betterleaks-native
+    - source-check
+    - knip-bun
+  ignore:
+    - linters: [ALL]
+      paths:
+        [
+          node_modules/**,
+          .factorio-test/**,
+          .venv/**,
+          dist/**,
+          "**/__pycache__/**",
+          .trunk/plugins/**,
+          .trunk/tools/**,
+          .trunk/out/**,
+          .trunk/logs/**,
+        ]
+    - linters: [oxfmt-bun, source-check]
+      paths: [bun.lock, uv.lock, patches/**]
+  files:
+    - name: workshop-oxfmt
+      extensions:
+        [
+          ts,
+          tsx,
+          js,
+          jsx,
+          mjs,
+          cjs,
+          json,
+          jsonc,
+          md,
+          yaml,
+          yml,
+          toml,
+          css,
+          html,
+        ]
+    - name: workshop-lua
+      extensions: [lua]
+      filenames: [.luacheckrc]
+    - name: workshop-workflow
+      regexes: ['^\.github/workflows/.*\.ya?ml$']
+    - name: workshop-knip
+      regexes: ['^knip\.config\.ts$']
+    - name: workshop-text
+      extensions:
+        [
+          ts,
+          tsx,
+          js,
+          jsx,
+          mjs,
+          cjs,
+          json,
+          jsonc,
+          md,
+          yaml,
+          yml,
+          toml,
+          css,
+          html,
+          lua,
+          py,
+          sh,
+          cfg,
+          txt,
+        ]
+      filenames:
+        [.gitignore, .editorconfig, .luacheckrc, .python-version, Dockerfile]
+  definitions:
+    # Mise owns native binaries; Bun's lockfile owns JS packages and the Effect patch.
+    # No second Node/Python runtime or independently installed Oxc copy belongs here.
+    - name: oxlint-bun
+      files: [javascript, javascript-xml, typescript, typescript-xml]
+      known_good_version: ""
+      environment: &native_environment
+        - name: PATH
+          list: ["${env.PATH}"]
+      commands:
+        - name: lint
+          run: bun ${workspace}/node_modules/oxlint/bin/oxlint --type-aware --type-check --deny-warnings --format sarif -- ${target}
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: oxfmt-bun
+      files: [workshop-oxfmt]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: format
+          run: bun ${workspace}/node_modules/oxfmt/bin/oxfmt --write -- ${target}
+          output: rewrite
+          success_codes: [0]
+          batch: true
+          in_place: true
+          formatter: true
+          cache_results: false
+    - name: ruff-native
+      files: [python]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: ruff check --no-cache --no-fix --output-format sarif -- ${target}
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: ruff-format-native
+      files: [python]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: format
+          run: ruff format --no-cache -- ${target}
+          output: rewrite
+          success_codes: [0]
+          batch: true
+          in_place: true
+          formatter: true
+          cache_results: false
+    - name: ty-native
+      files: [python]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: ty check --python ${workspace}/.venv --error-on-warning --no-progress --output-format gitlab -- ${target}
+          output: sarif
+          parser:
+            run: bun ${workspace}/tools/quality-report.ts
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: stylua-native
+      files: [workshop-lua]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: format
+          run: stylua --verify --config-path ${workspace}/stylua.toml -- ${target}
+          output: rewrite
+          success_codes: [0]
+          batch: true
+          in_place: true
+          formatter: true
+          cache_results: false
+    - name: shellcheck-native
+      files: [shell]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: shellcheck --format=json --external-sources -- ${target}
+          output: shellcheck
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: shfmt-native
+      files: [shell]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: format
+          run: shfmt -w -i 2 -- ${target}
+          output: rewrite
+          success_codes: [0]
+          batch: true
+          in_place: true
+          formatter: true
+          cache_results: false
+    - name: actionlint-native
+      files: [workshop-workflow]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: actionlint -format '{{json .}}' -- ${target}
+          output: actionlint
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: hadolint-native
+      files: [docker]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: hadolint --format sarif -- ${target}
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: betterleaks-native
+      files: [ALL]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: betterleaks dir --config ${workspace}/.betterleaks.toml --redact=100 --validation=false --no-banner --exit-code=101 --report-format=sarif --report-path=- -- ${target}
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 101]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+          is_security: true
+    - name: source-check
+      files: [workshop-text]
+      known_good_version: ""
+      environment: *native_environment
+      commands:
+        - name: lint
+          run: bun ${workspace}/tools/source-check.ts -- ${target}
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 1]
+          batch: true
+          cache_results: false
+          disable_upstream: true
+    - name: knip-bun
+      files: [workshop-knip]
+      known_good_version: ""
+      environment:
+        - name: PATH
+          list: ["${env.PATH}"]
+        - name: MODKIT_SOURCE_SELECTION
+          value: "${env.MODKIT_SOURCE_SELECTION}"
+      commands:
+        - name: lint
+          run: bun ${workspace}/node_modules/knip/bin/knip-bun.js --no-progress --reporter sarif --treat-config-hints-as-errors
+          output: sarif
+          read_output_from: stdout
+          success_codes: [0, 1]
+          cache_results: false
+          disable_upstream: true
+actions:
+  disabled:
+    [
+      trunk-announce,
+      trunk-check-pre-commit,
+      trunk-check-pre-push,
+      trunk-check-pre-push-always,
+      trunk-fmt-pre-commit,
+      trunk-share-with-everyone,
+      trunk-upgrade-available,
+    ]

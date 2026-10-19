@@ -1,175 +1,696 @@
 {
   "apiVersion": "2.1.21",
-  "reviewedBase": {"version": "2.1.21"},
+  "reviewedBase": { "version": "2.1.21" },
   "reviewedMods": {
-    "pycoalprocessing": {"version": "3.1.7", "archive": "pycoalprocessing_3.1.7.zip", "root": "pycoalprocessing", "sha256": "1d4798749f2f20094b9833227b5a6c92070f26173f8586f9587f0dee9ae19f7c"},
-    "pypetroleumhandling": {"version": "3.1.3", "archive": "pypetroleumhandling_3.1.3.zip", "root": "pypetroleumhandling", "sha256": "5c372c4c16fa9ade8db109b767a4c051e626a5d07bafcd2ea615450217febbb0"},
-    "pyrawores": {"version": "3.1.4", "archive": "pyrawores_3.1.4.zip", "root": "pyrawores", "sha256": "075182d84347ce9cdc85b51e83ae6da566329f193cfb45919eed432f3c2fe3c9"},
-    "pyalienlife": {"version": "3.1.8", "archive": "pyalienlife_3.1.8.zip", "root": "pyalienlife", "sha256": "2b5e59abd509bd0a15e61f45293b72311860dcbec61be006af483720f5eb33ef"},
-    "pypostprocessing": {"version": "3.1.6", "archive": "pypostprocessing_3.1.6.zip", "root": "pypostprocessing", "sha256": "4e456e474db3e30b676787ab8a5091cd8af7efcdf2a79ad369ac05e29f9774b3"},
-    "pyhardmode": {"version":"1.3.38","archive":"pyhardmode_1.3.38.zip","root":"pyhardmode_1.3.38","sha256":"89b92f2de1d55023a96f51f195dc165e5686e1c5ada9e29d2083f7514e0dc9dc"},
-    "pyfusionenergy": {"version":"3.1.5","archive":"pyfusionenergy_3.1.5.zip","root":"pyfusionenergy","sha256":"6be0a63d37086915eab88b82ec146c15b100a85848cc7946ee43140bf44444f4"},
-    "aai-loaders": {"version":"0.3.0","archive":"aai-loaders_0.3.0.zip","root":"aai-loaders_0.3.0","sha256":"1236800ae998367aae1a26d3ac3728484088d051f89c66c6c860ba1fe195c85e"},
-    "pyindustry": {"version":"3.1.6","archive":"pyindustry_3.1.6.zip","root":"pyindustry","sha256":"ca1fe4e7c7916167352634bed28fdb45a18a4cee6d31a6eff3ddd660adf55f8c"},
-    "pyhightech": {"version":"3.1.5","archive":"pyhightech_3.1.5.zip","root":"pyhightech","sha256":"de2062a89102a41117a167eaf3c28516784564c7bba5fe77e08875b42faa5da0"},
-    "pyalternativeenergy": {"version":"3.2.9","archive":"pyalternativeenergy_3.2.9.zip","root":"pyalternativeenergy","sha256":"65d0defd061ee71dc5c26b7f55b070fc16f2cd6182741038c624ac9b7a0c2e68"},
-    "cargo-ships-floating-electric-pole": {"version":"2.1.0","archive":"cargo-ships-floating-electric-pole_2.1.0.zip","root":"cargo-ships-floating-electric-pole","sha256":"f999eb6327329e6fa15c9a2995e68db08f9d543bed306874bd82875529fb8d8f"}
+    "pycoalprocessing": {
+      "version": "3.1.7",
+      "archive": "pycoalprocessing_3.1.7.zip",
+      "root": "pycoalprocessing",
+      "sha256": "1d4798749f2f20094b9833227b5a6c92070f26173f8586f9587f0dee9ae19f7c"
+    },
+    "pypetroleumhandling": {
+      "version": "3.1.3",
+      "archive": "pypetroleumhandling_3.1.3.zip",
+      "root": "pypetroleumhandling",
+      "sha256": "5c372c4c16fa9ade8db109b767a4c051e626a5d07bafcd2ea615450217febbb0"
+    },
+    "pyrawores": {
+      "version": "3.1.4",
+      "archive": "pyrawores_3.1.4.zip",
+      "root": "pyrawores",
+      "sha256": "075182d84347ce9cdc85b51e83ae6da566329f193cfb45919eed432f3c2fe3c9"
+    },
+    "pyalienlife": {
+      "version": "3.1.8",
+      "archive": "pyalienlife_3.1.8.zip",
+      "root": "pyalienlife",
+      "sha256": "2b5e59abd509bd0a15e61f45293b72311860dcbec61be006af483720f5eb33ef"
+    },
+    "pypostprocessing": {
+      "version": "3.1.6",
+      "archive": "pypostprocessing_3.1.6.zip",
+      "root": "pypostprocessing",
+      "sha256": "4e456e474db3e30b676787ab8a5091cd8af7efcdf2a79ad369ac05e29f9774b3"
+    },
+    "pyhardmode": {
+      "version": "1.3.38",
+      "archive": "pyhardmode_1.3.38.zip",
+      "root": "pyhardmode_1.3.38",
+      "sha256": "89b92f2de1d55023a96f51f195dc165e5686e1c5ada9e29d2083f7514e0dc9dc"
+    },
+    "pyfusionenergy": {
+      "version": "3.1.5",
+      "archive": "pyfusionenergy_3.1.5.zip",
+      "root": "pyfusionenergy",
+      "sha256": "6be0a63d37086915eab88b82ec146c15b100a85848cc7946ee43140bf44444f4"
+    },
+    "aai-loaders": {
+      "version": "0.3.0",
+      "archive": "aai-loaders_0.3.0.zip",
+      "root": "aai-loaders_0.3.0",
+      "sha256": "1236800ae998367aae1a26d3ac3728484088d051f89c66c6c860ba1fe195c85e"
+    },
+    "pyindustry": {
+      "version": "3.1.6",
+      "archive": "pyindustry_3.1.6.zip",
+      "root": "pyindustry",
+      "sha256": "ca1fe4e7c7916167352634bed28fdb45a18a4cee6d31a6eff3ddd660adf55f8c"
+    },
+    "pyhightech": {
+      "version": "3.1.5",
+      "archive": "pyhightech_3.1.5.zip",
+      "root": "pyhightech",
+      "sha256": "de2062a89102a41117a167eaf3c28516784564c7bba5fe77e08875b42faa5da0"
+    },
+    "pyalternativeenergy": {
+      "version": "3.2.9",
+      "archive": "pyalternativeenergy_3.2.9.zip",
+      "root": "pyalternativeenergy",
+      "sha256": "65d0defd061ee71dc5c26b7f55b070fc16f2cd6182741038c624ac9b7a0c2e68"
+    },
+    "cargo-ships-floating-electric-pole": {
+      "version": "2.1.0",
+      "archive": "cargo-ships-floating-electric-pole_2.1.0.zip",
+      "root": "cargo-ships-floating-electric-pole",
+      "sha256": "f999eb6327329e6fa15c9a2995e68db08f9d543bed306874bd82875529fb8d8f"
+    }
   },
   "files": {
-    "coal-gas": {"mod": "pycoalprocessing", "path": "prototypes/fluids/coal-gas.lua"},
-    "syngas": {"mod": "pycoalprocessing", "path": "prototypes/fluids/syngas.lua"},
-    "coal-recipes": {"mod": "pycoalprocessing", "path": "prototypes/recipes/coal-processing-recipes.lua"},
-    "tar-recipes": {"mod": "pypetroleumhandling", "path": "prototypes/recipes/tar-distillation-recipes.lua"},
-    "petroleum-syngas": {"mod": "pypetroleumhandling", "path": "prototypes/recipes/syngas-recipes.lua"},
-    "iron-recipes": {"mod": "pyrawores", "path": "prototypes/recipes/recipes-iron.lua"},
-    "chromium-recipes": {"mod": "pyrawores", "path": "prototypes/recipes/recipes-chromium.lua"},
-    "zinc-recipes": {"mod": "pyrawores", "path": "prototypes/recipes/recipes-zinc.lua"},
-    "copper-recipes": {"mod": "pyrawores", "path": "prototypes/recipes/recipes-copper.lua"},
-    "coal-items": {"mod": "pycoalprocessing", "path": "prototypes/items/items.lua"},
-    "raw-ore-items": {"mod": "pyrawores", "path": "prototypes/items/items.lua"},
-    "petroleum-items": {"mod": "pypetroleumhandling", "path": "prototypes/items/items.lua"},
-    "kerogen-recipes": {"mod": "pypetroleumhandling", "path": "prototypes/recipes/kerogen-recipes.lua"},
-    "coal-general-recipes": {"mod": "pycoalprocessing", "path": "prototypes/recipes/recipes.lua"},
-    "alienlife-items": {"mod": "pyalienlife", "path": "prototypes/items/items.lua"},
-    "alienlife-items-two": {"mod": "pyalienlife", "path": "prototypes/items/items2.lua"},
-    "alienlife-general-recipes": {"mod": "pyalienlife", "path": "prototypes/recipes/recipes.lua"},
-    "fawogae-recipes": {"mod": "pyalienlife", "path": "prototypes/recipes/fawogae/recipes-fawogae.lua"},
-    "ralesia-recipes": {"mod": "pyalienlife", "path": "prototypes/recipes/ralesia/recipes-ralesia.lua"},
-    "ulric-recipes": {"mod": "pyalienlife", "path": "prototypes/recipes/ulric/recipes-ulric.lua"},
-    "ulric-raising": {"mod": "pyalienlife", "path": "prototypes/recipes/ulric/recipes-ulric-raising.lua"},
-    "vrauk-raising": {"mod": "pyalienlife", "path": "prototypes/recipes/vrauks/recipes-vrauks-raising.lua"},
-    "auog-raising": {"mod": "pyalienlife", "path": "prototypes/recipes/auog/recipes-auog-raising.lua"},
-    "distilator": {"mod": "pycoalprocessing", "path": "prototypes/buildings/distilator.lua"},
-    "gasifier": {"mod": "pycoalprocessing", "path": "prototypes/buildings/gasifier.lua"},
-    "tar-unit": {"mod": "pycoalprocessing", "path": "prototypes/buildings/tar-processing-unit.lua"},
-    "impact-crusher": {"mod": "pyrawores", "path": "prototypes/buildings/impact-crusher.lua"},
-    "flotation-cell": {"mod": "pyrawores", "path": "prototypes/buildings/flotation-cell.lua"},
-    "hydroclassifier": {"mod": "pyrawores", "path": "prototypes/buildings/hydroclassifier.lua"},
-    "drp": {"mod": "pyrawores", "path": "prototypes/buildings/drp.lua"},
-    "coal-tech": {"mod": "pycoalprocessing", "path": "prototypes/technologies/coal-processing-1.lua"},
-    "tar-tech": {"mod": "pycoalprocessing", "path": "prototypes/technologies/tar-processing.lua"},
-    "iron-tech": {"mod": "pyrawores", "path": "prototypes/technologies/iron.lua"},
-    "py-description-helper": {"mod": "pypostprocessing", "path": "lib/data-stage.lua"},
-    "hardmode-mining": {"mod": "pyhardmode", "path": "prototypes/mining.lua"},
-    "coal-entity-updates": {"mod": "pycoalprocessing", "path": "prototypes/updates/entity-updates.lua"},
-    "diborane": {"mod": "pycoalprocessing", "path": "prototypes/fluids/diborane.lua"},
-    "raw-ore-coal-updates": {"mod": "pyrawores", "path": "prototypes/updates/pycoalprocessing-updates.lua"},
-    "base-transport-belts": {"mod":"base","path":"prototypes/entity/transport-belts.lua","sha256":"46cec8476aa185d82f4a40de4e8ff5852538447a4f4b8115ba6e97533b51bf6f"},
-    "base-entities": {"mod":"base","path":"prototypes/entity/entities.lua","sha256":"87a2906faeb16028eec4a05a38d76152eff9f992aa936e21d4794f756910c407"},
-    "base-technologies": {"mod":"base","path":"prototypes/technology.lua","sha256":"0fe834c532069856f9ed227dc1cb952ac3227592fd5c98a78210daa0e5137d2c"},
-    "pressure-furnace": {"mod":"pycoalprocessing","path":"prototypes/buildings/hpf.lua"},
-    "raw-hydrogen": {"mod":"pyrawores","path":"prototypes/fluids/hydrogen.lua"},
-    "raw-chlorine": {"mod":"pyrawores","path":"prototypes/fluids/chlorine.lua"},
-    "electrolyzer": {"mod":"pyrawores","path":"prototypes/buildings/electrolyzer.lua"},
-    "quartz-recipes": {"mod":"pyrawores","path":"prototypes/recipes/recipes-quartz.lua"},
-    "raw-molten-glass": {"mod":"pyrawores","path":"prototypes/fluids/molten-glass.lua"},
-    "alienlife-raw-updates": {"mod":"pyalienlife","path":"prototypes/updates/pyrawores-updates.lua"},
-    "glassworks": {"mod":"pycoalprocessing","path":"prototypes/buildings/glassworks.lua"},
-    "py-stack-inserter": {"mod":"pycoalprocessing","path":"prototypes/buildings/stack-inserter.lua"},
-    "cranes": {"mod":"pyalienlife","path":"prototypes/buildings/crane.lua"},
-    "aai-loaders": {"mod":"aai-loaders","path":"prototypes/phase-1/combined/loaders.lua"},
-    "py-belt-capacity": {"mod":"pycoalprocessing","path":"prototypes/technologies/stacking-belts.lua"},
-    "improved-recipes": {"mod":"pypetroleumhandling","path":"prototypes/recipes/improved-recipes.lua"},
-    "petroleum-technologies": {"mod":"pypetroleumhandling","path":"prototypes/technologies/technologies.lua"},
-    "aai-loader-tiers": {"mod":"aai-loaders","path":"prototypes/loader-sets/base.lua"},
-    "boric-acid": {"mod":"pycoalprocessing","path":"prototypes/fluids/boric-acid.lua"},
-    "fusion-items": {"mod":"pyfusionenergy","path":"prototypes/items/items.lua"},
-    "fusion-recipes": {"mod":"pyfusionenergy","path":"prototypes/recipes/recipes.lua"},
-    "borax-miners": {"mod":"pycoalprocessing","path":"prototypes/buildings/borax-mine.lua"},
-    "borax-resource": {"mod":"pycoalprocessing","path":"prototypes/ores/borax.lua"},
-    "simik-metals": {"mod":"pyalienlife","path":"prototypes/recipes/simik/recipes-simik-metals.lua"},
-    "atomizer-recipes": {"mod":"pyalienlife","path":"prototypes/recipes/recipes-atomizer.lua"},
-    "boron-technologies": {"mod":"pyfusionenergy","path":"prototypes/technologies/boron.lua"},
-    "middle-oil": {"mod":"pypetroleumhandling","path":"prototypes/fluids/middle-oil.lua"},
-    "gasoline": {"mod":"pycoalprocessing","path":"prototypes/fluids/gasoline.lua"},
-    "base-items": {"mod":"base","path":"prototypes/item.lua","sha256":"f15e0dbbf839cb8dae9812defeaac97ab81ec5433f663841e2833f82bac542a6"},
-    "base-fluids": {"mod":"base","path":"prototypes/fluid.lua","sha256":"2a99c6e3712eb6994a11123ef725c3a802ef1b39af1e685105c6f603e6242408"},
-    "ball-mill": {"mod":"pycoalprocessing","path":"prototypes/buildings/ball-mill.lua"},
-    "energy-base-updates": {"mod":"pyalternativeenergy","path":"prototypes/updates/base-updates.lua"},
-    "nexelit-pole": {"mod":"pyalternativeenergy","path":"prototypes/buildings/nexelit-power-pole.lua"},
-    "nexelit-substation": {"mod":"pyalternativeenergy","path":"prototypes/buildings/nexelit-substation.lua"},
-    "floating-pole": {"mod":"cargo-ships-floating-electric-pole","path":"data.lua"},
-    "floating-pole-final": {"mod":"cargo-ships-floating-electric-pole","path":"data-final-fixes.lua"},
-    "niobium-pipes": {"mod":"pyindustry","path":"prototypes/pipes/niobium-pipes.lua"},
-    "hightech-pipes": {"mod":"pyhightech","path":"prototypes/pipes/ht-pipes.lua"},
-    "oil-boiler": {"mod":"pypetroleumhandling","path":"prototypes/buildings/oil-boiler-mk01.lua"},
-    "hardmode-oil-boiler": {"mod":"pyhardmode","path":"prototypes/oil-boiler.lua"},
-    "electric-boiler": {"mod":"pyalternativeenergy","path":"prototypes/buildings/electric-boiler.lua"},
-    "fusion-heat-exchanger": {"mod":"pyfusionenergy","path":"prototypes/buildings/heat-exchanger.lua"},
-    "heat-exchanger-two": {"mod":"pyalternativeenergy","path":"prototypes/buildings/heat-exchanger-mk02.lua"},
-    "heat-exchanger-three": {"mod":"pyalternativeenergy","path":"prototypes/buildings/heat-exchanger-mk03.lua"},
-    "heat-exchanger-four": {"mod":"pyalternativeenergy","path":"prototypes/buildings/heat-exchanger-mk04.lua"},
-    "biofluid-vessels": {"mod":"pyalienlife","path":"prototypes/biofluid/vessel.lua"},
-    "simik-boiler": {"mod":"pyalternativeenergy","path":"prototypes/buildings/simik-boiler.lua"},
-    "heat-exchanger-recipes": {"mod":"pyalternativeenergy","path":"prototypes/recipes/recipes-heat-exchanger.lua"},
-    "simik-boiler-recipes": {"mod":"pyalternativeenergy","path":"prototypes/recipes/recipes-simik-boiler.lua"},
-    "distribution-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/electric-energy-distribution.lua"},
-    "coal-base-updates": {"mod":"pycoalprocessing","path":"prototypes/updates/base-updates.lua"},
-    "nonrenewable-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/nonrenewable.lua"},
-    "coalplant-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/coalplant.lua"},
-    "oilplant-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/oilplant.lua"},
-    "biomassplant-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/biomassplant.lua"},
-    "gasplant-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/gasplant.lua"},
-    "geothermal-technologies": {"mod":"pyalternativeenergy","path":"prototypes/technologies/geothermal.lua"},
-    "creosote-technologies": {"mod":"pycoalprocessing","path":"prototypes/technologies/creosote.lua"},
-    "niobium-technologies": {"mod":"pycoalprocessing","path":"prototypes/technologies/niobium.lua"},
-    "casting-technologies": {"mod":"pyrawores","path":"prototypes/technologies/casting.lua"},
-    "casting-recipes": {"mod":"pyrawores","path":"prototypes/recipes/recipes-casting.lua"},
-    "biofluid-technologies": {"mod":"pyalienlife","path":"prototypes/technologies/biofluid.lua"},
-    "creosote-fluid": {"mod":"pycoalprocessing","path":"prototypes/fluids/creosote.lua"},
-    "hightech-items": {"mod":"pyhightech","path":"prototypes/items/items.lua"},
-    "pressured-steam": {"mod":"pyfusionenergy","path":"prototypes/fluids/pressured-steam.lua"},
-    "pressured-water": {"mod":"pyfusionenergy","path":"prototypes/fluids/pressured-water.lua"},
-    "raw-coal-recipes": {"mod":"pyrawores","path":"prototypes/recipes/recipes-coal.lua"},
-    "raw-general-recipes": {"mod":"pyrawores","path":"prototypes/recipes/recipes.lua"},
-    "atmospheric-recipes": {"mod":"pypetroleumhandling","path":"prototypes/recipes/atmo-distill-recipes.lua"},
-    "coal-tar-recipes": {"mod":"pypetroleumhandling","path":"prototypes/recipes/coal-tar-recipes.lua"},
-    "gasoline-recipes": {"mod":"pypetroleumhandling","path":"prototypes/recipes/gasoline-recipes.lua"},
-    "residual-recipes": {"mod":"pypetroleumhandling","path":"prototypes/recipes/residual-oil-recipes.lua"},
-    "hightech-recipes": {"mod":"pyhightech","path":"prototypes/recipes/recipes.lua"},
-    "alien-hightech-updates": {"mod":"pyalienlife","path":"prototypes/updates/pyhightech-updates.lua"},
-    "energy-general-recipes": {"mod":"pyalternativeenergy","path":"prototypes/recipes/recipes.lua"},
-    "mirror-recipes": {"mod":"pyalternativeenergy","path":"prototypes/recipes/mirrors.lua"},
-    "energy-recycling-recipes": {"mod":"pyalternativeenergy","path":"prototypes/recipes/recycling-recipes.lua"},
-    "energy-items": {"mod":"pyalternativeenergy","path":"prototypes/items/items.lua"},
-    "copper-technologies": {"mod":"pyrawores","path":"prototypes/technologies/copper.lua"},
-    "hot-air-recipes": {"mod":"pypetroleumhandling","path":"prototypes/updates/hot-air.lua"},
-    "electronics-factory-1": {"mod":"pyhightech","path":"prototypes/buildings/electronics-factory-mk01.lua"},
-    "electronics-factory-2": {"mod":"pyhightech","path":"prototypes/buildings/electronics-factory-mk02.lua"},
-    "electronics-factory-3": {"mod":"pyhightech","path":"prototypes/buildings/electronics-factory-mk03.lua"},
-    "electronics-factory-4": {"mod":"pyhightech","path":"prototypes/buildings/electronics-factory-mk04.lua"},
-    "chipshooter-1": {"mod":"pyhightech","path":"prototypes/buildings/chipshooter-mk01.lua"},
-    "chipshooter-2": {"mod":"pyhightech","path":"prototypes/buildings/chipshooter-mk02.lua"},
-    "chipshooter-3": {"mod":"pyhightech","path":"prototypes/buildings/chipshooter-mk03.lua"},
-    "chipshooter-4": {"mod":"pyhightech","path":"prototypes/buildings/chipshooter-mk04.lua"},
-    "pcb-factory-1": {"mod":"pyhightech","path":"prototypes/buildings/pcb-factory-mk01.lua"},
-    "pcb-factory-2": {"mod":"pyhightech","path":"prototypes/buildings/pcb-factory-mk02.lua"},
-    "pcb-factory-3": {"mod":"pyhightech","path":"prototypes/buildings/pcb-factory-mk03.lua"},
-    "pcb-factory-4": {"mod":"pyhightech","path":"prototypes/buildings/pcb-factory-mk04.lua"},
-    "pulp-mill-1": {"mod":"pyhightech","path":"prototypes/buildings/pulp-mill-mk01.lua"},
-    "pulp-mill-2": {"mod":"pyhightech","path":"prototypes/buildings/pulp-mill-mk02.lua"},
-    "pulp-mill-3": {"mod":"pyhightech","path":"prototypes/buildings/pulp-mill-mk03.lua"},
-    "pulp-mill-4": {"mod":"pyhightech","path":"prototypes/buildings/pulp-mill-mk04.lua"},
-    "automated-screener-1": {"mod":"pyfusionenergy","path":"prototypes/buildings/automated-screener-mk01.lua"},
-    "automated-screener-2": {"mod":"pyfusionenergy","path":"prototypes/buildings/automated-screener-mk02.lua"},
-    "automated-screener-3": {"mod":"pyfusionenergy","path":"prototypes/buildings/automated-screener-mk03.lua"},
-    "automated-screener-4": {"mod":"pyfusionenergy","path":"prototypes/buildings/automated-screener-mk04.lua"},
-    "copper-solution": {"mod":"pyrawores","path":"prototypes/fluids/copper-solution.lua"},
-    "copper-pulp-01": {"mod":"pyrawores","path":"prototypes/fluids/copper-pulp-01.lua"},
-    "copper-pulp-02": {"mod":"pyrawores","path":"prototypes/fluids/copper-pulp-02.lua"},
-    "copper-pulp-03": {"mod":"pyrawores","path":"prototypes/fluids/copper-pulp-03.lua"},
-    "copper-pulp-04": {"mod":"pyrawores","path":"prototypes/fluids/copper-pulp-04.lua"},
-    "copper-pregnant-solution": {"mod":"pyrawores","path":"prototypes/fluids/copper-pregnant-solution.lua"},
-    "molten-copper": {"mod":"pyrawores","path":"prototypes/fluids/molten-copper.lua"},
-    "machine-technologies": {"mod":"pyrawores","path":"prototypes/technologies/machines.lua"},
-    "electronics-machine-technologies": {"mod":"pyhightech","path":"prototypes/technologies/electronics-machines.lua"},
-    "electronics-technologies": {"mod":"pyhightech","path":"prototypes/technologies/electronics.lua"},
-    "basic-electronics-technologies": {"mod":"pyhightech","path":"prototypes/technologies/basic-electronics.lua"},
-    "integrated-circuit-technologies": {"mod":"pyhightech","path":"prototypes/technologies/integrated-circuits.lua"},
-    "semiconductor-doping-technologies": {"mod":"pyhightech","path":"prototypes/technologies/semiconductor-doping.lua"},
-    "quantum-processor-technologies": {"mod":"pyhightech","path":"prototypes/technologies/quantum-processor.lua"},
-    "supercapacitor-technologies": {"mod":"pyhightech","path":"prototypes/technologies/supercapacitor.lua"},
-    "ceramic-technologies": {"mod":"pyhightech","path":"prototypes/technologies/ceramic.lua"}
+    "coal-gas": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/coal-gas.lua"
+    },
+    "syngas": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/syngas.lua"
+    },
+    "coal-recipes": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/recipes/coal-processing-recipes.lua"
+    },
+    "tar-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/tar-distillation-recipes.lua"
+    },
+    "petroleum-syngas": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/syngas-recipes.lua"
+    },
+    "iron-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-iron.lua"
+    },
+    "chromium-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-chromium.lua"
+    },
+    "zinc-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-zinc.lua"
+    },
+    "copper-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-copper.lua"
+    },
+    "coal-items": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/items/items.lua"
+    },
+    "raw-ore-items": {
+      "mod": "pyrawores",
+      "path": "prototypes/items/items.lua"
+    },
+    "petroleum-items": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/items/items.lua"
+    },
+    "kerogen-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/kerogen-recipes.lua"
+    },
+    "coal-general-recipes": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "alienlife-items": {
+      "mod": "pyalienlife",
+      "path": "prototypes/items/items.lua"
+    },
+    "alienlife-items-two": {
+      "mod": "pyalienlife",
+      "path": "prototypes/items/items2.lua"
+    },
+    "alienlife-general-recipes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "fawogae-recipes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/fawogae/recipes-fawogae.lua"
+    },
+    "ralesia-recipes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/ralesia/recipes-ralesia.lua"
+    },
+    "ulric-recipes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/ulric/recipes-ulric.lua"
+    },
+    "ulric-raising": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/ulric/recipes-ulric-raising.lua"
+    },
+    "vrauk-raising": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/vrauks/recipes-vrauks-raising.lua"
+    },
+    "auog-raising": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/auog/recipes-auog-raising.lua"
+    },
+    "distilator": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/distilator.lua"
+    },
+    "gasifier": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/gasifier.lua"
+    },
+    "tar-unit": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/tar-processing-unit.lua"
+    },
+    "impact-crusher": {
+      "mod": "pyrawores",
+      "path": "prototypes/buildings/impact-crusher.lua"
+    },
+    "flotation-cell": {
+      "mod": "pyrawores",
+      "path": "prototypes/buildings/flotation-cell.lua"
+    },
+    "hydroclassifier": {
+      "mod": "pyrawores",
+      "path": "prototypes/buildings/hydroclassifier.lua"
+    },
+    "drp": { "mod": "pyrawores", "path": "prototypes/buildings/drp.lua" },
+    "coal-tech": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/technologies/coal-processing-1.lua"
+    },
+    "tar-tech": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/technologies/tar-processing.lua"
+    },
+    "iron-tech": {
+      "mod": "pyrawores",
+      "path": "prototypes/technologies/iron.lua"
+    },
+    "py-description-helper": {
+      "mod": "pypostprocessing",
+      "path": "lib/data-stage.lua"
+    },
+    "hardmode-mining": { "mod": "pyhardmode", "path": "prototypes/mining.lua" },
+    "coal-entity-updates": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/updates/entity-updates.lua"
+    },
+    "diborane": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/diborane.lua"
+    },
+    "raw-ore-coal-updates": {
+      "mod": "pyrawores",
+      "path": "prototypes/updates/pycoalprocessing-updates.lua"
+    },
+    "base-transport-belts": {
+      "mod": "base",
+      "path": "prototypes/entity/transport-belts.lua",
+      "sha256": "46cec8476aa185d82f4a40de4e8ff5852538447a4f4b8115ba6e97533b51bf6f"
+    },
+    "base-entities": {
+      "mod": "base",
+      "path": "prototypes/entity/entities.lua",
+      "sha256": "87a2906faeb16028eec4a05a38d76152eff9f992aa936e21d4794f756910c407"
+    },
+    "base-technologies": {
+      "mod": "base",
+      "path": "prototypes/technology.lua",
+      "sha256": "0fe834c532069856f9ed227dc1cb952ac3227592fd5c98a78210daa0e5137d2c"
+    },
+    "pressure-furnace": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/hpf.lua"
+    },
+    "raw-hydrogen": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/hydrogen.lua"
+    },
+    "raw-chlorine": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/chlorine.lua"
+    },
+    "electrolyzer": {
+      "mod": "pyrawores",
+      "path": "prototypes/buildings/electrolyzer.lua"
+    },
+    "quartz-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-quartz.lua"
+    },
+    "raw-molten-glass": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/molten-glass.lua"
+    },
+    "alienlife-raw-updates": {
+      "mod": "pyalienlife",
+      "path": "prototypes/updates/pyrawores-updates.lua"
+    },
+    "glassworks": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/glassworks.lua"
+    },
+    "py-stack-inserter": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/stack-inserter.lua"
+    },
+    "cranes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/buildings/crane.lua"
+    },
+    "aai-loaders": {
+      "mod": "aai-loaders",
+      "path": "prototypes/phase-1/combined/loaders.lua"
+    },
+    "py-belt-capacity": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/technologies/stacking-belts.lua"
+    },
+    "improved-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/improved-recipes.lua"
+    },
+    "petroleum-technologies": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/technologies/technologies.lua"
+    },
+    "aai-loader-tiers": {
+      "mod": "aai-loaders",
+      "path": "prototypes/loader-sets/base.lua"
+    },
+    "boric-acid": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/boric-acid.lua"
+    },
+    "fusion-items": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/items/items.lua"
+    },
+    "fusion-recipes": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "borax-miners": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/borax-mine.lua"
+    },
+    "borax-resource": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/ores/borax.lua"
+    },
+    "simik-metals": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/simik/recipes-simik-metals.lua"
+    },
+    "atomizer-recipes": {
+      "mod": "pyalienlife",
+      "path": "prototypes/recipes/recipes-atomizer.lua"
+    },
+    "boron-technologies": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/technologies/boron.lua"
+    },
+    "middle-oil": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/fluids/middle-oil.lua"
+    },
+    "gasoline": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/gasoline.lua"
+    },
+    "base-items": {
+      "mod": "base",
+      "path": "prototypes/item.lua",
+      "sha256": "f15e0dbbf839cb8dae9812defeaac97ab81ec5433f663841e2833f82bac542a6"
+    },
+    "base-fluids": {
+      "mod": "base",
+      "path": "prototypes/fluid.lua",
+      "sha256": "2a99c6e3712eb6994a11123ef725c3a802ef1b39af1e685105c6f603e6242408"
+    },
+    "ball-mill": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/buildings/ball-mill.lua"
+    },
+    "energy-base-updates": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/updates/base-updates.lua"
+    },
+    "nexelit-pole": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/nexelit-power-pole.lua"
+    },
+    "nexelit-substation": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/nexelit-substation.lua"
+    },
+    "floating-pole": {
+      "mod": "cargo-ships-floating-electric-pole",
+      "path": "data.lua"
+    },
+    "floating-pole-final": {
+      "mod": "cargo-ships-floating-electric-pole",
+      "path": "data-final-fixes.lua"
+    },
+    "niobium-pipes": {
+      "mod": "pyindustry",
+      "path": "prototypes/pipes/niobium-pipes.lua"
+    },
+    "hightech-pipes": {
+      "mod": "pyhightech",
+      "path": "prototypes/pipes/ht-pipes.lua"
+    },
+    "oil-boiler": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/buildings/oil-boiler-mk01.lua"
+    },
+    "hardmode-oil-boiler": {
+      "mod": "pyhardmode",
+      "path": "prototypes/oil-boiler.lua"
+    },
+    "electric-boiler": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/electric-boiler.lua"
+    },
+    "fusion-heat-exchanger": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/buildings/heat-exchanger.lua"
+    },
+    "heat-exchanger-two": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/heat-exchanger-mk02.lua"
+    },
+    "heat-exchanger-three": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/heat-exchanger-mk03.lua"
+    },
+    "heat-exchanger-four": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/heat-exchanger-mk04.lua"
+    },
+    "biofluid-vessels": {
+      "mod": "pyalienlife",
+      "path": "prototypes/biofluid/vessel.lua"
+    },
+    "simik-boiler": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/buildings/simik-boiler.lua"
+    },
+    "heat-exchanger-recipes": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/recipes/recipes-heat-exchanger.lua"
+    },
+    "simik-boiler-recipes": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/recipes/recipes-simik-boiler.lua"
+    },
+    "distribution-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/electric-energy-distribution.lua"
+    },
+    "coal-base-updates": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/updates/base-updates.lua"
+    },
+    "nonrenewable-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/nonrenewable.lua"
+    },
+    "coalplant-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/coalplant.lua"
+    },
+    "oilplant-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/oilplant.lua"
+    },
+    "biomassplant-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/biomassplant.lua"
+    },
+    "gasplant-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/gasplant.lua"
+    },
+    "geothermal-technologies": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/technologies/geothermal.lua"
+    },
+    "creosote-technologies": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/technologies/creosote.lua"
+    },
+    "niobium-technologies": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/technologies/niobium.lua"
+    },
+    "casting-technologies": {
+      "mod": "pyrawores",
+      "path": "prototypes/technologies/casting.lua"
+    },
+    "casting-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-casting.lua"
+    },
+    "biofluid-technologies": {
+      "mod": "pyalienlife",
+      "path": "prototypes/technologies/biofluid.lua"
+    },
+    "creosote-fluid": {
+      "mod": "pycoalprocessing",
+      "path": "prototypes/fluids/creosote.lua"
+    },
+    "hightech-items": {
+      "mod": "pyhightech",
+      "path": "prototypes/items/items.lua"
+    },
+    "pressured-steam": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/fluids/pressured-steam.lua"
+    },
+    "pressured-water": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/fluids/pressured-water.lua"
+    },
+    "raw-coal-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes-coal.lua"
+    },
+    "raw-general-recipes": {
+      "mod": "pyrawores",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "atmospheric-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/atmo-distill-recipes.lua"
+    },
+    "coal-tar-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/coal-tar-recipes.lua"
+    },
+    "gasoline-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/gasoline-recipes.lua"
+    },
+    "residual-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/recipes/residual-oil-recipes.lua"
+    },
+    "hightech-recipes": {
+      "mod": "pyhightech",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "alien-hightech-updates": {
+      "mod": "pyalienlife",
+      "path": "prototypes/updates/pyhightech-updates.lua"
+    },
+    "energy-general-recipes": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/recipes/recipes.lua"
+    },
+    "mirror-recipes": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/recipes/mirrors.lua"
+    },
+    "energy-recycling-recipes": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/recipes/recycling-recipes.lua"
+    },
+    "energy-items": {
+      "mod": "pyalternativeenergy",
+      "path": "prototypes/items/items.lua"
+    },
+    "copper-technologies": {
+      "mod": "pyrawores",
+      "path": "prototypes/technologies/copper.lua"
+    },
+    "hot-air-recipes": {
+      "mod": "pypetroleumhandling",
+      "path": "prototypes/updates/hot-air.lua"
+    },
+    "electronics-factory-1": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/electronics-factory-mk01.lua"
+    },
+    "electronics-factory-2": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/electronics-factory-mk02.lua"
+    },
+    "electronics-factory-3": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/electronics-factory-mk03.lua"
+    },
+    "electronics-factory-4": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/electronics-factory-mk04.lua"
+    },
+    "chipshooter-1": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/chipshooter-mk01.lua"
+    },
+    "chipshooter-2": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/chipshooter-mk02.lua"
+    },
+    "chipshooter-3": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/chipshooter-mk03.lua"
+    },
+    "chipshooter-4": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/chipshooter-mk04.lua"
+    },
+    "pcb-factory-1": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pcb-factory-mk01.lua"
+    },
+    "pcb-factory-2": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pcb-factory-mk02.lua"
+    },
+    "pcb-factory-3": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pcb-factory-mk03.lua"
+    },
+    "pcb-factory-4": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pcb-factory-mk04.lua"
+    },
+    "pulp-mill-1": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pulp-mill-mk01.lua"
+    },
+    "pulp-mill-2": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pulp-mill-mk02.lua"
+    },
+    "pulp-mill-3": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pulp-mill-mk03.lua"
+    },
+    "pulp-mill-4": {
+      "mod": "pyhightech",
+      "path": "prototypes/buildings/pulp-mill-mk04.lua"
+    },
+    "automated-screener-1": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/buildings/automated-screener-mk01.lua"
+    },
+    "automated-screener-2": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/buildings/automated-screener-mk02.lua"
+    },
+    "automated-screener-3": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/buildings/automated-screener-mk03.lua"
+    },
+    "automated-screener-4": {
+      "mod": "pyfusionenergy",
+      "path": "prototypes/buildings/automated-screener-mk04.lua"
+    },
+    "copper-solution": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-solution.lua"
+    },
+    "copper-pulp-01": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-pulp-01.lua"
+    },
+    "copper-pulp-02": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-pulp-02.lua"
+    },
+    "copper-pulp-03": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-pulp-03.lua"
+    },
+    "copper-pulp-04": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-pulp-04.lua"
+    },
+    "copper-pregnant-solution": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/copper-pregnant-solution.lua"
+    },
+    "molten-copper": {
+      "mod": "pyrawores",
+      "path": "prototypes/fluids/molten-copper.lua"
+    },
+    "machine-technologies": {
+      "mod": "pyrawores",
+      "path": "prototypes/technologies/machines.lua"
+    },
+    "electronics-machine-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/electronics-machines.lua"
+    },
+    "electronics-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/electronics.lua"
+    },
+    "basic-electronics-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/basic-electronics.lua"
+    },
+    "integrated-circuit-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/integrated-circuits.lua"
+    },
+    "semiconductor-doping-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/semiconductor-doping.lua"
+    },
+    "quantum-processor-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/quantum-processor.lua"
+    },
+    "supercapacitor-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/supercapacitor.lua"
+    },
+    "ceramic-technologies": {
+      "mod": "pyhightech",
+      "path": "prototypes/technologies/ceramic.lua"
+    }
   },
   "historicalCapture": {
     "snapshotId": "914e7ad46e5ffe4ff851205932fdffaedc887e2ad6981c4399471d7bf21b2af5",

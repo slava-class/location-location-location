@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "profiles": ["base", "space-age", "native", "gallery"],
+  "cases": [
+    {
+      "path": "tests.native_gallery > Underground detector gallery > 01 reversed-underground",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    },
+    {
+      "path": "tests.native_preview > underground native > 01 reversed-underground",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > arrows remain visible with alerts off and changing the setting updates alerts without rebuilding them",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > bounds an overloaded population without losing work or delaying event-driven corrections",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > building the last exterior belt detects the pair and removing it clears only owned warnings",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > cleans invalid surface references and can survey a replacement surface without leaking old renderings",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after relink pair",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after remove exterior",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after remove mouth",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after rotate exterior",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > configuration changes survey existing belts and mod reload preserves detection and cleanup",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > detects native cloned and ghost-revived pairs and clears warnings after death",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > distributes repairs and clears a shrinking silent-correction queue at phase 1",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > distributes repairs and clears a shrinking silent-correction queue at phase 29",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > distributes repairs and clears a shrinking silent-correction queue at phase 59",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > does not connect mouths across tiers, forces, or native reach",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > flags both ends of a reversed pair in all four directions, not correctly oriented pairs",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > force changes hide warnings from former teammates and foreign belts do not establish flow",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > keeps another custom alert on a reversed endpoint and resumes its own alert when that clears",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > mouth hover hides only its own pair and switching pairs restores the previous span",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > overlay modes change immediately while map alerts remain independent",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > pair-specific hover and overlay mode leave other viewers and pairs visible",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > periodic validation refreshes replaced exterior belts and rejects changed forces",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > periodic validation repairs lost render objects and detects corrections without events",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > replaces saved owned messages without clearing foreign alerts",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > respects native maximum reach and orientation for express-underground-belt",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > respects native maximum reach and orientation for fast-underground-belt",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > respects native maximum reach and orientation for turbo-underground-belt",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > respects native maximum reach and orientation for underground-belt",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > resumes partially serviced render repairs after a native mod reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > retires silently resolved alerts without clearing other pairs or same-icon foreign alerts",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > reversing an already flagged pair updates mouth arrows and replaces the muted span in the new flow",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > rotating the underground back into the belt flow clears both warnings without rotating other belts",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > rotation of ordinary belts into opposing flow detects an existing underground pair",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > waits for both exterior belts and a connected pair instead of flagging turns or dead ends",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > warnings breathe smoothly without disappearing, losing direction, or making the span dominant",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > warns adjacent reversed mouths without drawing a nonexistent underground span",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    }
+  ]
+}

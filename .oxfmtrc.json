@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "singleQuote": false,
+  "sortImports": false,
+  "sortPackageJson": false,
+  "embeddedLanguageFormatting": "off",
+  "proseWrap": "preserve",
+  "ignorePatterns": [
+    "node_modules/**",
+    ".factorio-test/**",
+    ".trunk/plugins/**",
+    ".trunk/tools/**",
+    ".trunk/out/**",
+    ".trunk/logs/**",
+    "dist/**",
+    "patches/**",
+    "bun.lock",
+    "uv.lock"
+  ]
+}

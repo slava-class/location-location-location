@@ -1,145 +1,159 @@
+[settings]
+auto_install = false
+
 [tools]
 bun = "1.4.2"
 lua = "5.2.4"
 stylua = "2.3.1"
 uv = "0.12.13"
+trunk = "1.3.4"
+ruff = "0.17.1"
+ty = "0.0.89"
+shellcheck = "0.11.0"
+shfmt = "3.14.1"
+actionlint = "1.7.12"
+hadolint = "2.15.1"
+"github:betterleaks/betterleaks" = "1.9.0"
+
+[env]
+TRUNK_TELEMETRY = "off"
 
 [tasks.setup]
-description = "Prepare pinned test dependencies and project-local Lua tooling"
-run = ["bun mise-tasks/setup.mjs", {task = "setup-lua-tools"}]
+description = "Verify the pinned toolchain and prepare locked Python/Lua dependencies without launching Factorio"
+run = "bun tools/cli.ts setup"
 
-[tasks.setup-tests]
-description = "Prepare pinned FactorioTest dependencies without launching the game"
-run = "bun mise-tasks/setup.mjs"
+[tasks.engine-provision]
+description = "Explicitly download and verify the pinned Linux ARM64 Factorio/Bun runtime and Docker image"
+run = "bun tools/cli.ts engine-provision"
 
-[tasks.setup-lua-tools]
-description = "Download and build checksum-pinned project-local Lua tools"
-run = "uv run --no-project python -B mise-tasks/setup-lua-tools.py"
+[tasks.dependencies-provision]
+description = "Explicitly provision required pinned mod archives for one mod or --all; --from selects local archives"
+run = "bun tools/cli.ts dependencies-provision"
+
+[tasks.modkit]
+description = "Run the canonical Effect CLI; pass its command and explicit target after --"
+run = "bun tools/cli.ts"
+
+[tasks.mods]
+description = "Read offline fleet metadata, verification freshness and prepared-release state"
+run = "bun tools/cli.ts mods"
+
+[tasks.project]
+description = "Run product-owned Effect CLI commands: <mod> -- <command> [options]"
+run = "bun tools/cli.ts project"
+
+[tasks.check]
+description = "Read-only source-quality checks; pass a mod ID or --all"
+run = "bun tools/cli.ts check"
 
 [tasks.lint]
-depends = ["setup"]
-run = "bun mise-tasks/lint.mjs"
+description = "Run project-aware Lua linting for an explicit mod"
+run = "bun tools/cli.ts lint"
 
 [tasks.format-check]
-run = "stylua --check control.lua data.lua settings.lua location_location_location tests types mise-tasks"
+description = "Read-only formatting checks; pass a mod ID or --all"
+run = "bun tools/cli.ts format-check"
 
 [tasks.format]
-run = "stylua --verify control.lua data.lua settings.lua location_location_location tests types mise-tasks"
+description = "Format source without semantic fixes; pass a mod ID or --all"
+run = "bun tools/cli.ts format"
 
 [tasks.typecheck]
-depends = ["setup"]
-run = "bun mise-tasks/typecheck.mjs"
+description = "Run minimum-version Factorio API typechecking for an explicit mod"
+run = "bun tools/cli.ts typecheck"
 
 [tasks.test-model]
-description = "Run Lua planner and connection-lookup regressions without launching Factorio"
-run = "bun test mise-tasks/model.test.mjs"
+description = "Run a mod's offline model regressions without launching Factorio"
+run = "bun tools/cli.ts test-model"
 
 [tasks.test]
-description = "Run FactorioTest in isolated base and Space Age profiles"
-run = [{task = "test-base"}, {task = "test-space-age"}]
+description = "Run an isolated mod engine suite; select --profile base or space-age"
+run = "bun tools/cli.ts test"
 
-[tasks.test-base]
-depends = ["setup-tests"]
-description = "Run all base-game engine regressions"
-run = "bun mise-tasks/test.mjs base"
+[tasks.perf]
+description = "Measure a declared fixed-save scenario with independent processes and separate correctness controls"
+run = "bun tools/cli.ts perf"
 
-[tasks.test-space-age]
-depends = ["setup-tests"]
-description = "Run the complete suite with real planets and space platforms"
-run = "bun mise-tasks/test.mjs space-age"
+[tasks.perf-compare]
+description = "Qualify and compare two explicit performance run IDs without launching Factorio"
+run = "bun tools/cli.ts perf-compare"
 
 [tasks.test-ui]
-depends = ["setup-tests"]
-description = "Render a native UI gallery in an isolated locale profile"
-usage = '''arg "language" default="en"'''
-run = "bun mise-tasks/native-preview.mjs native ${usage_language}"
+description = "Run native UI assertions for an explicit mod; select --language"
+run = "bun tools/cli.ts test-ui"
 
 [tasks.gallery]
-depends = ["setup-tests"]
-description = "Render five native gallery candidates at 1920x1080 with 125% UI scale"
-usage = '''arg "language" default="en"'''
-run = "bun mise-tasks/native-preview.mjs gallery ${usage_language}"
-
-[tasks.native-preview]
-description = "Alias for the FactorioTest native UI suite"
-usage = '''arg "language" default="en"'''
-run = "mise run test-ui -- ${usage_language}"
+description = "Render a mod's native Extreme-quality gallery; select --language"
+run = "bun tools/cli.ts gallery"
 
 [tasks.verify]
-depends = ["setup"]
-description = "Audit release identity, locales, Lua tooling, checkpoint safety, and both engine profiles"
-run = ["git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol diff --check HEAD", "bun mise-tasks/audit.mjs", {task = "lint"}, {task = "format-check"}, {task = "typecheck"}, "bun test mise-tasks", {task = "test"}]
+description = "Verify one explicit mod or --all with source-bound coverage"
+run = "bun tools/cli.ts verify"
+
+[tasks.runs]
+description = "Read registered workspace/mod run state; --active, --run or cursor-based listing"
+run = "bun tools/cli.ts runs"
+
+[tasks.logs]
+description = "Read bounded run logs for an explicit mod or --workspace; --follow never controls the producer"
+run = "bun tools/cli.ts logs"
+
+[tasks.studio]
+description = "Run, inspect, capture and promote an isolated source-backed tuning session"
+run = "bun tools/cli.ts studio"
 
 [tasks.package]
-description = "Build the release ZIP from info.json and validate its contents"
-run = "uv run --no-project python -B mise-tasks/package.py"
+description = "Build and validate the deterministic release ZIP for an explicit mod"
+run = "bun tools/cli.ts package"
 
 [tasks.mod-status]
 description = "Read one mod's installed archives and enabled state in the normal Factorio profile"
-usage = '''arg "mod"'''
-run = 'bun mise-tasks/local-mod.mjs status "${usage_mod}"'
+run = "bun tools/cli.ts mod-status"
 
 [tasks.mod-load]
 description = "Install a local ZIP for normal play, backing up the selected save and previous mod state"
-usage = '''
-arg "archive"
-arg "save" help="Exact filename in the normal saves directory, or its absolute path"
-'''
-run = 'bun mise-tasks/local-mod.mjs load "${usage_archive}" --save "${usage_save}"'
+run = "bun tools/cli.ts mod-load"
 
 [tasks.mod-unload]
 description = "Disable one mod without deleting its archive; back up the selected save first"
-usage = '''
-arg "mod"
-arg "save"
-'''
-run = 'bun mise-tasks/local-mod.mjs unload "${usage_mod}" --save "${usage_save}"'
+run = "bun tools/cli.ts mod-unload"
 
 [tasks.mod-restore]
 description = "Restore the exact mod state recorded in a deployment receipt without overwriting saves"
-usage = '''arg "receipt"'''
-run = 'bun mise-tasks/local-mod.mjs restore "${usage_receipt}"'
+run = "bun tools/cli.ts mod-restore"
 
 [tasks.package-smoke]
-description = "Load the actual release ZIP in both engine profiles with FactorioTest disabled"
-depends = ["setup-tests", "package"]
-run = "bun mise-tasks/package-smoke.mjs"
+description = "Build and smoke an explicit mod's exact release ZIP in its declared profiles"
+run = "bun tools/cli.ts package-smoke"
 
 [tasks.release-version]
-description = "Set a newer local version and prepend an authored changelog note; never publishes"
-usage = '''
-arg "version" help="New Factorio mod version, e.g. 1.0.1"
-arg "note" help="Single-line changelog note"
-'''
-run = 'bun mise-tasks/release.mjs version "${usage_version}" "${usage_note}"'
+description = "Set an explicit mod's newer version and authored changelog note; never publishes"
+run = "bun tools/cli.ts release-version"
 
 [tasks.release-prepare]
 description = "Verify, smoke the ZIP, render fresh UI/gallery, and seal a local release bundle"
-usage = '''arg "language" default="en"'''
-run = 'bun mise-tasks/release.mjs prepare "${usage_language}"'
+run = "bun tools/cli.ts release-prepare"
 
 [tasks.release-status]
 description = "Read live Portal version/gallery and compare the prepared bundle; never publishes"
-run = "bun mise-tasks/release.mjs status"
+run = "bun tools/cli.ts release-status"
 
 [tasks.release-publish]
 description = "PUBLISH the exact prepared version, replace its listing gallery, and sync listing copy"
-usage = '''arg "version" help="Exact prepared version authorized for publication"'''
-run = 'bun mise-tasks/release.mjs publish "${usage_version}"'
+run = "bun tools/cli.ts release-publish"
 
 [tasks.gallery-publish]
-description = "PUBLISH only the prepared two-image gallery for the latest Portal version"
-usage = '''arg "version" help="Exact prepared and latest Portal version"'''
-run = 'bun mise-tasks/release.mjs gallery "${usage_version}"'
+description = "PUBLISH only the prepared gallery for the exact latest Portal ZIP"
+run = "bun tools/cli.ts gallery-publish"
 
 [tasks.listing-publish]
 description = "PUBLISH only prepared listing fields for the latest Portal version"
-usage = '''arg "version" help="Exact prepared and latest Portal version"'''
-run = 'bun mise-tasks/release.mjs listing "${usage_version}"'
+run = "bun tools/cli.ts listing-publish"
+
+[tasks.checkpoint]
+description = "Verify every mod and commit the whole worktree locally; never pushes"
+run = "bun tools/cli.ts checkpoint"
 
 [tasks.vac]
-description = "Verify, stage all changes, commit, and best-effort push the current branch"
-usage = '''
-arg "message" help="Descriptive checkpoint commit message"
-'''
-run = "bun mise-tasks/checkpoint.mjs"
+description = "Verify every mod, commit the whole worktree, and explicitly push the exact verified commit"
+run = "bun tools/cli.ts vac"

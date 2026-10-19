@@ -1,6 +1,7 @@
 local flags = {
     action = "py-research-dossier-flag",
     path = "py-research-dossier/flags.jsonl",
+    ---@type DossierKind[]
     kinds = { "item", "recipe", "fluid", "entity", "technology", "tile" },
     reasons = { "expand", "missing", "change" },
 }
@@ -18,15 +19,26 @@ for _, entry in ipairs(require("dossier.catalog")(script.active_mods, settings.s
 end
 
 -- Both native hover identification and explicit pickers enter through this boundary.
+---@param kind string?
+---@param name any
+---@return_overload nil, nil
+---@return_overload DossierTarget, DossierPrototype
 function flags.resolve(kind, name)
     if not supported[kind] or type(name) ~= "string" then
         return nil
     end
+    ---@cast kind DossierKind
     local prototype = prototypes[kind][name]
     if not prototype then
         return nil
     end
-    local subtype = (kind == "item" or kind == "entity") and prototype.type or kind
+    ---@type string
+    local subtype = kind
+    if kind == "item" or kind == "entity" then
+        -- The discriminator selected the same prototype map above.
+        ---@cast prototype -LuaRecipePrototype, -LuaFluidPrototype, -LuaTechnologyPrototype, -LuaTilePrototype
+        subtype = prototype.type
+    end
     return { base_type = kind, type = subtype, name = name, id = subtype .. "/" .. name }, prototype
 end
 
