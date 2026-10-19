@@ -95,6 +95,9 @@ Explicit dependency provisioning downloads missing pins using existing local Mod
 - `mise run setup`: prepare the shared tools without starting a game.
 - `mise run lint -- <mod>` and `mise run typecheck -- <mod>`: Factorio-aware Lua checks. Use the shared `format`/`format-check` commands above for authored-source formatting.
 - `mise run package -- <mod>`: build and verify a deterministic ZIP in that mod's isolated output tree, with exact member hashes.
+  - ZIPs use pinned yauzl/yazl and native CRC in the shared Effect-owned archive boundary. Default mod limits are 256 MiB compressed, 512 MiB expanded, 10,000 entries and 1,024-byte member names; unsafe paths, duplicate/file-directory collisions, links/special files, encryption, unsupported compression, inconsistent headers and changed sources fail closed. Partial writes are removed before cancellation completes.
+  - Package receipt schema 2 records yazl, Bun version/revision and the compression-engine identity, not fabricated Python provenance. Sorted members, fixed DOS metadata and exact source/readback hashes make output reproducible within the pinned toolchain; ZIP bytes need not equal Python's compressor. Historical schema-1 receipts remain historical and are not upgraded through a compatibility fallback.
+  - Supplied gzip/tar inputs use the same bounded policy with tar-stream and native gzip, validating every entry before consumers create files. Docker's checksum-pinned XZ engine archive still uses the existing supervised system `tar`; Bun does not supply XZ decompression.
 - `mise run package-smoke -- <mod>`: load the exact ZIP in its declared engine profiles with FactorioTest and test companions absent.
 - `mise run checkpoint -- "Describe the change"`: verify every mod and commit the whole worktree locally; never push.
 - `mise run vac -- "Describe the change"`: the explicit source-publishing counterpart described below; never a Mod Portal release.

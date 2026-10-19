@@ -535,11 +535,7 @@ export function mutateMod(
       archive: string | undefined;
     if (action === "load") {
       archive = yield* fs.realPath(target);
-      const result = yield* inspectArchive(
-        workspace,
-        archive,
-        yield* hashFile(archive),
-      );
+      const result = yield* inspectArchive(archive, yield* hashFile(archive));
       incoming = yield* decode(
         Incoming,
         {

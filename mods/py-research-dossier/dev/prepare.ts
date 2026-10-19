@@ -1,8 +1,7 @@
 import { Effect, FileSystem, Schema } from "effect";
 import { join, resolve } from "node:path";
 import { AbsolutePath, Sha256 } from "../../../tools/contracts.ts";
-import { runCommand } from "../../../tools/commands.ts";
-import { hashFile } from "../../../tools/files.ts";
+import { withZip } from "../../../tools/archives.ts";
 import {
   assertCanonicalPath,
   BoundaryError,
@@ -62,35 +61,54 @@ export function reviewSources(project: ResolvedProject, input: unknown) {
     };
     const files: Record<string, { mod: string; path: string; sha256: string }> =
       {};
+    const sources = new Map<string, Map<string, Buffer>>();
     function member(mod: string, path: string) {
       return Effect.gen(function* () {
         if (mod === "base")
           return yield* fs.readFileString(resolve(options.base, path));
-        const reviewed = game.reviewedMods[mod];
-        if (reviewed === undefined)
+        const bytes = sources.get(mod)?.get(path);
+        if (bytes === undefined)
           return yield* Effect.fail(
             new BoundaryError({
               boundary: mod,
-              message: "Source file refers to an unreviewed mod",
+              message: "Source file is absent from its reviewed archive",
             }),
           );
-        return (yield* runCommand(project, "review-source-member", [
-          "unzip",
-          "-p",
-          resolve(options.mods, reviewed.archive),
-          `${reviewed.root}/${path}`,
-        ])).stdout;
+        return yield* Effect.try({
+          try: () =>
+            new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+              bytes,
+            ),
+          catch: () =>
+            new BoundaryError({
+              boundary: path,
+              message: "Reviewed source is not UTF-8",
+            }),
+        });
       });
     }
     for (const [name, reviewed] of Object.entries(game.reviewedMods)) {
       const path = resolve(options.mods, reviewed.archive);
-      if ((yield* hashFile(path)) !== reviewed.sha256)
-        return yield* Effect.fail(
-          new BoundaryError({
-            boundary: path,
-            message: "Source archive differs from the reviewed checksum",
+      const wanted = new Set([
+        "info.json",
+        ...Object.values(game.files)
+          .filter((file) => file.mod === name)
+          .map((file) => file.path),
+      ]);
+      const selected = yield* withZip(
+        { archive: path, sha256: reviewed.sha256 },
+        (zip) =>
+          Effect.gen(function* () {
+            const bytes = new Map<string, Buffer>();
+            for (const member of wanted)
+              bytes.set(
+                member,
+                yield* zip.read(`${reviewed.root}/${member}`, 8 * 1024 * 1024),
+              );
+            return bytes;
           }),
-        );
+      );
+      sources.set(name, selected);
       const info = yield* decodeJSON(
         Identity,
         new TextEncoder().encode(yield* member(name, "info.json")),

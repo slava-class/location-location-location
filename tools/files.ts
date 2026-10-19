@@ -9,10 +9,13 @@ import {
   RelativePath,
 } from "./projects.ts";
 import { withOwnedLock } from "./locks.ts";
-export function hashFile(path: string) {
+export function hashFile(
+  path: string,
+  algorithm: "sha256" | "sha1" = "sha256",
+) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem,
-      hash = new Bun.CryptoHasher("sha256");
+      hash = new Bun.CryptoHasher(algorithm);
     yield* Stream.runForEach(fs.stream(path), (bytes) =>
       Effect.sync(() => {
         hash.update(bytes);

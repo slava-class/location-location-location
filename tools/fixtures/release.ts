@@ -148,16 +148,18 @@ export async function releaseFixture(
   };
   await writeFile(join(directory, archive.file), archiveBytes);
   const artifact = {
-    schema: 1,
+    schema: 2,
     mod,
     archive: join(directory, archive.file),
     sha256: archive.sha256,
     sha1: archive.sha1,
     files: {},
     compression: {
-      implementation: "python-zipfile",
-      python: "3.13.11",
-      zlib: "1.2.12",
+      implementation: "yazl",
+      version: "3.3.1",
+      bun: Bun.version,
+      bunRevision: Bun.revision,
+      zlib: process.versions.zlib,
       method: "deflate",
       level: 9,
     },

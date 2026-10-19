@@ -458,7 +458,6 @@ export function withStudioReload<A, E, R>(
       "base",
       "en",
       {
-        schema: 1,
         archive: join(
           prior.directory,
           "mods",

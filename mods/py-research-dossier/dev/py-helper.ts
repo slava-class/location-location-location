@@ -2,7 +2,7 @@ import { Effect, FileSystem, Schema } from "effect";
 import { join } from "node:path";
 import * as luaparse from "luaparse";
 import { PinnedFile, Sha256 } from "../../../tools/contracts.ts";
-import { runCommand } from "../../../tools/commands.ts";
+import { readTar } from "../../../tools/tar.ts";
 import { provisionPinnedFile, verifyPinnedFile } from "../../../tools/files.ts";
 import { getBytes } from "../../../tools/network.ts";
 import {
@@ -133,14 +133,31 @@ export function provisionPyHelper(project: ResolvedProject) {
             redirects: false,
           }),
         );
-        const source = yield* runCommand(project, "py-helper-source", [
-          "tar",
-          "-xOf",
-          archive.path,
-          member,
-        ]);
+        const files = yield* readTar(
+          { pin: archive, root: `pypostprocessing-${upstream.commit}` },
+          (entry) => entry.name === member,
+        );
+        const bytes = files.get(member);
+        if (bytes === undefined)
+          return yield* Effect.fail(
+            new BoundaryError({
+              boundary: member,
+              message: "Pinned source archive has no unique reviewed helper",
+            }),
+          );
+        const source = yield* Effect.try({
+          try: () =>
+            new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+              bytes,
+            ),
+          catch: () =>
+            new BoundaryError({
+              boundary: member,
+              message: "Reviewed helper is not UTF-8",
+            }),
+        });
         return new TextEncoder().encode(
-          yield* extractDescriptionHelper(source.stdout),
+          yield* extractDescriptionHelper(source),
         );
       }),
     );

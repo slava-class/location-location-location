@@ -21,23 +21,18 @@ export const ElapsedMs = Schema.Number.check(
   Schema.isBetween({ minimum: 0, maximum: Number.MAX_VALUE }),
 );
 export const ModIdentity = Schema.Struct({ name: ModId, version: Version });
-export const PackageRequest = Schema.Struct({
-  schema: Schema.Literal(1),
-  modRoot: AbsolutePath,
-  outputDirectory: AbsolutePath,
-  info: Info,
-  members: Schema.Array(RelativePath),
-});
 export const PackageResult = Schema.Struct({
-  schema: Schema.Literal(1),
+  schema: Schema.Literal(2),
   mod: ModIdentity,
   archive: AbsolutePath,
   sha256: Sha256,
   sha1: Sha1,
   files: Schema.Record(RelativePath, Sha256),
   compression: Schema.Struct({
-    implementation: Schema.Literal("python-zipfile"),
-    python: Schema.NonEmptyString,
+    implementation: Schema.Literal("yazl"),
+    version: Schema.Literal("3.3.1"),
+    bun: Schema.NonEmptyString,
+    bunRevision: Schema.NonEmptyString,
     zlib: Schema.NonEmptyString,
     method: Schema.Literal("deflate"),
     level: Schema.Literal(9),
@@ -94,8 +89,7 @@ export const TypesResult = Schema.Struct({
   library: AbsolutePath,
   dependencies: Schema.Array(AbsolutePath),
 });
-export const ArchiveRequest = Schema.Struct({
-  schema: Schema.Literal(1),
+export const ArchiveIdentity = Schema.Struct({
   archive: AbsolutePath,
   sha256: Sha256,
 });

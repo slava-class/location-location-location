@@ -2,7 +2,7 @@ import { Effect, FileSystem, Schema } from "effect";
 import { join } from "node:path";
 import {
   AbsolutePath,
-  ArchiveRequest,
+  ArchiveIdentity,
   ModIdentity,
   Sha256,
 } from "./contracts.ts";
@@ -101,7 +101,7 @@ function resolveClosure(
   project: ResolvedProject,
   engine: ResolvedEngine,
   profile: ProfileName,
-  artifact: typeof ArchiveRequest.Type,
+  artifact: typeof ArchiveIdentity.Type,
   companions: readonly Companion[],
   purpose: typeof VerificationPurpose.Type,
 ) {
@@ -133,19 +133,14 @@ function resolveClosure(
       constraints: { owner: string; requirement: Requirement }[] = [];
     for (const entry of [{ project, artifact }, ...companions]) {
       const input = yield* decode(
-        ArchiveRequest,
+        ArchiveIdentity,
         {
-          schema: entry.artifact.schema,
           archive: entry.artifact.archive,
           sha256: entry.artifact.sha256,
         },
         "profile artifact",
       );
-      const packaged = yield* inspectArchive(
-        entry.project,
-        input.archive,
-        input.sha256,
-      );
+      const packaged = yield* inspectArchive(input.archive, input.sha256);
       if (
         packaged.mod.name !== entry.project.info.name ||
         packaged.mod.version !== entry.project.info.version ||
@@ -214,7 +209,7 @@ function resolveClosure(
       } else {
         const pin = yield* dependencyPin(requirement.name),
           path = yield* resolveDependency(project, pin);
-        const metadata = yield* inspectArchive(project, path, pin.sha256);
+        const metadata = yield* inspectArchive(path, pin.sha256);
         if (
           metadata.mod.name !== pin.name ||
           metadata.mod.version !== pin.version
@@ -255,7 +250,7 @@ export function prepareProfile(
   engine: ResolvedEngine,
   profile: ProfileName,
   language: string,
-  artifact: typeof ArchiveRequest.Type,
+  artifact: typeof ArchiveIdentity.Type,
   companions: readonly Companion[],
   purpose: typeof VerificationPurpose.Type,
 ) {

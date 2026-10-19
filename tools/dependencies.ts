@@ -389,7 +389,7 @@ export function provisionDependencies(
           ? undefined
           : join(archivesDirectory, `${selected.name}_${selected.version}.zip`),
       );
-      const metadata = yield* inspectArchive(project, path, selected.sha256);
+      const metadata = yield* inspectArchive(path, selected.sha256);
       if (
         metadata.mod.name !== selected.name ||
         metadata.mod.version !== selected.version

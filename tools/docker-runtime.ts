@@ -6,6 +6,7 @@ import { DockerRuntime, dockerSettings, dockerCacheSuffix } from "./backend.ts";
 import { dockerConnection } from "./docker.ts";
 import { hashFile, inventoryFiles } from "./files.ts";
 import { runCommand } from "./commands.ts";
+import { withZip } from "./archives.ts";
 import { withOwnedLock } from "./locks.ts";
 import { getBytes } from "./network.ts";
 import {
@@ -274,14 +275,21 @@ export function provisionDockerRuntime(
             "-C",
             stage,
           ]);
-          yield* runCommand(context, "extract-linux-bun", [
-            "unzip",
-            "-q",
-            join(stage, pins.bun.file),
-            "bun-linux-aarch64/bun",
-            "-d",
-            stage,
-          ]);
+          yield* withZip(
+            { archive: join(stage, pins.bun.file), sha256: pins.bun.sha256 },
+            (zip) =>
+              Effect.gen(function* () {
+                yield* zip.verifyAll;
+                const executable = yield* zip.read(
+                  "bun-linux-aarch64/bun",
+                  256 * 1024 * 1024,
+                );
+                yield* prepareOutputDirectory(join(stage, "bun-linux-aarch64"));
+                const target = join(stage, "bun-linux-aarch64/bun");
+                yield* fs.writeFile(target, executable, { flag: "wx" });
+                yield* fs.chmod(target, 0o755);
+              }),
+          );
           const files = yield* inventoryFiles(stage, [
             "factorio",
             "bun-linux-aarch64",

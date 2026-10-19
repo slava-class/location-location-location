@@ -9,7 +9,6 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runCommand } from "./commands.ts";
 import { runFiles } from "./fixtures/release.ts";
 import { packageProject } from "./packaging.ts";
 import { prepareProfile } from "./profiles.ts";
@@ -25,11 +24,6 @@ afterEach(async () => {
 async function fixture() {
   const root = await realpath(await mkdtemp(join(tmpdir(), "modkit-profile-")));
   roots.push(root);
-  await mkdir(join(root, "tools"));
-  for (const file of [".python-version", "pyproject.toml", "uv.lock"])
-    await copyFile(join(import.meta.dir, "..", file), join(root, file));
-  for (const file of ["helper_protocol.py", "package.py", "inspect-archive.py"])
-    await copyFile(join(import.meta.dir, file), join(root, "tools", file));
   const info: typeof Info.Type = {
     name: "probe",
     version: "1.0.0",
@@ -56,16 +50,6 @@ async function fixture() {
     return runFiles(resolveProject(root, value.name, root));
   }
   const project = await source(info);
-  await runFiles(
-    runCommand(project, "fixture-python-setup", [
-      "uv",
-      "sync",
-      "--offline",
-      "--locked",
-      "--project",
-      root,
-    ]),
-  );
   const readData = join(root, "engine-data");
   await mkdir(join(readData, "base/locale/en"), { recursive: true });
   await writeFile(
@@ -111,7 +95,6 @@ test("an exact frozen archive stages without fabricated build or compression pro
       "base",
       "en",
       {
-        schema: 1,
         archive: built.archive,
         sha256: built.sha256,
       },
