@@ -1,5 +1,7 @@
 local underground_appearance = require("reversed_underground_belt_detector.appearance")
 local underground_preferences = require("reversed_underground_belt_detector.underground_preferences")
+local warning_planner = require("reversed_underground_belt_detector.warning_planner")
+local undergrounds = require("reversed_underground_belt_detector.undergrounds")
 ---@type defines.transport_line[]
 local belt_lanes = { defines.transport_line.left_line, defines.transport_line.right_line }
 ---@type defines.transport_line[]
@@ -46,6 +48,7 @@ describe("underground native", function()
         assert(player.force.chart)(surface, { { -32, -32 }, { 32, 32 } })
     end)
     after_all(function()
+        assert(player.cursor_stack).clear()
         settings.get_player_settings(player)[underground_preferences.alert_setting] = { value = original_alerts }
         settings.get_player_settings(player)[underground_preferences.overlay_setting] = { value = original_overlay }
     end)
@@ -329,6 +332,111 @@ describe("underground native", function()
             local until_peak = underground_appearance.pulse_period - game.tick % underground_appearance.pulse_period
             after_ticks(until_peak, function()
                 capture(0)
+            end)
+        end)
+    end)
+    test("02 warning-planner", function()
+        async(240)
+        local surface = player.surface
+        ---@type LuaEntity[][]
+        local rows = {}
+        for _, x in ipairs({ -7, 2 }) do
+            local row = {}
+            for index, offset in ipairs({ -1, 0, 4, 5 }) do
+                local mouth = index == 2 or index == 3
+                row[index] = assert(surface.create_entity({
+                    name = mouth and "underground-belt" or "transport-belt",
+                    position = { x + offset + 0.5, 24.5 },
+                    force = player.force,
+                    direction = mouth and defines.direction.west or defines.direction.east,
+                    type = mouth and (index == 2 and "output" or "input") or nil,
+                    raise_built = true,
+                }))
+            end
+            rows[#rows + 1] = row
+        end
+        local first_row, second_row = assert(rows[1]), assert(rows[2])
+        local intentional_mouth = assert(first_row[2])
+        local intentional_partner = assert(first_row[3])
+        local active_mouth = assert(second_row[2])
+        player.clear_selected_entity()
+        assert(player.teleport({ 0, 24.5 }, surface))
+        settings.get_player_settings(player)[underground_preferences.overlay_setting] = { value = "off" }
+        local cursor = assert(player.cursor_stack)
+        assert(cursor.set_stack({ name = warning_planner.name }))
+        after_ticks(2, function()
+            local warnings = assert(storage.reversed_underground_belt_detector).warnings
+            local intentional_id = assert(intentional_mouth.unit_number)
+            local active_id = assert(active_mouth.unit_number)
+            local active = assert(warnings[active_id])
+            assert(
+                assert(active.steady).sprite.visible,
+                "The planner must reveal active warnings even with overlays off"
+            )
+            local event = defines.events.on_player_selected_area
+            undergrounds.events[event]({
+                name = event,
+                player_index = player.index,
+                entities = { intentional_partner },
+                item = warning_planner.name,
+            })
+            after_ticks(2, function()
+                local acknowledged_warning = assert(warnings[intentional_id])
+                local untouched_warning = assert(warnings[active_id])
+                local marker = assert(acknowledged_warning.intentional_marker)
+                local marker_id = marker.id
+                assert(marker.valid and marker.visible and marker.sprite == "utility/check_mark_white")
+                local viewers = assert(marker.players)
+                assert(assert(viewers[1]).index == player.index)
+                assert(
+                    not acknowledged_warning.sprite.visible
+                        and not acknowledged_warning.span
+                        and not acknowledged_warning.steady
+                )
+                assert(player.gui.top[warning_planner.name])
+                assert(assert(untouched_warning.steady).sprite.visible)
+                game.take_screenshot({
+                    player = player,
+                    resolution = { player.display_resolution.width, player.display_resolution.height },
+                    zoom = 2,
+                    show_gui = true,
+                    show_entity_info = true,
+                    path = "release-ui/02-warning-planner.png",
+                })
+                -- Screenshot rendering is deferred; keep this state intact
+                -- until the engine has rendered the requested frame.
+                after_ticks(2, function()
+                    assert(player.clear_cursor())
+                    after_ticks(2, function()
+                        local hidden_warning = assert(warnings[intentional_id])
+                        local hidden_active = assert(warnings[active_id])
+                        assert(not rendering.get_object_by_id(marker_id) and not hidden_warning.intentional_marker)
+                        assert(not player.gui.top[warning_planner.name])
+                        assert(
+                            not hidden_active.sprite.visible and not hidden_active.steady,
+                            "Putting away the planner restores off mode"
+                        )
+                        assert(cursor.set_stack({ name = warning_planner.name }))
+                        after_ticks(2, function()
+                            local undo = defines.events.on_player_alt_selected_area
+                            undergrounds.events[undo]({
+                                name = undo,
+                                player_index = player.index,
+                                entities = { intentional_mouth },
+                                item = warning_planner.name,
+                            })
+                            local restored_warning = assert(warnings[intentional_id])
+                            local restored_active = assert(warnings[active_id])
+                            assert(not restored_warning.acknowledged and not restored_warning.intentional_marker)
+                            assert(
+                                assert(restored_warning.steady).sprite.visible
+                                    and assert(restored_active.steady).sprite.visible
+                            )
+                            assert(player.clear_cursor())
+                            done()
+                        end)
+                    end)
+                end)
             end)
         end)
     end)

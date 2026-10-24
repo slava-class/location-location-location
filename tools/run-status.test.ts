@@ -127,6 +127,7 @@ test("exit zero stays finalizing until matching complete engine proof arrives", 
     JSON.stringify({
       request,
       engine: result.engine,
+      graphics: result.graphics,
       source: result.source,
       directory: result.directory,
       inventorySha256: result.inventorySha256,
@@ -159,6 +160,10 @@ test("exit zero stays finalizing until matching complete engine proof arrives", 
   );
   expect(qualifiedLog.complete).toBe(true);
   expect(qualifiedLog.run.proof).toBe("passed");
+  await writeFile(path, JSON.stringify({ ...result, graphics: "low" }));
+  expect(
+    await runFiles(Effect.flip(readRun(fixture.project, input.runId))),
+  ).toBeInstanceOf(BoundaryError);
   await writeFile(
     path,
     JSON.stringify({
@@ -178,6 +183,7 @@ test("exit zero stays finalizing until matching complete engine proof arrives", 
     JSON.stringify({
       request,
       engine: result.engine,
+      graphics: result.graphics,
       source: result.source,
       directory: result.directory,
       inventorySha256: result.inventorySha256,

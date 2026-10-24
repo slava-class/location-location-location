@@ -1,0 +1,341 @@
+{
+  "schema": 1,
+  "profiles": ["base", "space-age", "py-hardmode", "native", "gallery"],
+  "cases": [
+    {
+      "path": "tests.pointer > empty ground pointer > native ground selection clears helpers without changing their population",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.pointer > empty ground pointer > real entities building mining blueprints and deconstruction ignore helpers",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.pointer > empty ground pointer > viewport changes are bounded and disabled contexts remove every helper",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.pointer > empty ground pointer > sampled ground focus moves recipe coverage without a helper anchor",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > capacity follows native transfers research hand limits and ghosts",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > custom reach quality and unsupported belt stacks stay explicit",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > profile inserters match real inventory transfers",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > belt geometry estimates match unobstructed native delivery",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > valid endpoints are independent of stock and missing endpoints refresh",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > ground handoffs survive ignored hosts and fluid drills have no item warning",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > fluid diagnostics distinguish connection obstruction and mismatch",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > warning modes budgets and cleanup preserve player isolation",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.diagnostics > capacity and connections > capacity label stays centred and clears independently of warnings",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > recipe identity is not its first product",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > recipe rendering preserves resolved native size and shift",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > ghost recipe and requested modules retain separate quality",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > module ingredients are not mislabelled as installation requests",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > large native module grids stay inside their machine regions",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > lab contents preserve meaningful empty slots",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > storage contents and requested filters are not conflated",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > resolved enlarged storage is not module-clamped",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > inserter blacklist and quality filters remain distinct",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > splitter filters follow output lanes through rotation and priority changes",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > combinator operators signals and network choices are retained",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > fluid filters and actual amounts have different roles",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > ammunition icons do not depend on optional counts",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > robot cargo and repair inventories remain separate",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > native suppression and ALT prevent duplicate ordinary layers",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > accumulator charge remains independent of ordinary hover",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > large footprints are included at the exact edge",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > the boundary is circular rather than a square query",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > nearby presentation shows recipes without module contents",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > moving and rotating a real target recomputes footprint inclusion",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > retained focus keeps recipes visible across empty gaps and changed anchors",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > live focus choices preserve gaps expire grace and release immediate selection",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.nearby > nearby recipe semantics > retained focus respects visibility panels ALT surface and anchor removal",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > stationary recipe and inventory changes replace owned presentation",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > automatic furnace recipes come from the native machine",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > target destruction and ghost revival retain no stale render objects",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > repeated enable disable cleanup preserves factory state",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > auto ALT preserves both initial states and releases its own lease",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > manual ALT choice wins through a continuous relevant-tool session",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.lifecycle > presentation lifecycle > observable external ALT changes relinquish ownership",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > startup categories jointly suppress only owned public connections",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > resolved ports distinguish directions filters and actual fluid without temperature labels",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > connected pipe icons share native anchors through rotation replacement and ALT",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > rotation mirroring and asymmetric layouts follow resolved runtime geometry",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > ghost filters survive rotation and revival without fabricated contents",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > native category fixtures expose every available category",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > stationary recipe changes and clearing update owned detail",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > quiet construction follows selection and clears after selection loss",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > background modes work without ALT and detail is not duplicated with ALT",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > envelope uses footprint edges and selected targets remain eligible outside it",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > dense construction discovery completes without truncation or budget overruns",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > held previews transform marker orientation and omit asymmetric diagrams",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > blocked views force changes and destruction clean only this fluid layer",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.fluids > fluid semantics > force visibility and viewed surfaces do not leak fluid information",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > constant sections and selector operations preserve configured signals",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > electrical information reports real network power in watts",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > resource icons expose native extracted items and fluids",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > flamethrower fuel remains available without ordinary hover",
+      "passedIn": ["base", "space-age", "py-hardmode"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.inspection > exact inspection > Space Age collection cargo seeds and targeting are retained",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.native_preview > native presentation > hover nearby recipes and cleanup",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "py-hardmode", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native presentation > configuration and large module geometry",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "py-hardmode", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > native presentation > live experiments preserve world inspection and canonical preferences",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "py-hardmode", "gallery"]
+    },
+    {
+      "path": "tests.native_fluids > native presentation > fluid construction context",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "py-hardmode", "gallery"]
+    },
+    {
+      "path": "tests.native_gallery > portal gallery > unlocked refinery context",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "py-hardmode", "native"]
+    }
+  ]
+}

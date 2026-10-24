@@ -35,13 +35,17 @@ Mise pins Trunk's JavaScript launcher separately from the native CLI version in 
 
 Trunk's exit zero means “no new issues,” not necessarily clean source. Our verifier also rejects existing issues and incomplete or unsupported summaries. It does not accept `.trunk/user.yaml` overrides, cached success or a changed source snapshot. It re-enumerates the selection afterward, including after failure/cancellation, so additions and deletions cannot hide behind unchanged hashes of the original files. Native diagnostics and final subprocess state remain in the reported run directory; stdout stays machine-readable on failure.
 
+Whole-workspace quality commands use native `trunk check --all` / `trunk fmt --all`, not hundreds of filename arguments. The independently enumerated Git inventory includes non-ignored untracked files, is hashed before and after, and must match Trunk's checked-file count. Checks include assets; formatting selects only formatter-supported sources. Single-mod commands retain explicit selected/shared/companion paths; they do not silently check unrelated mods.
+
 Quality commands hold one workspace-wide ownership lock, including when selecting different mods. An overlapping invocation fails busy rather than racing a formatter, stealing the lock or retrying. Inspect the recorded owner before recovering an interrupted lock.
 
 Local checks deliberately omit Trunk's `--ci`, which can stop its shared daemon and disrupt another active client. Keep the ordinary owned-process-group policy; the toolkit must not shut down an unrelated developer/editor daemon.
 
 Knip runs once through the always-selected `.config/knip.ts`, with the selected source inventory passed explicitly. Its findings can point into other selected files; the trigger does not restrict checking to that config. This avoids a virtual project-root target inflating Trunk's checked-file count.
 
-`defineProjectTooling` is the intentional public extension API. A product may export `dev/tooling.ts` with typed `setup`, `audit` and/or `command` operations; the shared boundary supplies owned Effect services and cancellation. Only explicit setup invokes provisioning; help loads definitions without running those operations. Product commands use Effect CLI through `mise run project -- <mod> -- <command> [options]`, not another shell/task runner. Selected-mod analysis may exclude other product consumers, so the API's explicit `@public` declaration follows Knip's contract without broadening the selected source closure.
+`ProjectTooling` is the schema-derived public extension type. A product may export an object from `dev/tooling.ts` using `satisfies ProjectTooling`, with Effect-returning `setup`, `audit` and/or `command` operations. Only explicit setup invokes provisioning; help loads definitions without running those operations. Product commands use Effect CLI through `mise run project -- <mod> -- <command> [options]`, not another shell/task runner. Selected-mod analysis may exclude other product consumers, so the type's explicit `@public` declaration follows Knip's contract without broadening the selected source closure.
+
+All three hooks execute through `invokeProjectTool` in the caller's Effect runtime. That single boundary supplies platform services and validates both the returned Effect and its `undefined` result; cancellation, parent/child log links and announcement presentation inherit naturally. No Promise adapter or nested runtime is needed, and quiet presentation never suppresses persisted diagnostics.
 
 Betterleaks uses local redacted detection with credential validation disabled. Automatic Git hooks, cloud result uploads and online dependency-advisory scans are not part of these commands. Local-link checking deliberately does not crawl HTTP URLs or validate heading anchors.
 
@@ -54,6 +58,7 @@ Betterleaks uses local redacted detection with credential validation disabled. A
 | Knip                   | `.config/knip.ts`, selected with [`--config`](https://knip.dev/reference/cli). Paths in the selected inventory remain repository-relative.                                                                                                          |
 | Betterleaks            | `.config/betterleaks.toml`, selected with `--config`; credential validation stays disabled.                                                                                                                                                         |
 | Lua analysis           | `.config/emmy.json` and `.config/workshop-luacheck.lua` own shared policy. The product contracts described below retain scoped exceptions.                                                                                                          |
+| Factorio dependencies  | `.config/factorio-dependencies.json`, validated by the shared Effect Schema boundary. Pins are workspace-owned; a product's declared profiles determine which verification closure is provisioned.                                                  |
 | Root discovery anchors | `tsconfig.json`, `.editorconfig`, `.gitignore`, `package.json` and `bun.lock` retain their native project/editor/Git roles. Trunk already lives in `.trunk/trunk.yaml`.                                                                             |
 | Oxc                    | `.oxlintrc.json` and `.oxfmtrc.json` remain at the root: their ignore patterns are config-relative. Moving them under `.config/` would change which source is excluded.                                                                             |
 
@@ -73,7 +78,7 @@ Use Mise, a C compiler, and an explicitly compatible Factorio executable. LLL de
 
 Bootstrap explicitly with `mise install`, then `mise exec -- bun install --frozen-lockfile`, then `mise run setup`. The first two commands provision the pinned binaries and the one root Bun dependency installation; the canonical Effect CLI must be installed before it can parse commands. `setup` verifies the installed toolchain and prepares project-local Lua tools and API documents without starting Factorio. Mise automatic tool installation is disabled in this repository, and ordinary `verify` does not depend on `setup`. Help and malformed invocations reach the same Effect CLI without running dependency installation or allocating verification runs.
 
-Provision pinned mod archives separately with `mise run dependencies-provision -- <mod>` or `--all`. Engine-backed products receive their required external/companion closure and FactorioTest. Offline products receive only the shared Lua type libraries; receipts explicitly identify the `offline-tooling` scope and unprovisioned runtime requirements. This does not claim a runnable pY installation or fetch another product's runtime stack. Current reviewed pins include FactorioTest 3.1.0 and flib 0.17.2. Ordinary engine/profile/type callers only resolve and checksum-verify existing archives: a missing or corrupt cache fails without reading credentials or downloading a replacement.
+Provision pinned mod archives separately with `mise run dependencies-provision -- <mod>` or `--all`. Engine-backed products receive their required external/companion closure, declared verification-profile dependencies and FactorioTest. The `py-hardmode` profile explicitly selects Pyanodons Hard Mode and its required closure plus Enable All Feature Flags; Space Age remains a separate profile. Offline products receive only the shared Lua type libraries; receipts explicitly identify the `offline-tooling` scope and unprovisioned runtime requirements. This does not fetch another product's runtime stack or launch Polytechnic. Reviewed versions and checksums live in `.config/factorio-dependencies.json`. Ordinary engine/profile/type callers only resolve and checksum-verify existing archives: a missing or corrupt cache fails without reading credentials or downloading a replacement.
 
 `setup` provisions checksum-pinned Factorio API documents and Lua tool archives through Bun's bounded HTTPS boundary. Bun + Effect builds Lua tools from supplied local archives; type preparation consumes supplied API documents and invokes the pinned FMTK through the same owned-process/live-log boundary as the C compiler. Lua cache identity includes platform, source pins, Bun version/revision, builder/policy source bytes and `bun.lock`. Manifest schema 3 records the actual compiler and Lua executable hashes, Bun identity and every built file. Ordinary lint/type checks verify the complete inventory and executable permissions. Missing, extra, changed or aliased files fail without implicit rebuild or repair; old cache directories remain untouched and are not fallback inputs.
 Type overlays retain nullable dictionaries, product storage/flib types and the guarded GUI-index adapter. Generated types and caches are inputs to native Lua/EmmyLua consumers, not independent proof that runtime behavior is correct.
@@ -92,17 +97,21 @@ FACTORIO_NATIVE = "/absolute/path/to/standalone/factorio.app/Contents/MacOS/fact
 
 Explicit dependency provisioning downloads missing pins using existing local Mod Portal credentials. Alternatively use `mise run dependencies-provision -- <mod> --from /absolute/archive-directory`, containing exact `<name>_<version>.zip` files. Local selection never falls back to the network; already-valid cached inputs are reused, while damaged entries fail rather than being silently repaired. Per-archive locks and atomic installation prevent partial files from becoming valid inputs. Normal game saves, configuration and installed mods are untouched.
 
+Products may declare optional test roots in `dev.config.ts` as `verificationDependencies`. Explicit dependency provisioning resolves their reviewed pins; product-owned scenarios select those roots through `prepareProfile`, without enabling them in ordinary suites or independent package smoke. Undeclared/duplicate selections fail before run allocation. Session profiles may explicitly stage the exact product disabled for insertion/removal tests; suites, package smoke and performance lanes cannot disable their primary product. A selected dependency that requires the disabled product is an error, not an implicit re-enable.
+
 ## Commands
 
 - `mise run verify`: verify the whole workspace. `mise run verify -- <mod>` selects one product; `--all` remains an explicit workspace selector. Coverage includes source quality, whitespace, metadata/locale audit, project-aware Lua checks, toolkit/model tests, packaging, and all declared real-engine [FactorioTest](https://github.com/GlassBricks/FactorioTest) profiles. Offline-only projects must explicitly declare that narrower contract.
+  - Within one invocation, strict source quality and the complete toolkit suite each run once. Workspace verification checks the whole repository, including guidance and assets; a selected mod checks only its selected/shared/companion source closure. Each product retains its own toolchain, whitespace, audit, Lua, model, package, engine and final source-seal phases. Shared failures fail every dependent product; there are no retries or persisted check-result caches. All selected source identities are captured before shared checks start, so a later product cannot certify source changed after those checks.
+  - Within each product, toolchain and whitespace checks precede the inexpensive metadata audit, Lua lint and model tests, then Lua typechecking. Only then do the shared quality gate and toolkit suite run, followed by packaging, declared engine profiles and the final source seal. This reduces latency for targeted failures without skipping coverage. Products remain sequential: this is not a fleet-wide preflight wave or a promise that every possible error appears before any engine work.
 - `mise run verify -- --plan`: preview selected identities, capabilities, engine backends and phase order without checking prerequisites, sealing sources, allocating runs or launching processes. Accepts a mod selector or `--all`, but not both. `status: planned` is not verification evidence.
-- `mise run test -- <mod> --profile base` or `--profile space-age`: one declared engine profile.
+- `mise run test -- <mod> --profile base`, `--profile space-age` or `--profile py-hardmode`: one declared engine profile.
 - `test`, `test-ui`, `gallery`, `perf` and the read-only `resolve` command accept repeated `--companion <exact-mod-id>` options. These add to declared companions for that selection only; self, duplicate, missing, aliased and malformed targets fail before engine work. The source seal includes selected companions, and the receipt records the primary suite and actual mod set. Run each primary explicitly for coexistence; this never replaces standalone coverage or enables companions in independent `package-smoke`.
 - `mise run test-model -- <mod>`: deterministic Lua model tests without launching Factorio. For LLL these exercise planner and producer/consumer behavior; they do not prove native GUI or real-engine behavior.
 - `mise run project -- <mod> -- --help`: product-owned commands. Polytechnic exposes `generate`, `check`, `corpus`, `flags`, `progress`, `scope`, explicit `review-sources` and historical `replay`; all are offline. Its native annotation subprocesses use the shared `runs`/`logs` interface; the bounded in-process save reader returns exact input identity and typed failures without a helper subprocess.
-- `mise run test-ui -- <mod> --language de`: declared native assertion scenes, then close only the owned isolated window. LLL has nine planner scenes; the detector has its own warning scene, pulse frames and thumbnail capture. Both support en/de/fr/es-ES/ru/zh-CN. Locale names are exact; there is no `es` or `native-preview` alias.
+- `mise run test-ui -- <mod> --language de`: declared native assertion scenes at Low graphics, then close only the owned isolated window. Pass `--graphics extreme` for graphical fixes or final assets from these scenes. LLL has nine planner scenes; the detector has warning/planner scenes, pulse frames and a thumbnail candidate. Both support en/de/fr/es-ES/ru/zh-CN. Locale names are exact; there is no `es` or `native-preview` alias.
 - `mise run gallery -- <mod> --language en`: declared presentation scenes with Extreme graphics. LLL currently produces five 1920 × 1080 candidates at 125% UI scale and selects planner/source-survey images for its Portal gallery.
-  - The native window must actually fit the display's usable desktop area, including window decorations and the Dock. LLL native assertions require 1600 × 1000; gallery requires 1920 × 1080. A smaller/clamped viewport fails with expected and observed geometry rather than silently resizing assets, changing desktop settings, or accepting stale captures.
+  - Native assertions pin 75% UI scale; galleries pin 125%. The native window must actually fit the display's usable desktop area, including window decorations and the Dock. Native assertions require 1600 × 1000; galleries require 1920 × 1080. A smaller/clamped viewport or mismatched scale fails with expected and observed geometry rather than silently resizing assets, changing desktop settings, or accepting stale captures.
 - `mise run setup`: prepare the shared tools without starting a game.
 - `mise run lint -- <mod>` and `mise run typecheck -- <mod>`: Factorio-aware Lua checks. Use the shared `format`/`format-check` commands above for authored-source formatting.
 - `mise run package -- <mod>`: build and verify a deterministic ZIP in that mod's isolated output tree, with exact member hashes.
@@ -118,6 +127,70 @@ Explicit dependency provisioning downloads missing pins using existing local Mod
 - `mise run release-publish -- <mod> <version>`: **publish** that exact prepared version, replace any declared gallery selection, and synchronize prepared listing copy.
 - `mise run gallery-publish -- <mod> <version>`: **publish only the declared gallery**, without uploading a release ZIP or changing listing copy.
 - `mise run listing-publish -- <mod> <version>`: **publish only listing copy**, without uploading a ZIP or changing the gallery.
+
+### Verification output
+
+`verify`, `checkpoint` and `vac` emit concise human-readable progress on
+**stderr**: the active mod/phase, completed phase times in seconds, overall
+completed/total counts and terminal status. Stdout retains the final JSON report.
+`--plan` remains metadata-only JSON and emits no progress or verification work.
+
+Run verification as an ordinary OMP background Bash job (`async: true`, no PTY);
+use `timeout: 0` when the selected full coverage should have no outer deadline:
+
+```sh
+mise run verify -- --all
+mise run verify -- reversed-underground-belt-detector
+```
+
+OMP's existing job-widget mechanism reads that live stream and can render meters,
+per-project progress and status in the jobs display, hovercard and wait card in
+OMP+Tern. It chooses the widget layout from sampled output; this CLI does not
+install a widget spec, require a Tern SDK/handshake, or open another terminal tab.
+Widget availability and layout belong to OMP, not the verification verdict.
+
+The live view is a projection of the canonical schema-validated verification
+state, not a second event contract. `Phase <phase>: <seconds> s total` reports
+time spent in finished attempts across selected products, including failed or
+cancelled attempts. The canonical phase keys appear once in plan order with zero
+accrued time, then retain their identities as work finishes. Zero is not evidence
+of an executed or passed phase. The active phase and mod are announced separately;
+per-product timing detail stays in the receipts rather than growing the chart.
+
+Totals are derived from the existing timing state, not a separate accumulator.
+Recurring progress lines omit overall elapsed time so the chart does not become
+a monotonically rising wall-time plot. Overall wall time remains in the final
+report and the job UI's own clock. Reused workspace checks are labelled `Reused`
+and excluded from execution totals; their local wait/read cost remains in receipts.
+Completed/total phases are **counts, not a time estimate**; checks can have very
+different durations. Updates occur at state transitions, not by polling or
+per-item logging, and unchanged overall counters are not repeated.
+
+Verification receipts (schema 2) and the final JSON summary retain `timings` for
+each attempted phase: status, elapsed milliseconds, child run IDs and execution
+kind. `project` runs belong to the selected mod; `workspace` executes a shared
+check under `--workspace`; `shared` references that same workspace proof without
+rerunning it. Its duration is only the local wait/read cost, not another copy of
+the original work. Read those child logs with `mise run logs -- --workspace
+--run <id>`; ordinary project child logs retain their selected-mod target.
+
+Coarse timing is always enabled at the canonical phase boundary, including
+awaited operation completion and cleanup. It adds no per-item or engine hot-path
+probes. Phase times exclude progress/receipt writes around the operation; the
+whole-invocation elapsed time also includes source capture and orchestration.
+The current runner is sequential, so phase durations can be aggregated across
+products, but must not be added to their inclusive parent elapsed times. Historical
+schema-1 receipts lack these measurements and are not accepted as current proof;
+rerun verification rather than inventing timings.
+
+Progress projects persisted verification state, never console parsing or a second
+source of truth. Failed and cancelled checks do not become completed phases;
+unfinished products are not counted as finished. Prerequisite failures have no
+active phase. The process exit status and final report remain authoritative, and
+the existing Effect scope owns interruption and subprocess cleanup. Each product
+prints its qualified live-log command. Verbose child run records stay in the
+registered receipts and aggregate lifecycle logs rather than cluttering the
+progress stream; other commands retain their usual JSON run announcements.
 
 ## Offline fleet overview
 
@@ -218,7 +291,7 @@ Use a local desktop with graphical Factorio for preparation. A CI rollout needs 
 
 ## Engine backends
 
-Headless `test`, `package-smoke`, `verify` and release/checkpoint verification accept `--backend native|docker`; the default remains `native`. Docker is an explicit selection, never a failure fallback. Graphical tests and assets remain native standalone Factorio on Extreme.
+Headless `test`, `package-smoke`, `verify` and release/checkpoint verification accept `--backend native|docker`; the default remains `native`. Docker is an explicit selection, never a failure fallback. Graphical tests and assets remain native standalone Factorio: Low for routine tests, Extreme for graphical fixes and final assets.
 
 Provision Docker inputs explicitly, then run ordinary commands without runtime downloads:
 
@@ -239,7 +312,9 @@ Each owned container runs non-root with a read-only root, no network/ports, all 
 
 Every invocation owns a fresh directory under `.factorio-test/projects/<mod>/runs/<run-id>/`, with its mods, config, settings, observations, results, captures and diagnostic logs. Commands print exact live-log reader arguments. Headless suites retain framework JSON; native suites retain and validate actual framework PASS/FAIL records, since CLI 3.6 emits structured test events only headlessly. `verification.json` records the selected source, exact ZIP, engine identity, observations and complete expected case accounting.
 
-Profile preparation accepts the canonical checksum-pinned archive request, not a fabricated build receipt. It inspects the actual ZIP for product identity and dependency constraints, then verifies staged bytes and the loaded mod closure. Wrong product/version, changed bytes and dependencies incompatible with the selected engine fail; checkout metadata cannot override the archive's declared dependency floor. Build and release receipts retain their separately verified provenance.
+Profile preparation accepts the canonical checksum-pinned archive request, not a fabricated build receipt. It inspects the actual ZIP for product identity and dependency constraints, then verifies staged bytes and the loaded mod closure. Dependency archives may use either engine-valid single root, `<name>/` or `<name>_<version>/`; mixed roots, foreign names and contradictory versioned roots fail. Workshop package generation continues to emit the versioned form. Wrong product/version, changed bytes and dependencies incompatible with the selected engine fail; checkout metadata cannot override the archive's declared dependency floor. Build and release receipts retain their separately verified provenance.
+
+`prepareNativeClient` and `withNativeClient` in `tools/native-client.ts` provide the shared graphical-client boundary for studios and framework-free product verification. A client has its own registered run, copied-and-verified host mod inputs, isolated configuration and player identity. It connects only to its supplied owned loopback session, defaults to Low graphics, waits for the actual player's synchronized viewport/scale/locale, and verifies the native drawable and selected preset. Pass `graphics: "extreme"` for graphical fixes or final assets; appearance studios select it explicitly. Saved/default display values immediately after joining are not readiness evidence. Distinct named clients support real multiplayer scenarios; an already-connected identity fails rather than displacing that player. The callback's completion explicitly stops and qualifies only that owned client. `native-client.json` records server/client IDs, input hashes, graphics and observed player/display identity; it proves connection and display configuration, not product behavior or physical input.
 
 The live stream retains separate stdout, stderr, engine-file and lifecycle channels. FactorioTest's preliminary save creation and actual game produce separate engine-log files: the collector drains the old open file before switching and preserves split UTF-8. In-place rewrites create explicit content revisions; a `game-log-file` event's `replaces` field identifies the superseded observation. File identity is opaque, not an inode string for clients to parse. Bounded prefix/tail witnesses detect ordinary rewrites while polling; final SHA-256 verification checks all consumed bytes and records a new revision when necessary. Observed revisions remain available, and final snapshots are verified; transient contents between polls cannot be reconstructed. Missing/empty logs, skipped physical rotations or an unstable final snapshot fail diagnostic collection.
 
@@ -280,19 +355,23 @@ Log protocol 2 records wall-clock capture milliseconds, monotonic elapsed millis
 
 Older directories without registered metadata remain untouched and count as `unregisteredDirectories`; listing coverage is `partial`, not fabricated historical state. Exact lookup rejects foreign/mismatched/aliased records. Run discovery does not launch games, provision dependencies, contact the Portal, or change the normal profile.
 
-Graphics profiles force Factorio's maximum `extreme` preset, independently of the player's normal graphics settings. Keep screenshot and GIF work inside these isolated profiles; do not alter the normal game's settings for previews.
+The shared graphics policy defaults routine graphical tests to `low`; `--graphics extreme` explicitly selects visual-fidelity work. `gallery` and release preparation use `extreme`, reject lower-quality asset requests, and require Extreme evidence when loading prepared release captures. Receipts record the preset confirmed in the engine log. Older suite receipts without graphics identity are not current qualified evidence. Diagnostic screenshots, thumbnail candidates and pulse frames from Low tests must not be promoted to presentation assets. Keep both modes isolated from the player's normal graphics settings.
 
 Gallery candidates are written below that run's `script-output/gallery/`. LLL's five scenes are source survey, full planner, product picker, private marker placement and recipe alternatives. Its `dev.config.ts` owns the public selection and order: planner first, source survey second. Release preparation freezes all declared captures and marks only the selected images for publication; loading rejects missing, extra, changed or reordered evidence.
 
 Rerunning a gallery creates a new run rather than overwriting another session's captures. `tests/native_gallery.lua` owns the deterministic scenes and composition. `gallery-scenes.jsonl` records actual surface, resolution, UI scale, world zoom and window location. The runner checks locale, Extreme preset, dimensions, framework success, screenshot-flush completion and full PNG decoding before writing successful capture evidence.
 
+Factorio 2.1.21's `game.take_screenshot` omits the entity hover tooltip, including with `show_gui` and `show_entity_info` enabled. A valid world PNG and a successful tooltip-field API assertion do not prove that panel's appearance. Tooltip changes also need an actual native-window capture with real pointer input; keep its observed viewport, scale, locale and source identity distinct from the engine-generated image.
+
 The gallery is a separate `portal-gallery` suite, also tagged `native-ui`: headless runs exclude it, and `test-ui` keeps each product's native assertions separate. Product test fixtures are not registered without FactorioTest. The separate generated verification observer records package identity even in framework-free runs; its completed state survives loading so it does not re-register a retired tick handler. Normal saves, configuration, and installed mods are untouched. Screenshots and manifests remain ignored and are excluded from release packages; the task never uploads them.
 
 The reversed-underground scene also captures a 3.6-second pulse in `script-output/underground-pulse/`: 36 native 710 × 200 antialiased PNGs at zoom 4 and six-tick intervals, premultiplied RGBA samples in `samples.json`, and a blue runtime-tint probe. `script-output/underground-hover/` records native belt-hover and steady-mode evidence. GIF exports must not enlarge the frames; render at the required delivery resolution instead. Inspect the probe to catch source-yellow tint regressions; the normal warning scene uses the tuned orange. These are preview evidence, not shipped sprite assets.
 
-1920 × 1080 (16:9) is the chosen gallery presentation size, not an official Portal requirement. It gives readable text at 125% UI scale without upscaling or desktop chrome. The [official image-upload API](https://wiki.factorio.com/Mod_images_API) does not specify a preferred pixel size. Gallery generation does not replace the separate packaged `thumbnail.png`. For an intentional detector-thumbnail update, use the native scene's `script-output/detector-thumbnail.png`: it asserts full iron-plate feeding lanes and empty underground/downstream lanes before capturing at 256 × 256. Inspect that Extreme render before replacing the source asset; never use upscaling or painted-on items.
+1920 × 1080 (16:9) is the chosen gallery presentation size, not an official Portal requirement. It gives readable text at 125% UI scale without upscaling or desktop chrome. The [official image-upload API](https://wiki.factorio.com/Mod_images_API) does not specify a preferred pixel size. Gallery generation does not replace the separate packaged `thumbnail.png`. For an intentional detector-thumbnail update, run `test-ui` with `--graphics extreme` and use that run's `script-output/detector-thumbnail.png`: it asserts full iron-plate feeding lanes and empty underground/downstream lanes before capturing at 256 × 256. Inspect the Extreme receipt and render before replacing the source asset; never use Low test output, upscaling or painted-on items.
 
 Interrupted ownership is not permission to kill another session. Inspect the recorded run and process identity before any manual stale-lock recovery.
+
+The shared native-client boundary allows up to 60 seconds for a requested graceful shutdown, including multiplayer disconnect and scenario disposal in large mod sets. Forced termination still fails qualification; it is never treated as a successful close.
 
 LLL's [control.lua](../mods/location-location-location/control.lua) registers its [planner](../mods/location-location-location/tests/planner.lua), [native UI](../mods/location-location-location/tests/native_preview.lua) and [gallery](../mods/location-location-location/tests/native_gallery.lua) suites. The detector's [control.lua](../mods/reversed-underground-belt-detector/control.lua) independently registers [behavior](../mods/reversed-underground-belt-detector/tests/undergrounds.lua), [native rendering](../mods/reversed-underground-belt-detector/tests/native_preview.lua) and [gallery](../mods/reversed-underground-belt-detector/tests/native_gallery.lua) suites. Regression hooks are scoped to their suite. The `native-ui` tag excludes graphics-only assertions from headless runs; graphics profiles select either native assertions or Portal gallery fixtures. No fixture code is injected into the mod.
 
@@ -304,9 +383,9 @@ Headless tests exercise game state and GUI handlers. Check UI changes with the n
 
 `tools/rcon.ts` provides a scoped Bun/Effect connection restricted to `127.0.0.1`. Effect Schema validates options, commands and supported frame metadata. It permits one in-flight command, caps command bytes at 65,536 and response-frame length at 1 MiB, and rejects malformed framing, foreign IDs and unexpected responses. A timeout, cancellation or disconnect makes the connection terminal. A sent mutation with no valid response has an **unknown outcome**, not a safe-to-retry failure; neither reconnect nor mutation replay is automatic. Commands attempted after termination are reported as unsent.
 
-Private graphical sessions use a loopback-bound headless host and a separate Extreme standalone client with byte-identical mod inputs and its own writable profile. Do not substitute graphical `--host`: its game socket does not satisfy the required binding boundary. Allow the client's bounded orderly disconnect; a successful transport/session is not real two-client determinism proof.
+Private graphical sessions use a loopback-bound headless host and a separate standalone client with byte-identical mod inputs and its own writable profile. Routine verification uses Low; graphical fixes, final assets and appearance studios use Extreme. Do not substitute graphical `--host`: its game socket does not satisfy the required binding boundary. Allow the client's bounded orderly disconnect; a successful transport/session is not real two-client determinism proof.
 
-Saved-player display metadata can initially be stale after joining. Studio readiness waits for the declared viewport, scale and locale as well as scene readiness. Every capture rechecks them, verifies the actual drawable and Extreme preset in the client log, waits for screenshot-flush completion and fully decodes the PNG. A changed or clamped viewport fails rather than weakening the contract.
+Saved-player display metadata can initially be stale after joining. Studio readiness waits for the declared viewport, scale and locale as well as scene readiness. Every capture rechecks them, verifies the actual drawable and selected preset in the client log, waits for screenshot-flush completion and fully decodes the PNG. A changed or clamped viewport fails rather than weakening the contract.
 
 Private RCON sessions verify `script.active_mods` directly, without an observer mod whose completed marker cannot be replayed after loading a save. The ordinary test observer persists its finished state and reconstructs its dynamic event registration on load. Save completion uses a unique, non-overwritten owned destination and correlated save-start/save-finished log records, then hashes the resulting archive. The live cursor includes published records beyond the segment-granular progress watermark; an RCON acknowledgement alone is not completion. Raw engine logs contain launch arguments, so private profiles are owner-only and public diagnostic streams redact the password.
 
@@ -315,6 +394,10 @@ Private RCON sessions verify `script.active_mods` directly, without an observer 
 Studio processes and general private-engine `session` runs expose their live/terminal process state through the common `runs` and `logs` commands. Their proof field is `not-applicable`: a clean session exit is not package-smoke or behavioral qualification. Only actual engine-suite, package-smoke and benchmark runs consume those dedicated typed receipts; a session must not be registered as one of those kinds merely because it launches Factorio.
 
 Deterministic transition qualification uses `game.tick_paused=true` and `game.ticks_to_run=N` with read-only completion polling. Paused stepping is serialization/behavior evidence, not throughput, pointer hit-testing or multiplayer determinism proof. Native empty Lua tables encode as `{}`, not JSON `[]`; fixture wire contracts explicitly omit empty sequences and validate their counts rather than accepting malformed arrays.
+
+Selection-tool workflows can be qualified without desktop input: inspect the resolved `LuaItemPrototype` selection flags and entity filters and the `LuaShortcutPrototype` spawn action; exercise native cursor changes; invoke the actual `script.get_event_handler` with native fixture entities; inspect alerts, rendering and GUI state; then save and reload the exact package in a new process. Use a connected owned client for player-specific presentation and native screenshots. Keep the presented state intact until deferred screenshot rendering completes. None of these substitutes for engine selection-mask hit-testing or physical shortcut/drag input.
+
+Factorio 2.1.21 exposes [`LuaPlayer.start_selection` and `clear_selection`](https://lua-api.factorio.com/2.1.21/classes/LuaPlayer.html#start_selection), but no normal-game finish-selection method; selected-area events are not among [`raise_event`'s allowed built-ins](https://lua-api.factorio.com/2.1.21/classes/LuaBootstrap.html#raise_event). [`LuaSimulation`](https://lua-api.factorio.com/2.1.21/classes/LuaSimulation.html) has virtual control/mouse actions only inside simulations, with a [reported selection-release limitation](https://forums.factorio.com/viewtopic.php?t=128495); do not assume it supplies ordinary-game input proof. [`--run-replay`](https://wiki.factorio.com/Command_line_parameters) is another unattended input-replay route, but needs a recorded fixture and a pinned compatible engine/mod set; it is not yet a verified workshop test path.
 
 ### Parameter studios
 

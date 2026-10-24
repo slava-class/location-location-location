@@ -87,7 +87,7 @@ Completion requires exact expected cases, observed dependency identities, compat
 
 ### Native assets and tuners
 
-Every thumbnail, gallery image, GIF/video frame or other presentation asset uses an isolated standalone instance at **Extreme**, with antialiasing and observed viewport, scale, locale, zoom and scene identity. Wait for screenshot-flush completion and fully decode the declared output. A clamped display fails; do not resize/upscale evidence, alter normal settings or weaken capture contracts. Mixed test/capture runs inherit the asset requirement.
+Routine graphical tests use **Low** in isolated standalone instances; preserve assertions, viewport and scale. Use **Extreme** when fixing graphical issues and for every final thumbnail, gallery image, GIF/video frame or other presentation asset. Record the verified preset alongside observed viewport, scale, locale, zoom and scene identity. Wait for screenshot-flush completion and fully decode the declared output. A clamped display fails; do not resize/upscale evidence, alter normal settings or weaken capture contracts. A test screenshot is diagnostic, not a publishable asset: final asset generation and release preparation require fresh Extreme captures, even when reusing a test scene.
 
 Use stable scenes and meaningful regions for future image comparisons; masks exclude only known nondeterminism, never the changed feature. Review baseline changes rather than auto-accepting diffs. Native-language review, wrapping and actual input can still require focused human checks. An encoder must validate ordering, dimensions, frame cadence/duration and full decode; captured PNGs alone are not GIF/video acceptance.
 

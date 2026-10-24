@@ -1,6 +1,7 @@
 import { Effect, FileSystem, Schema } from "effect";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import dependencyInputs from "../.config/factorio-dependencies.json";
 import { AbsolutePath, ModIdentity, Sha256 } from "./contracts.ts";
 import {
   assertCanonicalPath,
@@ -11,7 +12,11 @@ import {
   resolveProject,
   Version,
 } from "./projects.ts";
-import type { ExecutionContext, ResolvedProject } from "./projects.ts";
+import type {
+  ExecutionContext,
+  ProfileName,
+  ResolvedProject,
+} from "./projects.ts";
 import { getBytes, getJSON } from "./network.ts";
 import { provisionPinnedFile, verifyPinnedFile } from "./files.ts";
 import { inspectArchive } from "./packaging.ts";
@@ -36,18 +41,9 @@ const DependencyPin = Schema.Struct({
   sha256: Sha256,
 });
 export type Pin = typeof DependencyPin.Type;
-const dependencyPins = Schema.decodeUnknownSync(Schema.Array(DependencyPin))([
-  {
-    name: "flib",
-    version: "0.17.2",
-    sha256: "0a48c15dc0fc6c13bb3fe8293ba6cb35a07f3b0f37d37acb50ab30e32e8e019d",
-  },
-  {
-    name: "factorio-test",
-    version: "3.1.0",
-    sha256: "b88d99e61307ab0af82ab3d2107aaa66f280d10373c5544fdabe6db048ec21a6",
-  },
-]);
+const dependencyPins = Schema.decodeUnknownSync(Schema.Array(DependencyPin))(
+  dependencyInputs,
+);
 export const builtins = new Set([
   "base",
   "quality",
@@ -55,10 +51,21 @@ export const builtins = new Set([
   "space-age",
   "recycler",
 ]);
+
+/** External roots; expansion modules are discovered from the selected engine. */
+export const profileDependencies: Readonly<
+  Record<ProfileName, readonly string[]>
+> = {
+  base: [],
+  "space-age": [],
+  "py-hardmode": ["pyhardmode", "enable-all-feature-flags"],
+  native: [],
+  gallery: [],
+};
 export function parseDependency(text: string) {
   return Effect.gen(function* () {
     const match =
-      /^\s*(?:(\(\?\)|[?!~+])\s*)?([A-Za-z0-9_-]+)(?:\s*(>=|<=|=|>|<)\s*([0-9]+\.[0-9]+\.[0-9]+))?\s*$/u.exec(
+      /^\s*(?:(\(\?\)|[?!~+])\s*)?([A-Za-z0-9_-]+)(?:\s*(>=|<=|=|>|<)\s*([0-9]+\.[0-9]+(?:\.[0-9]+)?))?\s*$/u.exec(
         text,
       );
     if (!match)
@@ -86,7 +93,12 @@ export function parseDependency(text: string) {
                     ? "no-order"
                     : "required",
         operator: match[3] ?? null,
-        version: match[4] ?? null,
+        version:
+          match[4] === undefined
+            ? null
+            : match[4].split(".").length === 2
+              ? `${match[4]}.0`
+              : match[4],
       },
       "dependency",
     );
@@ -346,6 +358,13 @@ export function provisionDependencies(
       const declared = yield* requirements(item);
       const selected = runtime ? declared : luaTypeRequirements(declared);
       pending.push(...selected);
+      if (runtime)
+        pending.push(
+          ...(yield* Effect.forEach(
+            item.development.verificationDependencies ?? [],
+            parseDependency,
+          )),
+        );
       if (!runtime)
         for (const dependency of declared) {
           if (
@@ -357,7 +376,12 @@ export function provisionDependencies(
             runtimeNotProvisioned.push({ mod: item.info.name, dependency });
         }
     }
-    if (runtime) pending.push(yield* parseDependency("factorio-test"));
+    if (runtime) {
+      pending.push(yield* parseDependency("factorio-test"));
+      for (const profile of project.capabilities.profiles)
+        for (const declaration of profileDependencies[profile])
+          pending.push(yield* parseDependency(declaration));
+    }
     const archives = new Map<
       string,
       (typeof ProvisionResult.Type)["archives"][number]

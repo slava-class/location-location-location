@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+  Changes:
+    - Add a warning-management planner to mark intentional connections and restore warnings.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+  Changes:
+    - Detect compatible reversed underground mouths from attached surface-belt flow, including unpaired endpoints and one-sided connections.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
     - Warn about reversed underground belt pairs with directional arrows and default-on per-player map alerts.

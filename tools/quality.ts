@@ -11,7 +11,7 @@ import {
   prepareOutputDirectory,
   RelativePath,
 } from "./projects.ts";
-import type { ExecutionContext } from "./projects.ts";
+import type { ExecutionContext, ResolvedProject } from "./projects.ts";
 import { sourceFiles } from "./source.ts";
 
 // Mise pins the JS launcher; force Bun instead of its Node shebang.
@@ -154,19 +154,33 @@ export function rejectTrunkUserOverrides(context: ExecutionContext) {
 export function runQuality(
   context: ExecutionContext,
   mode: typeof QualityMode.Type,
+  projects?: readonly ResolvedProject[],
 ) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
+    if (projects?.some((project) => project.repoRoot !== context.repoRoot))
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "quality selection",
+          message: "Selected projects must belong to the quality workspace",
+        }),
+      );
     yield* rejectTrunkUserOverrides(context);
+    const wholeWorkspace = projects === undefined && !("info" in context);
     const selection = (
-      "info" in context ? sourceFiles(context) : workspaceFiles(context)
+      projects !== undefined
+        ? sourceFiles(projects)
+        : "info" in context
+          ? sourceFiles(context)
+          : workspaceFiles(context)
     ).pipe(
       Effect.map((selected) =>
         selected
           .filter(
             (path) =>
-              !binaryExtensions.has(extname(path)) &&
-              (mode === "check" || formattersApply(path)),
+              (wholeWorkspace && mode === "check") ||
+              (!binaryExtensions.has(extname(path)) &&
+                (mode === "check" || formattersApply(path))),
           )
           .sort(),
       ),
@@ -213,6 +227,7 @@ export function runQuality(
     yield* prepareOutputDirectory(selectionDirectory);
     const selectionPath = join(selectionDirectory, "selection.json");
     yield* fs.writeFileString(selectionPath, JSON.stringify(files));
+    const targets = wholeWorkspace ? ["--all"] : ["--", ...files];
     const command =
       mode === "format"
         ? [
@@ -222,8 +237,7 @@ export function runQuality(
             "--no-progress",
             "--cache=false",
             "--color=false",
-            "--",
-            ...files,
+            ...targets,
           ]
         : [
             ...trunkCommand,
@@ -234,8 +248,7 @@ export function runQuality(
             "--no-progress",
             "--color=false",
             ...(mode === "format-check" ? ["--filter", formatterFilter] : []),
-            "--",
-            ...files,
+            ...targets,
           ];
     const { result, after, changed } = yield* Effect.uninterruptibleMask(
       (restore) =>
@@ -295,7 +308,15 @@ export function runQuality(
       {
         status: "passed",
         mode,
-        scope: "info" in context ? context.info.name : "workspace",
+        scope:
+          projects !== undefined
+            ? projects
+                .map((project) => project.info.name)
+                .sort()
+                .join(",")
+            : "info" in context
+              ? context.info.name
+              : "workspace",
         runId: result.run.runId,
         files,
         changed,

@@ -279,13 +279,14 @@ export function inspectArchive(archive: string, sha256: string) {
           "archive metadata",
           true,
         );
-        const prefix = `${metadata.name}_${metadata.version}`;
+        const root = candidates[0]!.name.split("/")[0]!;
         if (
-          candidates[0]!.name !== prefix + "/info.json" ||
+          (root !== metadata.name &&
+            root !== `${metadata.name}_${metadata.version}`) ||
           zip.members.some((member) =>
-            member.name === prefix
+            member.name === root
               ? !member.directory
-              : !member.name.startsWith(prefix + "/"),
+              : !member.name.startsWith(root + "/"),
           )
         )
           return yield* Effect.fail(
@@ -308,7 +309,7 @@ export function inspectArchive(archive: string, sha256: string) {
             dependencies: metadata.dependencies ?? ["base"],
             members: zip.members
               .filter((member) => !member.directory)
-              .map((member) => member.name.slice(prefix.length + 1))
+              .map((member) => member.name.slice(root.length + 1))
               .sort(),
           },
           "archive inspection",

@@ -1,9 +1,9 @@
 import { Effect, FileSystem } from "effect";
 import { join } from "node:path";
-import { defineProjectTooling } from "../../../tools/project-tooling.ts";
+import type { ProjectTooling } from "../../../tools/project-tooling.ts";
 import { BoundaryError } from "../../../tools/projects.ts";
 
-export default defineProjectTooling({
+export default {
   audit: function audit({ project, members, english }) {
     return Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -48,4 +48,4 @@ export default defineProjectTooling({
           );
     });
   },
-});
+} satisfies ProjectTooling;

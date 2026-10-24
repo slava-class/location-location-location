@@ -1,0 +1,10 @@
+{
+  "name": "recipe-name-tooltip",
+  "version": "0.1.1",
+  "title": "Recipe Name Tooltip",
+  "author": "slava-class",
+  "factorio_version": "2.1",
+  "dependencies": ["base >= 2.1.21", "? factorio-test >= 3.1.0"],
+  "description": "Show current recipe names and single-item filters in entities' existing hover tooltips.",
+  "homepage": "https://github.com/slava-class/location-location-location"
+}

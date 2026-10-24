@@ -1,0 +1,8 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+  Changes:
+    - Show single-item filter names in native tooltips, preserving blacklist and quality constraints.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+  Features:
+    - Show the current recipe name in crafting machines' existing hover tooltips.

@@ -17,12 +17,19 @@ Reversed Underground Belt Detector marks these connections with orange direction
 - Checks your existing factory when added to a save and keeps watching as you build and rearrange belts.
 - Works in all four directions and across available underground-belt tiers.
 - Hovering either end hides that connection's span arrows in your view, so the game's own indicators stay clear.
+- A selection tool lets you mark deliberate caps and other false positives as intentional, individually or in bulk, without hiding future warnings.
 
 ### What it catches
 
-The mod flags a connected underground pair when the ordinary belts immediately outside **both ends** point against the underground's actual direction.
+The mod looks for an underground connection whose direction or entrance/exit arrangement conflicts with an attached surface belt. It can also catch aligned mouths that should connect but face the wrong way—even before Factorio pairs them. One attached belt is enough to indicate the intended flow; if belts at both ends disagree, the mod does not guess.
 
-This is a direction check, not a general belt validator. Unpaired ends, missing exterior belts, turns and side-loading arrangements without opposing belts at both ends are not flagged. Other mods' alerts are preserved.
+This is a direction check, not a general belt validator. A lone unpaired mouth is not an error. Possible partners must be nearby, compatible and unambiguous; perpendicular crossings and mouths already connected elsewhere are left alone. Arrows show the mouths' actual directions, and an underground span is drawn only for a real connection. Other mods' alerts are preserved.
+
+### Intentional connections
+
+Choose **Manage underground warnings** from the shortcut bar. Drag over either end of a highlighted connection to mark it as intentional; **Shift-drag** restores its warnings. You can select several connections at once. Nothing is crafted, rotated or removed.
+
+While holding the tool, acknowledged connections have white check marks and active warnings have steady arrows. Put it away to return to your usual overlay. Acknowledgements are shared by your force and saved with the game. They apply to that arrangement—not an area—and are reconsidered when the connection or its relevant surface-belt flow changes.
 
 ### Requirements
 

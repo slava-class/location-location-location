@@ -20,19 +20,13 @@ export const SourceSeal = Schema.Struct({
 const sharedFiles = [
   "package.json",
   "bun.lock",
-  ".config/mise.toml",
   "tsconfig.json",
-  ".config/stylua.toml",
   "license.txt",
   ".gitignore",
   ".editorconfig",
   ".oxlintrc.json",
   ".oxfmtrc.json",
   ".trunk/trunk.yaml",
-  ".config/betterleaks.toml",
-  ".config/knip.ts",
-  ".config/emmy.json",
-  ".config/workshop-luacheck.lua",
 ];
 const optionalGuidance = [
   "README.md",
@@ -41,8 +35,22 @@ const optionalGuidance = [
   "MOD_IDEAS.md",
 ];
 const excluded = new Set(["node_modules", ".git", ".factorio-test", "dist"]);
-export function sourceFiles(project: ResolvedProject) {
+export function sourceFiles(
+  input: ResolvedProject | readonly ResolvedProject[],
+) {
   return Effect.gen(function* () {
+    const projects = "info" in input ? [input] : input;
+    const project = projects[0];
+    if (
+      !project ||
+      projects.some((selected) => selected.repoRoot !== project.repoRoot)
+    )
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "source selection",
+          message: "Select at least one project from the same workspace",
+        }),
+      );
     const fs = yield* FileSystem.FileSystem,
       files = new Set<string>();
     const visit = (
@@ -82,7 +90,7 @@ export function sourceFiles(project: ResolvedProject) {
     for (const name of optionalGuidance)
       if (yield* fs.exists(join(project.repoRoot, name)))
         yield* visit(join(project.repoRoot, name));
-    for (const name of ["tools", "patches"])
+    for (const name of ["tools", "patches", ".config"])
       yield* visit(join(project.repoRoot, name));
     const visited = new Set<string>();
     const include = (
@@ -93,15 +101,19 @@ export function sourceFiles(project: ResolvedProject) {
       FileSystem.FileSystem
     > =>
       Effect.gen(function* () {
-        if (visited.has(target.info.name)) return;
-        visited.add(target.info.name);
+        const key = JSON.stringify([
+          target.info.name,
+          target.development.companions ?? [],
+        ]);
+        if (visited.has(key)) return;
+        visited.add(key);
         yield* visit(target.modRoot);
         for (const id of target.development.companions ?? [])
           yield* include(
             yield* resolveProject(project.repoRoot, id, project.repoRoot),
           );
       });
-    yield* include(project);
+    for (const selected of projects) yield* include(selected);
     return [...files].sort();
   });
 }

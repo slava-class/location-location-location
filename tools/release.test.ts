@@ -46,6 +46,30 @@ test("prepared products reject explicit version and selected-source drift, not u
   );
 });
 
+test("low-quality native or gallery evidence cannot become publishable captures", async () => {
+  const f = await releaseFixture(roots, true);
+  for (const profile of ["native", "gallery"] as const) {
+    const entry = f.manifest.evidence[profile];
+    if (!entry)
+      throw new Error(
+        "The release fixture requires native and gallery evidence",
+      );
+    await f.save({
+      ...f.manifest,
+      evidence: {
+        ...f.manifest.evidence,
+        [profile]: { ...entry, graphics: "low" },
+      },
+    });
+    const error = await runFiles(Effect.flip(loadPrepared(f.project, "1.0.1")));
+    expect(error).toBeInstanceOf(BoundaryError);
+  }
+  await f.save();
+  expect(
+    (await runFiles(loadPrepared(f.project, "1.0.1"))).archive.bytes,
+  ).toEqual(f.archiveBytes);
+});
+
 test("same-version products reject exchanged bundles and bytes without blocking each other's release", async () => {
   const primary = await releaseFixture(roots, true);
   const secondary = await releaseFixture(roots, true, {

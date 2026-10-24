@@ -14,7 +14,11 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { resolveDependency } from "./dependencies.ts";
-import { parseEngineVersion, resolveEngine } from "./engine.ts";
+import {
+  parseEngineVersion,
+  resolveEngine,
+  resolveGraphicsPreset,
+} from "./engine.ts";
 import { BoundaryError, resolveProject } from "./projects.ts";
 import { runFiles } from "./fixtures/release.ts";
 const roots: string[] = [];
@@ -89,6 +93,13 @@ test("version output requires the complete engine build, platform and distributi
     expect(Effect.runPromise(parseEngineVersion(text))).rejects.toBeInstanceOf(
       BoundaryError,
     );
+});
+
+test("asset graphics reject a low-quality request rather than silently changing it", async () => {
+  const error = await Effect.runPromise(
+    Effect.flip(resolveGraphicsPreset("asset", "low")),
+  );
+  expect(error).toBeInstanceOf(BoundaryError);
 });
 
 test("Mac and Linux installation layouts resolve matching data from an executed version probe", async () => {

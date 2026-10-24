@@ -7,10 +7,14 @@ import { SaveReadback } from "./contracts.ts";
 
 const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const chunkLimit = 16 * 1024 * 1024;
+const levelLimit = 144 * 1024 * 1024;
 const scriptLimit = 128 * 1024 * 1024;
 function requireLayout(condition: boolean, message: string): asserts condition {
   if (!condition)
     throw new BoundaryError({ boundary: "Factorio save format", message });
+}
+function incomplete(message: string) {
+  return { _tag: "Incomplete" as const, message };
 }
 function requireVersion(bytes: Buffer, label: string) {
   requireLayout(
@@ -95,39 +99,37 @@ function prototypeTable(data: Buffer, kind: string) {
     );
     result = candidate;
   }
-  requireLayout(
-    result !== undefined,
-    `${kind}: expected one validated prototype table, found 0`,
-  );
   return result;
 }
 function decodeForces(data: Buffer) {
+  if (data.length < 8) return incomplete("Truncated save version");
   requireVersion(data, "save");
   const technologies = prototypeTable(data, "technology"),
     recipes = prototypeTable(data, "recipe");
-  const headers = (
-    [
-      [1, "player"],
-      [2, "enemy"],
-      [3, "neutral"],
-    ] as const
-  )
-    .map(([id, name]) => {
-      const marker = Buffer.concat([
-        Buffer.from([id, name.length]),
-        Buffer.from(name),
-      ]);
-      const offset = data.indexOf(
-        marker,
-        Math.max(technologies.end, recipes.end),
-      );
-      requireLayout(
-        offset >= 0 && data.indexOf(marker, offset + 1) < 0,
-        `Missing/ambiguous normal force ${name}`,
-      );
-      return { offset, name };
-    })
-    .sort((a, b) => a.offset - b.offset);
+  if (technologies === undefined || recipes === undefined)
+    return incomplete("Missing complete recipe/technology prototype tables");
+  const headers: { offset: number; name: string }[] = [];
+  for (const [id, name] of [
+    [1, "player"],
+    [2, "enemy"],
+    [3, "neutral"],
+  ] as const) {
+    const marker = Buffer.concat([
+      Buffer.from([id, name.length]),
+      Buffer.from(name),
+    ]);
+    const offset = data.indexOf(
+      marker,
+      Math.max(technologies.end, recipes.end),
+    );
+    if (offset < 0) return incomplete(`Missing normal force ${name}`);
+    requireLayout(
+      data.indexOf(marker, offset + 1) < 0,
+      `Ambiguous normal force ${name}`,
+    );
+    headers.push({ offset, name });
+  }
+  headers.sort((a, b) => a.offset - b.offset);
   type Force = (typeof SaveReadback.Type)["forces"][string];
   const forces = new Map<string, Force>(),
     marker = Buffer.allocUnsafe(2);
@@ -206,6 +208,10 @@ function decodeForces(data: Buffer) {
       );
       result = candidate;
     }
+    if (result === undefined && index === headers.length - 1)
+      return incomplete(
+        `${header.name}: missing complete adjacent recipe/research vector`,
+      );
     requireLayout(
       result !== undefined,
       `${header.name}: expected one validated adjacent recipe/research vector, found 0`,
@@ -213,23 +219,26 @@ function decodeForces(data: Buffer) {
     forces.set(header.name, result);
   }
   return {
-    factorioVersion: "2.1.21-11",
-    decompressedBytes: data.length,
-    forces: Object.fromEntries(forces),
-    prototypeMappings: {
-      recipe: {
-        offset: recipes.offset,
-        end: recipes.end,
-        count: recipes.names.size,
+    _tag: "Complete" as const,
+    value: {
+      factorioVersion: "2.1.21-11",
+      decompressedBytes: data.length,
+      forces: Object.fromEntries(forces),
+      prototypeMappings: {
+        recipe: {
+          offset: recipes.offset,
+          end: recipes.end,
+          count: recipes.names.size,
+        },
+        technology: {
+          offset: technologies.offset,
+          end: technologies.end,
+          count: technologies.names.size,
+        },
       },
-      technology: {
-        offset: technologies.offset,
-        end: technologies.end,
-        count: technologies.names.size,
-      },
+      recipePrototypeNames: [...recipes.names.values()],
+      technologyPrototypeNames: [...technologies.names.values()],
     },
-    recipePrototypeNames: [...recipes.names.values()],
-    technologyPrototypeNames: [...technologies.names.values()],
   };
 }
 function savedModVersions(data: Buffer) {
@@ -304,7 +313,7 @@ function saveTimestamp(nanoseconds: bigint) {
     "+00:00"
   );
 }
-/** Only the validated 2.1.21-11 / first-nine-chunk / Factory Planner subset. */
+/** Only the validated 2.1.21-11 / bounded force prefix / Factory Planner subset. */
 export function readSavedProgress(input: string) {
   return Effect.gen(function* () {
     const save = yield* decode(AbsolutePath, input, "save path");
@@ -327,26 +336,56 @@ export function readSavedProgress(input: string) {
               message: "Missing or ambiguous level.dat chunks",
             }),
           );
-        const data: Buffer[] = [];
-        for (const chunk of chunks.slice(0, 9)) {
-          const bytes = yield* zip.read(chunk.name, chunkLimit);
-          data.push(
-            yield* Effect.try({
-              try: () => inflateSync(bytes, { maxOutputLength: chunkLimit }),
+        const forces = yield* Effect.gen(function* () {
+          let data: Buffer = Buffer.alloc(0),
+            length = 0,
+            encodedBytes = 0,
+            pending = "Missing saved force data";
+          for (const chunk of chunks) {
+            const bytes = yield* zip.read(chunk.name, chunkLimit);
+            const result = yield* Effect.try({
+              try: () => {
+                encodedBytes += bytes.length;
+                requireLayout(
+                  encodedBytes <= levelLimit,
+                  "Saved force prefix exceeds the 144 MiB encoded limit",
+                );
+                const part = inflateSync(bytes, {
+                  maxOutputLength: chunkLimit,
+                });
+                const required = length + part.length;
+                requireLayout(
+                  required <= levelLimit,
+                  "Saved force prefix exceeds the 144 MiB inflated limit",
+                );
+                if (required > data.length) {
+                  const grown = Buffer.allocUnsafe(
+                    Math.min(levelLimit, Math.max(required, data.length * 2)),
+                  );
+                  data.copy(grown, 0, 0, length);
+                  data = grown;
+                }
+                part.copy(data, length);
+                length = required;
+                return decodeForces(data.subarray(0, length));
+              },
               catch: (error) =>
-                new BoundaryError({
-                  boundary: chunk.name,
-                  message: String(error),
-                }),
+                error instanceof BoundaryError
+                  ? error
+                  : new BoundaryError({
+                      boundary: chunk.name,
+                      message: String(error),
+                    }),
+            });
+            if (result._tag === "Complete") return result.value;
+            pending = result.message;
+          }
+          return yield* Effect.fail(
+            new BoundaryError({
+              boundary: save,
+              message: `Incomplete saved force prefix after ${length} bytes: ${pending}`,
             }),
           );
-        }
-        const forces = yield* Effect.try({
-          try: () => decodeForces(Buffer.concat(data)),
-          catch: (error) =>
-            error instanceof BoundaryError
-              ? error
-              : new BoundaryError({ boundary: save, message: String(error) }),
         });
         const scripts = zip.members.filter(
           (member) => !member.directory && member.name.endsWith("/script.dat"),

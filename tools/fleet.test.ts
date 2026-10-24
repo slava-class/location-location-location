@@ -26,7 +26,7 @@ async function register(
   const startedAt = new Date(Date.UTC(2026, 0, 1) + sequence++).toISOString();
   const template = fixture.manifest.evidence.verification;
   const identity = {
-    schema: 1,
+    schema: 2,
     runId: run.runId,
     mod: template.mod,
     directory: run.directory,
@@ -43,7 +43,8 @@ async function register(
           ...identity,
           status,
           phase: "audit",
-          completed: ["toolchain", "whitespace", "quality"],
+          completed: template.completed.slice(0, 2),
+          timings: template.timings.slice(0, 2),
           error: "Required locale is missing",
         };
   const path = join(run.directory, "verify.json");

@@ -40,7 +40,7 @@ local function observe()
         storage.started = true
         write("modkit-observed-mods.json", identity())
         print("MODKIT_OBSERVED:" .. request.runId)
-        if request.profile == "base" or request.profile == "space-age" then
+        if request.profile ~= "native" and request.profile ~= "gallery" then
             finish()
             return
         end

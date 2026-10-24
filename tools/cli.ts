@@ -22,7 +22,8 @@ import { setupWorkspace, testModels } from "./checks.ts";
 import { smokePackage } from "./smoke.ts";
 import { runQuality } from "./quality.ts";
 import { setVersion } from "./release-info.ts";
-import { planVerification, verifyProjects } from "./verification.ts";
+import { planVerification } from "./verification.ts";
+import { runReportedVerification } from "./verification-output.ts";
 import { modStatus, mutateMod, restoreMod } from "./local-mod.ts";
 import { checkpointWorkspace } from "./checkpoint.ts";
 import { prepareRelease } from "./release.ts";
@@ -40,6 +41,7 @@ import { comparePerformance } from "./performance-analysis.ts";
 import { readPerformance, runPerformance } from "./performance.ts";
 import { studioCommand } from "./tuning/cli.ts";
 import { runProjectCommand } from "./project-tooling.ts";
+import { GraphicsPreset } from "./engine.ts";
 
 const backendFlag = Flag.String("backend").pipe(
   Flag.withSchema(Schema.String.pipe(Schema.decodeTo(Backend))),
@@ -520,11 +522,16 @@ function captureCommand(name: "test-ui" | "gallery") {
       mod: Argument.String("mod"),
       language: Flag.String("language").pipe(Flag.withDefault("en")),
       engine: Flag.String("engine").pipe(Flag.optional),
+      graphics: Flag.String("graphics").pipe(
+        Flag.withSchema(Schema.String.pipe(Schema.decodeTo(GraphicsPreset))),
+        Flag.optional,
+      ),
       companion: companionFlag,
     },
-    ({ mod, language, engine, companion }) =>
+    ({ mod, language, engine, graphics, companion }) =>
       Effect.gen(function* () {
         const executable = Option.getOrUndefined(engine);
+        const preset = Option.getOrUndefined(graphics);
         yield* Console.log(
           JSON.stringify(
             yield* runEngineSuite(
@@ -535,6 +542,7 @@ function captureCommand(name: "test-ui" | "gallery") {
               {
                 language,
                 ...(executable === undefined ? {} : { engine: executable }),
+                ...(preset === undefined ? {} : { graphics: preset }),
               },
             ),
             null,
@@ -714,8 +722,11 @@ const verify = Command.make(
         );
         return;
       }
-      const report = yield* verifyProjects(projects, backend);
-      yield* Console.log(JSON.stringify(report, null, 2));
+      const report = yield* runReportedVerification(
+        projects,
+        backend,
+        Option.isNone(mod),
+      );
       if (report.status === "failed")
         return yield* Effect.fail(
           new BoundaryError({
@@ -768,9 +779,8 @@ function checkpointCommand(name: "checkpoint" | "vac") {
           },
           () =>
             discoverProjects(root).pipe(
-              Effect.flatMap((projects) => verifyProjects(projects, backend)),
-              Effect.tap((report) =>
-                Console.log(JSON.stringify(report, null, 2)),
+              Effect.flatMap((projects) =>
+                runReportedVerification(projects, backend, true),
               ),
             ),
         );

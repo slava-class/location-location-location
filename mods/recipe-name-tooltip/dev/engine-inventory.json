@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "profiles": ["base", "space-age", "native", "gallery"],
+  "cases": [
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > shows recipe identity and follows changes without replacing unrelated fields",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > adds a recipe assigned after selection and removes it when cleared",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > ignores unsupported entities and ghosts and clears on deselection",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > shares one field between viewers until the last viewer leaves",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > does not overwrite or remove an unrelated replacement field",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > cleans destroyed targets without disturbing another inspected machine",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > does not duplicate recipe fields when an inspected machine is cloned",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > reconciles retained fields after reinstallation",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > tracks an automatically selected furnace recipe",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > shows the fixed recipe of a rocket silo",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > restores polling and ownership after native mod reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > names a single inserter filter in any slot and follows edits",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > does not misrepresent multiple disabled or cleared filters as a single item",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > distinguishes blacklist filters and preserves shared and foreign fields",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > shows splitter loader and storage chest filters",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > preserves quality comparisons and omits quality-only filters",
+      "passedIn": ["space-age"],
+      "skippedIn": []
+    },
+    {
+      "path": "tests.tooltip > recipe tooltip behavior > reconciles retained filter labels and reloads active filters",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > recipe tooltip native > 01 recipe-name",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.native_gallery > Recipe tooltip gallery > 01 recipe-name",
+      "passedIn": ["gallery"],
+      "skippedIn": ["base", "space-age", "native"]
+    }
+  ]
+}

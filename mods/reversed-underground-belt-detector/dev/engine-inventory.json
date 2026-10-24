@@ -3,6 +3,81 @@
   "profiles": ["base", "space-age", "native", "gallery"],
   "cases": [
     {
+      "path": "tests.undergrounds > reversed underground warnings > acknowledges either mouth in bulk and restores only selected connections",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > acknowledges unpaired caps without ignoring future faults in the same area",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > keeps acknowledgements through unrelated building item flow hover and overlay changes",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > restores warnings when relevant exterior evidence changes",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > does not transfer acknowledgement to a replacement mouth or a repaired then reversed pair",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > retains acknowledgements through surveys render repair and native mod reload",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > cleans acknowledged connections after surface deletion and force changes",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.native_preview > underground native > 02 warning-planner",
+      "passedIn": ["native"],
+      "skippedIn": ["base", "space-age", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > detects reversed directions and endpoint roles from one attached surface belt in every orientation",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > detects the crossing layout without warning its perpendicular underground pair",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > tracks construction and removal of the evidence for an unpaired candidate",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > does not infer a connection from hood-adjacent belts or mouths paired elsewhere",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > leaves competing possible connections unclassified",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > relinks warnings to the new surface-fed pair and clears the former partner",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
+      "path": "tests.undergrounds > reversed underground warnings > surveys and reloads unpaired warnings and clears them after the intended connection is corrected",
+      "passedIn": ["base", "space-age"],
+      "skippedIn": ["native", "gallery"]
+    },
+    {
       "path": "tests.native_gallery > Underground detector gallery > 01 reversed-underground",
       "passedIn": ["gallery"],
       "skippedIn": ["base", "space-age", "native"]
@@ -23,7 +98,7 @@
       "skippedIn": ["native", "gallery"]
     },
     {
-      "path": "tests.undergrounds > reversed underground warnings > building the last exterior belt detects the pair and removing it clears only owned warnings",
+      "path": "tests.undergrounds > reversed underground warnings > building the first exterior belt detects the pair and removing the last clears only owned warnings",
       "passedIn": ["base", "space-age"],
       "skippedIn": ["native", "gallery"]
     },
@@ -33,12 +108,7 @@
       "skippedIn": ["native", "gallery"]
     },
     {
-      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after relink pair",
-      "passedIn": ["base", "space-age"],
-      "skippedIn": ["native", "gallery"]
-    },
-    {
-      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after remove exterior",
+      "path": "tests.undergrounds > reversed underground warnings > clears both mouths and span promptly after remove exterior evidence",
       "passedIn": ["base", "space-age"],
       "skippedIn": ["native", "gallery"]
     },
@@ -173,7 +243,7 @@
       "skippedIn": ["native", "gallery"]
     },
     {
-      "path": "tests.undergrounds > reversed underground warnings > waits for both exterior belts and a connected pair instead of flagging turns or dead ends",
+      "path": "tests.undergrounds > reversed underground warnings > requires a compatible connection and attached surface flow rather than flagging isolated mouths",
       "passedIn": ["base", "space-age"],
       "skippedIn": ["native", "gallery"]
     },

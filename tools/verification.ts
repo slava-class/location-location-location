@@ -1,4 +1,13 @@
-import { Cause, Data, Effect, Exit, FileSystem, Schema } from "effect";
+import {
+  Cause,
+  Context,
+  Data,
+  Effect,
+  Exit,
+  FileSystem,
+  Option,
+  Schema,
+} from "effect";
 import { join } from "node:path";
 import { auditProject, AuditResult } from "./audit.ts";
 import {
@@ -39,15 +48,15 @@ import { withWorkspaceSnapshot } from "./workspace.ts";
 import { QualityResult, runQuality } from "./quality.ts";
 import { Backend } from "./backend.ts";
 
-const Phase = Schema.Literals([
+export const Phase = Schema.Literals([
   "toolchain",
   "whitespace",
-  "quality",
   "audit",
   "lint",
-  "types",
-  "tool-tests",
   "models",
+  "types",
+  "quality",
+  "tool-tests",
   "package",
   "engine",
   "seal",
@@ -96,8 +105,15 @@ export function planVerification(
     "verification plan",
   );
 }
+const PhaseTiming = Schema.Struct({
+  phase: Phase,
+  status: Schema.Literals(["passed", "failed", "cancelled"]),
+  elapsedMs: ElapsedMs,
+  execution: Schema.Literals(["project", "workspace", "shared"]),
+  runs: Schema.Array(RunId),
+});
 const Identity = Schema.Struct({
-  schema: Schema.Literal(1),
+  schema: Schema.Literal(2),
   runId: RunId,
   mod: ModIdentity,
   directory: AbsolutePath,
@@ -108,6 +124,7 @@ const Identity = Schema.Struct({
   elapsedMs: ElapsedMs,
   phase: Phase,
   completed: Schema.Array(Phase),
+  timings: Schema.Array(PhaseTiming),
 });
 const Checks = Schema.Struct({
   toolchain: Toolchain,
@@ -124,6 +141,15 @@ export const ProjectVerification = Schema.Struct({
   status: Schema.Literal("passed"),
   phase: Schema.Literal("seal"),
   completed: Schema.Tuple(Phase.literals.map((phase) => Schema.Literal(phase))),
+  timings: Schema.Tuple(
+    Phase.literals.map((phase) =>
+      Schema.Struct({
+        ...PhaseTiming.fields,
+        phase: Schema.Literal(phase),
+        status: Schema.Literal("passed"),
+      }),
+    ),
+  ),
   checks: Checks,
   artifact: PackageResult,
   engine: Schema.Array(VerificationResult),
@@ -142,11 +168,20 @@ export const ProjectVerificationState = Schema.Union([
   ProjectVerificationFailure,
   ProjectVerificationRunning,
 ]);
+export const VerificationProgress = Context.Service<{
+  readonly update: (
+    state: typeof ProjectVerificationState.Type,
+  ) => Effect.Effect<void, BoundaryError>;
+  readonly complete: (
+    summary: typeof ProjectSummary.Type,
+  ) => Effect.Effect<void, BoundaryError>;
+}>("modkit/VerificationProgress");
 const PhaseEvent = Schema.Struct({
   event: Schema.Literal("verification-phase"),
   phase: Phase,
-  status: Schema.Literals(["started", "completed"]),
+  status: Schema.Literals(["started", "completed", "failed", "cancelled"]),
   runs: Schema.Array(RunId),
+  timing: Schema.NullOr(PhaseTiming),
 });
 class ProjectVerificationError extends Data.TaggedError(
   "ProjectVerificationError",
@@ -156,10 +191,14 @@ class ProjectVerificationError extends Data.TaggedError(
   readonly mod: string;
   readonly phase: string;
   readonly message: string;
+  readonly elapsedMs: number;
+  readonly timings: readonly (typeof PhaseTiming.Type)[];
 }> {}
 const SummaryIdentity = Schema.Struct({
   mod: ModIdentity,
   capabilities: Capabilities,
+  elapsedMs: Schema.NullOr(ElapsedMs),
+  timings: Schema.Array(PhaseTiming),
 });
 const ProjectSummary = Schema.Union([
   Schema.Struct({
@@ -184,13 +223,16 @@ const ProjectSummary = Schema.Union([
 ]);
 const VerificationReport = Schema.Struct({
   status: Schema.Literals(["passed", "failed"]),
+  elapsedMs: ElapsedMs,
   projects: Schema.Array(ProjectSummary),
 });
 export function verifyProjects(
   projects: readonly ResolvedProject[],
-  backend: typeof Backend.Type = "native",
+  backend: typeof Backend.Type,
+  workspaceQuality: boolean,
 ) {
   return Effect.gen(function* () {
+    const started = performance.now();
     const selectedBackend = yield* decode(
       Backend,
       backend,
@@ -203,18 +245,56 @@ export function verifyProjects(
           message: "No projects selected",
         }),
       );
-    const rows = yield* Effect.forEach(projects, (project) => {
+    const workspace = resolveWorkspace(projects[0]!.repoRoot);
+    // Capture every source before the first shared check, not when a later mod starts.
+    const sources = yield* Effect.forEach(projects, (project) =>
+      sourceSeal(project).pipe(Effect.exit),
+    );
+    const shared = {
+      quality: yield* Effect.cached(
+        workspace.pipe(
+          Effect.flatMap((context) =>
+            runQuality(
+              context,
+              "check",
+              workspaceQuality ? undefined : projects,
+            ),
+          ),
+        ),
+      ),
+      toolTests: yield* Effect.cached(
+        workspace.pipe(
+          Effect.flatMap((context) =>
+            runBunTests(
+              context,
+              [join(context.repoRoot, "tools")],
+              "test-toolkit",
+            ),
+          ),
+        ),
+      ),
+      used: new Set<typeof Phase.Type>(),
+    };
+    const progress = yield* Effect.serviceOption(VerificationProgress);
+    const rows = yield* Effect.forEach(projects, (project, index) => {
       const identity = {
         mod: { name: project.info.name, version: project.info.version },
         capabilities: project.capabilities,
       };
-      return verifyProject(project, selectedBackend).pipe(
+      const source = sources[index]!;
+      return (
+        Exit.isFailure(source)
+          ? Effect.failCause(source.cause)
+          : verifyProject(project, selectedBackend, source.value, shared)
+      ).pipe(
         Effect.flatMap((result) =>
           decode(
             ProjectSummary,
             {
               ...identity,
               status: "passed",
+              elapsedMs: result.elapsedMs,
+              timings: result.timings,
               runId: result.runId,
               directory: result.directory,
               engineProfiles: result.engine.map(
@@ -230,6 +310,8 @@ export function verifyProjects(
             {
               ...identity,
               status: "failed",
+              elapsedMs: error.elapsedMs,
+              timings: error.timings,
               runId: error.runId,
               directory: error.directory,
               error: error.message,
@@ -245,6 +327,8 @@ export function verifyProjects(
               ProjectSummary,
               {
                 ...identity,
+                elapsedMs: null,
+                timings: [],
                 status: "prerequisite-failed",
                 error: Cause.pretty(cause),
               },
@@ -252,11 +336,17 @@ export function verifyProjects(
             );
           }),
         ),
+        Effect.tap((summary) =>
+          Option.isSome(progress)
+            ? progress.value.complete(summary)
+            : Effect.void,
+        ),
       );
     });
     return yield* decode(
       VerificationReport,
       {
+        elapsedMs: performance.now() - started,
         status: rows.every((row) => row.status === "passed")
           ? "passed"
           : "failed",
@@ -267,19 +357,29 @@ export function verifyProjects(
   });
 }
 
-function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
+function verifyProject(
+  project: ResolvedProject,
+  backend: typeof Backend.Type,
+  source: typeof SourceSeal.Type,
+  shared: {
+    quality: ReturnType<typeof runQuality>;
+    toolTests: ReturnType<typeof runBunTests>;
+    used: Set<typeof Phase.Type>;
+  },
+) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem,
-      source = yield* sourceSeal(project),
       workspace = yield* resolveWorkspace(project.repoRoot);
     const run = yield* newRun(project, "verify"),
       start = performance.now(),
       startedAt = new Date().toISOString();
     const logs = yield* createLog(join(run.directory, "logs"), run.runId);
+    const progress = yield* Effect.serviceOption(VerificationProgress);
     let phase: typeof Phase.Type = "toolchain";
     const completed: (typeof Phase.Type)[] = [];
+    const timings: (typeof PhaseTiming.Type)[] = [];
     const identity = () => ({
-      schema: 1 as const,
+      schema: 2 as const,
       runId: run.runId,
       mod: source.mod,
       directory: run.directory,
@@ -290,6 +390,7 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
       elapsedMs: performance.now() - start,
       phase,
       completed: [...completed],
+      timings: [...timings],
     });
     const persist = (
       value:
@@ -306,6 +407,7 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
           join(run.directory, "verify.json.part"),
           join(run.directory, "verify.json"),
         );
+        if (Option.isSome(progress)) yield* progress.value.update(value);
       });
     const running = () =>
       Effect.gen(function* () {
@@ -317,11 +419,15 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
           ),
         );
       });
-    const event = (status: "started" | "completed", runs: readonly string[]) =>
+    const event = (
+      status: typeof PhaseEvent.Type.status,
+      runs: readonly string[],
+      timing: typeof PhaseTiming.Type | null = null,
+    ) =>
       Effect.gen(function* () {
         const value = yield* decode(
           PhaseEvent,
-          { event: "verification-phase", phase, status, runs },
+          { event: "verification-phase", phase, status, runs, timing },
           "verification phase event",
         );
         yield* logs.append("lifecycle", JSON.stringify(value) + "\n", {
@@ -332,11 +438,19 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
       name: typeof Phase.Type,
       operation: Effect.Effect<A, E, R>,
       runs: (value: A) => readonly string[] = () => [],
+      workspaceCheck = false,
     ) =>
       Effect.gen(function* () {
         phase = name;
         yield* running();
         yield* event("started", []);
+        const execution = workspaceCheck
+          ? shared.used.has(name)
+            ? "shared"
+            : "workspace"
+          : "project";
+        if (workspaceCheck) shared.used.add(name);
+        const phaseStarted = performance.now();
         const result = yield* operation.pipe(
           Effect.provideService(ParentRun, {
             runId: run.runId,
@@ -346,9 +460,33 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
                 event: child.event,
               }),
           }),
+          Effect.onExit((exit) =>
+            Effect.gen(function* () {
+              const timing = yield* decode(
+                PhaseTiming,
+                {
+                  phase: name,
+                  status: Exit.isSuccess(exit)
+                    ? "passed"
+                    : Cause.hasInterruptsOnly(exit.cause)
+                      ? "cancelled"
+                      : "failed",
+                  elapsedMs: performance.now() - phaseStarted,
+                  execution,
+                  runs: Exit.isSuccess(exit) ? runs(exit.value) : [],
+                },
+                "verification phase timing",
+              );
+              timings.push(timing);
+              yield* event(
+                timing.status === "passed" ? "completed" : timing.status,
+                timing.runs,
+                timing,
+              );
+            }),
+          ),
         );
         completed.push(name);
-        yield* event("completed", runs(result));
         yield* running();
         return result;
       });
@@ -395,11 +533,6 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
         ),
         (value) => [value.runId],
       );
-      const quality = yield* step(
-        "quality",
-        runQuality(project, "check"),
-        (value) => [value.runId],
-      );
       const audit = yield* step("audit", auditProject(project));
       const lint = yield* step("lint", lintProject(project), (value) =>
         value.status === "passed"
@@ -411,17 +544,24 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
             ]
           : [],
       );
+      const models = yield* step("models", testModels(project), (value) =>
+        value.status === "passed" ? [value.runId] : [],
+      );
       const types = yield* step("types", typecheckProject(project), (value) =>
         value.status === "passed" ? [value.runId] : [],
+      );
+      const quality = yield* step(
+        "quality",
+        shared.quality,
+        (value) => [value.runId],
+        true,
       );
       // Include the entire toolkit suite: migration must not hide unported legacy regressions.
       const toolTests = yield* step(
         "tool-tests",
-        runBunTests(project, [join(project.repoRoot, "tools")], "test-toolkit"),
+        shared.toolTests,
         (value) => [value.runId],
-      );
-      const models = yield* step("models", testModels(project), (value) =>
-        value.status === "passed" ? [value.runId] : [],
+        true,
       );
       const artifact = yield* step("package", packageProject(project));
       const engine = yield* step(
@@ -511,6 +651,8 @@ function verifyProject(project: ResolvedProject, backend: typeof Backend.Type) {
               mod: project.info.name,
               phase,
               message: Cause.pretty(cause),
+              elapsedMs: performance.now() - start,
+              timings: [...timings],
             }),
           );
         }),

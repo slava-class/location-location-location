@@ -2,7 +2,17 @@
 
 **See which way your underground belts actually run.**
 
-When the ordinary belts immediately outside both mouths point against a connected underground pair, strong orange arrows mark its mouths and smaller, muted arrows mark its underground span. The arrows point in the underground belt's **actual direction**. Nothing is rotated or built automatically.
+When surface-belt flow conflicts with an underground connection, strong orange arrows mark both mouths. This includes nearby compatible mouths whose directions or entrance/exit roles prevent them from connecting. Arrows show each mouth's **actual direction**; smaller, muted arrows show the span only when Factorio actually connects the pair. Nothing is rotated or built automatically.
+
+## Intentional caps and other false positives
+
+Use **Manage underground warnings** in the shortcut bar (enable it in the shortcut list if hidden). It gives you a free selection tool; there is nothing to craft and no new keybind to learn.
+
+- **Drag** over either mouth to mark that connection as intentional. Select several connections to acknowledge them together.
+- **Shift-drag** to restore warnings. The on-screen hint follows your configured selection controls.
+- While holding the tool, active warnings show steady arrows even if your normal overlay is off. Acknowledged connections show white check marks. Put the tool away to remove the hint/check marks and restore your normal overlay.
+
+Acknowledgements clear both mouths' arrows and map alerts for your force and survive saving, loading and configuration changes. They apply only to the existing connection, never to a whole area or future warnings. Changing a mouth, counterpart, endpoint direction/role, force or relevant exterior-belt flow makes the connection eligible for warnings again. Item movement and unrelated nearby construction do not reset it.
 
 ## Preferences
 
@@ -17,15 +27,15 @@ The default overlay breathes over a 3.6-second cycle without blinking off. Only 
 
 Hovering an underground entrance or exit hides **only that connection's span** in your view so Factorio's stock indicators remain clear. Mouth warnings remain visible. Ordinary belts, splitters and unrelated underground mouths do not hide the span; other players' views are unaffected.
 
-Map alerts have separate clickable **entrance** and **exit** entries for each connection. Another mod's custom alerts are preserved. Alerts cover your force's charted areas and its own space platforms.
+Map alerts have separate clickable entries for both implicated mouths, labelled by their current **entrance** or **exit** role. Another mod's custom alerts are preserved. Alerts cover your force's charted areas and its own space platforms.
 
 ## What is checked
 
 All four directions and the available belt tiers are supported. Existing factories are surveyed when the mod is added or its configuration changes. Building, rotating, mining or replacing belts queues the affected neighborhood for the following simulation tick, including a pair's previous partner after disconnection or relinking. Correcting the flow clears its warnings.
 
-This is deliberately a narrow direction check, not a general belt validator. Unpaired undergrounds, missing exterior belts, turns and side-loading layouts without opposing belts at both mouths are not flagged.
+At least one ordinary belt must meet the exposed side of a mouth and point along the possible connection. Its direction supplies the intended flow; if both exterior belts are present, they must agree. Unconnected mouths must be aligned, of the same type and force, within native reach, and uniquely identify each other as the nearest plausible partner. A nearer compatible mouth blocks a farther candidate. Correctly paired mouths elsewhere, ambiguous candidates, perpendicular crossings and belts behind a hood are left alone. Being unpaired is not itself a fault.
 
-Background validation selects at most **64 queued mouth entries per tick**. Up to 1,920 flagged connections can complete a validation cycle within 60 ticks; larger populations take longer rather than losing checks. Map alerts retain a separate once-per-second renewal. Silent changes by another script can therefore take a validation cycle plus an alert-renewal cycle to disappear from the map alert list.
+Background validation selects at most **64 queued mouth entries per tick**, including acknowledged connections so changes are still detected. Up to 1,920 detected connections can complete a validation cycle within 60 ticks; larger populations take longer rather than losing checks. Map alerts retain a separate once-per-second renewal. Silent changes by another script can therefore take a validation cycle plus an alert-renewal cycle to appear in or disappear from the map alert list.
 
 That is a background-validation budget, **not a blanket UPS guarantee**: installation/configuration surveys, construction bursts, pulse rendering and alert renewal are separate work.
 
@@ -55,7 +65,7 @@ Use the [shared developer guide](../../tools/README.md#setup) for explicit boots
 - `mise run package-smoke -- reversed-underground-belt-detector`
 - `mise run release-prepare -- reversed-underground-belt-detector --language en`
 
-Native scenes require the explicit standalone full client. Presentation captures, including thumbnail and pulse frames, use Extreme in an isolated profile. Development tuners and fixtures are excluded from release archives. Local verification/preparation does not install into the normal game, commit or publish.
+Native scenes require the explicit standalone full client. Routine `test-ui` runs use Low graphics; pass `--graphics extreme` when fixing graphical issues or generating final thumbnail/pulse assets. Diagnostic captures from Low runs must not become presentation assets. Gallery and release preparation require Extreme in an isolated profile. Development tuners and fixtures are excluded from release archives. Local verification/preparation does not install into the normal game, commit or publish.
 
 The [architecture notes](../../ARCHITECTURE.md#release-and-human-gates) retain the public-release gates, including real two-client multiplayer proof. [Product guidance](AGENTS.md) records implementation and regression constraints. A passing package-startup smoke alone does not prove detection or cleanup.
 

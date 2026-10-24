@@ -2,6 +2,7 @@ local export = { events = {} }
 local deepcopy = require("__core__.lualib.util").table.deepcopy
 local appearance = require("reversed_underground_belt_detector.appearance")
 local preferences = require("reversed_underground_belt_detector.underground_preferences")
+local planner = require("reversed_underground_belt_detector.warning_planner")
 local alert_setting = preferences.alert_setting
 local message_key = "reversed-underground-belt-detector.warning"
 ---@type table<string, LocalisedString>
@@ -84,32 +85,32 @@ local function pulse(event)
 end
 
 ---@param entity LuaEntity
+---@param dx number Exterior offset, away from the prospective underground span.
+---@param dy number
 ---@param cached RUBDExterior?
----@return RUBDExterior?, MapPosition.struct?
-local function opposing_belt(entity, cached)
+---@return RUBDExterior?
+local function exterior_belt(entity, dx, dy, cached)
     local direction = entity.direction
     local vector = vectors[direction]
-    if not vector then
-        return
-    end
     local sign = entity.belt_to_ground_type == "input" and -1 or 1
+    if not vector or sign * vector.x ~= dx or sign * vector.y ~= dy then
+        return -- A belt behind the hood is not attached to the exposed mouth.
+    end
     local position = entity.position
     ---@cast position MapPosition.struct
-    local x, y = position.x + sign * vector.x, position.y + sign * vector.y
-    local opposite = (direction + 8) % 16
+    local x, y = position.x + dx, position.y + dy
     local force, surface = entity.force, entity.surface
-    -- Valid transport belts cannot teleport. A proven lookup stays valid while
-    -- its query point/surface, entity validity, force and direction still match.
+    -- Revalidate positive lookups only; absent or perpendicular belts are not cached.
     if
         cached
         and cached.x == x
         and cached.y == y
         and cached.surface == surface
         and cached.entity.valid
-        and cached.entity.direction == opposite
+        and cached.entity.direction % 8 == direction % 8
         and cached.entity.force == force
     then
-        return cached, position
+        return cached
     end
     for _, belt in
         pairs(surface.find_entities_filtered({
@@ -118,38 +119,138 @@ local function opposing_belt(entity, cached)
             force = force,
         }))
     do
-        if belt.direction == opposite then
-            return { entity = belt, x = x, y = y, surface = surface }, position
+        if belt.direction % 8 == direction % 8 then
+            return { entity = belt, x = x, y = y, surface = surface }
         end
     end
+end
+
+---@param entity LuaEntity
+---@param neighbour LuaEntity
+---@param warnings table<integer, RUBDWarning?>
+---@return number?, RUBDExterior?, RUBDExterior?
+local function reversed_connection(entity, neighbour, warnings)
+    if neighbour.force ~= entity.force then
+        return
+    end
+    local first, second = entity.position, neighbour.position
+    ---@cast first MapPosition.struct
+    ---@cast second MapPosition.struct
+    local distance = math.abs(second.x - first.x) + math.abs(second.y - first.y)
+    if distance == 0 or (first.x ~= second.x and first.y ~= second.y) then
+        return
+    end
+    local dx, dy = (second.x - first.x) / distance, (second.y - first.y) / distance
+    local toward = dx == 1 and defines.direction.east
+        or dx == -1 and defines.direction.west
+        or dy == 1 and defines.direction.south
+        or defines.direction.north
+    local id = entity.unit_number --[[@as integer]]
+    local neighbour_id = neighbour.unit_number --[[@as integer]]
+    local own, other = warnings[id], warnings[neighbour_id]
+    local first_belt = exterior_belt(entity, -dx, -dy, own and own.exterior)
+    local second_belt = exterior_belt(neighbour, dx, dy, other and other.exterior)
+    if not first_belt and not second_belt then
+        return
+    end
+    local flow = first_belt and first_belt.entity.direction or assert(second_belt).entity.direction
+    if second_belt and second_belt.entity.direction ~= flow then
+        return -- Conflicting surface evidence does not identify an underground correction.
+    end
+    local first_role = flow == toward and "input" or "output"
+    local second_role = flow == toward and "output" or "input"
+    if
+        entity.direction == flow
+        and neighbour.direction == flow
+        and entity.belt_to_ground_type == first_role
+        and neighbour.belt_to_ground_type == second_role
+    then
+        return
+    end
+    return distance, first_belt, second_belt
+end
+
+---@param entity LuaEntity
+---@param horizontal boolean
+---@return LuaEntity[]
+local function nearby_mouths(entity, horizontal)
+    local reach = assert(entity.prototype.max_underground_distance)
+    local position = entity.position
+    ---@cast position MapPosition.struct
+    local dx, dy = horizontal and reach or 0.25, horizontal and 0.25 or reach
+    return entity.surface.find_entities_filtered({
+        area = { { position.x - dx, position.y - dy }, { position.x + dx, position.y + dy } },
+        name = entity.name,
+        force = entity.force,
+    })
+end
+
+---@param entity LuaEntity
+---@param warnings table<integer, RUBDWarning?>
+---@return LuaEntity?, number?, RUBDExterior?, RUBDExterior?
+local function candidate_connection(entity, warnings)
+    local horizontal = entity.direction % 8 == defines.direction.east
+    local position = entity.position
+    ---@cast position MapPosition.struct
+    local reach = assert(entity.prototype.max_underground_distance)
+    ---@type LuaEntity?, LuaEntity?, number?, number?
+    local before, after, before_distance, after_distance
+    for _, other in pairs(nearby_mouths(entity, horizontal)) do
+        if other ~= entity and other.direction % 8 == entity.direction % 8 then
+            local target = other.position
+            ---@cast target MapPosition.struct
+            local aligned = horizontal and target.y == position.y or not horizontal and target.x == position.x
+            local delta = horizontal and target.x - position.x or target.y - position.y
+            local distance = math.abs(delta)
+            if aligned and distance > 0 and distance <= reach then
+                -- Do not look through a nearer compatible mouth, including one paired elsewhere.
+                if delta < 0 and (not before_distance or distance < before_distance) then
+                    before, before_distance = other, distance
+                elseif delta > 0 and (not after_distance or distance < after_distance) then
+                    after, after_distance = other, distance
+                end
+            end
+        end
+    end
+    ---@type LuaEntity?, number?, RUBDExterior?, RUBDExterior?
+    local found, gap, first_belt, second_belt
+    for side = 1, 2 do
+        local other = before
+        if side == 2 then
+            other = after
+        end
+        if other and not other.underground_belt_neighbour then
+            local distance, first, second = reversed_connection(entity, other, warnings)
+            if distance then
+                if found then
+                    return -- Two plausible connections are ambiguous; do not guess a partner.
+                end
+                found, gap, first_belt, second_belt = other, distance, first, second
+            end
+        end
+    end
+    return found, gap, first_belt, second_belt
 end
 
 ---@param entity LuaEntity
 ---@param warnings table<integer, RUBDWarning?>
 ---@return LuaEntity?, number?, RUBDExterior?, RUBDExterior?
 local function reversed_neighbour(entity, warnings)
-    if not entity.valid then
+    if not entity.valid or not vectors[entity.direction] then
         return
     end
     local neighbour = entity.underground_belt_neighbour
-    if not neighbour or neighbour.force ~= entity.force or neighbour.direction ~= entity.direction then
+    if neighbour then
+        local distance, first, second = reversed_connection(entity, neighbour, warnings)
+        if distance then
+            return neighbour, distance, first, second
+        end
         return
     end
-    local id, partner_id = entity.unit_number, neighbour.unit_number
-    ---@cast id integer
-    ---@cast partner_id integer
-    local own, other = warnings[id], warnings[partner_id]
-    local first_belt, first = opposing_belt(entity, own and own.exterior)
-    if not first_belt then
-        return
+    local candidate, distance, first, second = candidate_connection(entity, warnings)
+    if candidate and candidate_connection(candidate, warnings) == entity then
+        return candidate, distance, first, second
     end
-    local second_belt, second = opposing_belt(neighbour, other and other.exterior)
-    if not second_belt then
-        return
-    end
-    ---@cast first MapPosition.struct
-    ---@cast second MapPosition.struct
-    return neighbour, math.abs(second.x - first.x) + math.abs(second.y - first.y), first_belt, second_belt
 end
 
 ---@param warning RUBDRender
@@ -254,7 +355,18 @@ local function clear_render(view)
 end
 
 ---@param warning RUBDWarning
+local function clear_marker(warning)
+    if warning.intentional_marker then
+        if warning.intentional_marker.valid then
+            warning.intentional_marker.destroy()
+        end
+        warning.intentional_marker = nil
+    end
+end
+
+---@param warning RUBDWarning
 local function clear(warning)
+    clear_marker(warning)
     clear_render(warning)
     if warning.steady then
         clear_render(warning.steady)
@@ -274,8 +386,38 @@ local function sync_view(view, steady, audience)
 end
 
 ---@param warning RUBDWarning
----@param audiences table<RUBDStyle, RUBDAudience>
+---@param audiences RUBDAudiences
 local function sync_warning(warning, audiences)
+    if warning.acknowledged then
+        warning.sprite.visible = false
+        clear_span(warning)
+        if warning.steady then
+            clear_render(warning.steady)
+            warning.steady = nil
+        end
+        if #audiences.managers == 0 then
+            clear_marker(warning)
+        else
+            local marker = warning.intentional_marker
+            if not marker or not marker.valid then
+                marker = rendering.draw_sprite({
+                    sprite = "utility/check_mark_white",
+                    surface = warning.entity.surface,
+                    target = warning.entity,
+                    render_layer = "entity-info-icon",
+                    x_scale = 0.8,
+                    y_scale = 0.8,
+                    forces = { warning.entity.force },
+                    players = audiences.managers,
+                })
+                warning.intentional_marker = marker
+            end
+            marker.forces = { warning.entity.force }
+            marker.players = audiences.managers
+        end
+        return
+    end
+    clear_marker(warning)
     sync_view(warning, false, audiences.pulsing)
     local steady = warning.steady
     if #audiences.steady.mouths > 0 then
@@ -295,9 +437,9 @@ local function sync_warning(warning, audiences)
         warning.steady = nil
     end
 end
----@param cache table<number, table<RUBDStyle, RUBDAudience>?>
+---@param cache table<number, RUBDAudiences?>
 ---@param force LuaForce
----@return table<RUBDStyle, RUBDAudience>
+---@return RUBDAudiences
 local function audiences_for(cache, force)
     local audiences = cache[force.index]
     if not audiences then
@@ -313,11 +455,14 @@ local function refresh_overlays()
         return
     end
     state.hovering = {}
+    state.managing = {}
     for _, player in pairs(game.players) do
         state.hovering[player.index] = preferences.hovered_mouth(player)
+        state.managing[player.index] = planner.held(player)
+        planner.refresh_hint(player)
     end
     update_tints(game.tick)
-    ---@type table<number, table<RUBDStyle, RUBDAudience>?>
+    ---@type table<number, RUBDAudiences?>
     local by_force = {}
     for _, warning in pairs(state.warnings) do
         if warning.entity.valid and warning.sprite.valid then
@@ -349,7 +494,7 @@ local function refresh_alerts(warnings)
             end
             for id, warning in pairs(warnings) do
                 local entity = warning.entity
-                if entity.valid and entity.force == force and not occupied[id] then
+                if not warning.acknowledged and entity.valid and entity.force == force and not occupied[id] then
                     local surface, position = entity.surface, entity.position
                     ---@cast position MapPosition.struct
                     if
@@ -416,12 +561,28 @@ local function queue(entity)
     end
 end
 
+---@param entity LuaEntity
+local function queue_neighbourhood(entity)
+    queue(entity)
+    if entity.valid and entity.type == "underground-belt" then
+        local state = storage.reversed_underground_belt_detector
+        ---@cast state RUBDState
+        -- Construction/removal can reveal a candidate on the old or new axis.
+        -- This range search is event-driven, not added to each validation entry.
+        for axis = 1, 2 do
+            for _, other in pairs(nearby_mouths(entity, axis == 1)) do
+                queue_mouth(state, other)
+            end
+        end
+    end
+end
+
 local function changed(event)
     local entity = event.entity
     if not entity.valid or (entity.type ~= "transport-belt" and entity.type ~= "underground-belt") then
         return
     end
-    queue(entity)
+    queue_neighbourhood(entity)
     -- Batch until the next tick: removal events still expose the old entity,
     -- and construction can create either end of the pair first.
     local position = entity.position
@@ -431,35 +592,7 @@ local function changed(event)
             type = "underground-belt",
         }))
     do
-        queue(nearby)
-    end
-end
-
-local function initialize()
-    local previous = storage.reversed_underground_belt_detector
-    if previous then
-        for _, warning in pairs(previous.warnings) do
-            clear(warning)
-        end
-    end
-    clear_owned_alerts()
-    storage.reversed_underground_belt_detector = {
-        pending = {},
-        warnings = {},
-        alerts_dirty = false,
-        hovering = {},
-        validation_count = 0,
-        validation_credit = 0,
-        validation_peak = 0,
-        validation_previous_peak = 0,
-        validation_window_end = game.tick + validation_period,
-    }
-    -- Existing factories are surveyed only on installation/configuration change;
-    -- ordinary play checks changed neighbourhoods and active warnings, not the map.
-    for _, surface in pairs(game.surfaces) do
-        for _, entity in pairs(surface.find_entities_filtered({ type = "underground-belt" })) do
-            queue(entity)
-        end
+        queue_neighbourhood(nearby)
     end
 end
 
@@ -514,35 +647,89 @@ local function append_validation(state, id, warning)
     end
     state.validation_last = id
 end
+local function initialize()
+    local previous = storage.reversed_underground_belt_detector
+    if previous then
+        for _, warning in pairs(previous.warnings) do
+            clear(warning)
+        end
+    end
+    clear_owned_alerts()
+    ---@type RUBDState
+    local state = {
+        pending = {},
+        warnings = previous and previous.warnings or {},
+        alerts_dirty = false,
+        hovering = {},
+        managing = {},
+        validation_count = 0,
+        validation_credit = 0,
+        validation_peak = 0,
+        validation_previous_peak = 0,
+        validation_window_end = game.tick + validation_period,
+    }
+    storage.reversed_underground_belt_detector = state
+    -- Preserve player decisions through configuration changes, but revalidate
+    -- both endpoint snapshots before presenting the rebuilt warning objects.
+    for id, warning in pairs(state.warnings) do
+        warning.validation_previous, warning.validation_next = nil, nil
+        append_validation(state, id, warning)
+        state.validation_count = state.validation_count + 1
+        state.pending[id] = warning.entity
+    end
+    -- Existing factories are surveyed only on installation/configuration change;
+    -- ordinary play checks changed neighbourhoods and active warnings, not the map.
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered({ type = "underground-belt" })) do
+            queue(entity)
+        end
+    end
+    refresh_overlays()
+end
+
+---@param warning RUBDWarning?
+---@param entity LuaEntity
+---@param partner_id integer
+---@param distance number
+---@param exterior RUBDExterior?
+local function same_arrangement(warning, entity, partner_id, distance, exterior)
+    return warning ~= nil
+        and warning.entity == entity
+        and warning.partner_id == partner_id
+        and warning.force_index == entity.force.index
+        and warning.direction == entity.direction
+        and warning.belt_type == entity.belt_to_ground_type
+        and warning.distance == distance
+        and warning.exterior_direction == (exterior and exterior.entity.direction)
+end
 
 ---@param state RUBDState
 ---@param entity LuaEntity
 ---@param partner_id integer
 ---@param distance number
----@param exterior RUBDExterior
----@param by_force table<number, table<RUBDStyle, RUBDAudience>?>
-local function update_warning(state, entity, partner_id, distance, exterior, by_force)
+---@param exterior RUBDExterior?
+---@param acknowledged boolean
+---@param by_force table<number, RUBDAudiences?>
+local function update_warning(state, entity, partner_id, distance, exterior, acknowledged, by_force)
     local id = entity.unit_number
     ---@cast id integer
     local warning = state.warnings[id]
     if warning then
         warning.exterior = exterior
     end
-    local force = entity.force
-    ---@cast force LuaForce
-    local direction, belt_type = entity.direction, entity.belt_to_ground_type
     if
         warning
-        and warning.partner_id == partner_id
-        and warning.force_index == force.index
-        and warning.direction == direction
-        and warning.belt_type == belt_type
-        and warning.distance == distance
+        and same_arrangement(warning, entity, partner_id, distance, exterior)
+        and warning.acknowledged == acknowledged
         and render_valid(warning)
         and (not warning.steady or render_valid(warning.steady))
+        and (not warning.intentional_marker or warning.intentional_marker.valid)
     then
         return
     end
+    local force = entity.force
+    ---@cast force LuaForce
+    local direction, belt_type = entity.direction, entity.belt_to_ground_type
     local audiences = audiences_for(by_force, force)
     if not warning then
         warning = {
@@ -565,6 +752,11 @@ local function update_warning(state, entity, partner_id, distance, exterior, by_
     end
     warning.partner_id, warning.force_index = partner_id, force.index
     warning.direction, warning.belt_type, warning.distance = direction, belt_type, distance
+    if warning.acknowledged ~= acknowledged then
+        state.alerts_dirty = true
+    end
+    warning.acknowledged = acknowledged
+    warning.exterior_direction = exterior and exterior.entity.direction
     sync_warning(warning, audiences)
 end
 
@@ -578,7 +770,7 @@ local function process_pending(state)
         state.pending[id] = entity
         queue(entity)
     end
-    ---@type table<number, table<RUBDStyle, RUBDAudience>?>
+    ---@type table<number, RUBDAudiences?>
     local by_force = {}
     local checked = {}
     for id, entity in pairs(state.pending) do
@@ -587,13 +779,18 @@ local function process_pending(state)
             local neighbour, distance, first_belt, second_belt = reversed_neighbour(entity, state.warnings)
             if neighbour then
                 ---@cast distance number
-                ---@cast first_belt RUBDExterior
-                ---@cast second_belt RUBDExterior
                 local partner_id = neighbour.unit_number
                 ---@cast partner_id integer
                 checked[partner_id] = true
-                update_warning(state, entity, partner_id, distance, first_belt, by_force)
-                update_warning(state, neighbour, id, distance, second_belt, by_force)
+                local first, second = state.warnings[id], state.warnings[partner_id]
+                local acknowledged = first ~= nil
+                    and second ~= nil
+                    and first.acknowledged == true
+                    and second.acknowledged == true
+                    and same_arrangement(first, entity, partner_id, distance, first_belt)
+                    and same_arrangement(second, neighbour, id, distance, second_belt)
+                update_warning(state, entity, partner_id, distance, first_belt, acknowledged, by_force)
+                update_warning(state, neighbour, id, distance, second_belt, acknowledged, by_force)
             else
                 local warning = state.warnings[id]
                 if warning then
@@ -660,10 +857,10 @@ end
 
 ---@param state RUBDState
 ---@param id integer?
----@param by_force table<number, table<RUBDStyle, RUBDAudience>?>
+---@param by_force table<number, RUBDAudiences?>
 local function refresh_hover_pair(state, id, by_force)
     local warning = id and state.warnings[id]
-    if not warning or not warning.entity.valid then
+    if not warning or warning.acknowledged or not warning.entity.valid then
         return
     end
     if warning.entity.belt_to_ground_type ~= "input" then
@@ -699,10 +896,71 @@ local function selection_changed(event)
             return
         end
     end
-    ---@type table<number, table<RUBDStyle, RUBDAudience>?>
+    ---@type table<number, RUBDAudiences?>
     local by_force = {}
     refresh_hover_pair(state, previous, by_force)
     refresh_hover_pair(state, selected, by_force)
+end
+
+local function manage_area(event)
+    if event.item ~= planner.name then
+        return
+    end
+    local player = game.get_player(event.player_index)
+    local state = storage.reversed_underground_belt_detector
+    if not player or not state then
+        return
+    end
+    local force = player.force
+    ---@cast force LuaForce
+    -- Revalidate selected warnings before acknowledging them, never create an
+    -- ignored region or acknowledge an arrangement based on stale detection.
+    for _, entity in ipairs(event.entities) do
+        if
+            entity.valid
+            and entity.force == force
+            and entity.type == "underground-belt"
+            and state.warnings[entity.unit_number]
+        then
+            queue(entity)
+        end
+    end
+    if next(state.pending) then
+        process_pending(state)
+    end
+    local acknowledge = event.name == defines.events.on_player_selected_area
+    local count = 0
+    ---@type table<number, RUBDAudiences?>
+    local by_force = {}
+    for _, entity in ipairs(event.entities) do
+        if entity.valid and entity.force == force and entity.type == "underground-belt" then
+            local warning = state.warnings[entity.unit_number]
+            local other = warning and state.warnings[warning.partner_id]
+            if warning and other and (warning.acknowledged == true) ~= acknowledge then
+                warning.acknowledged, other.acknowledged = acknowledge, acknowledge
+                local audiences = audiences_for(by_force, force)
+                sync_warning(warning, audiences)
+                sync_warning(other, audiences)
+                count = count + 1
+            end
+        end
+    end
+    if count > 0 then
+        refresh_alerts(state.warnings)
+        state.alerts_dirty = false
+    end
+    player.create_local_flying_text({
+        text = { "reversed-underground-belt-detector." .. (acknowledge and "acknowledged" or "restored"), count },
+        create_at_cursor = true,
+    })
+end
+
+local function cursor_changed(event)
+    local player = game.get_player(event.player_index)
+    local state = storage.reversed_underground_belt_detector
+    if player and state and state.managing[player.index] ~= planner.held(player) then
+        refresh_overlays()
+    end
 end
 
 export.on_init = initialize
@@ -721,6 +979,11 @@ export.events[defines.events.on_runtime_mod_setting_changed] = function(event)
     end
 end
 export.events[defines.events.on_selected_entity_changed] = selection_changed
+export.events[defines.events.on_player_selected_area] = manage_area
+export.events[defines.events.on_player_alt_selected_area] = manage_area
+export.events[defines.events.on_player_cursor_stack_changed] = cursor_changed
+export.events[defines.events.on_player_changed_surface] = refresh_overlays
+export.events[defines.events.on_player_removed] = refresh_overlays
 export.events[defines.events.on_player_changed_force] = refresh_overlays
 export.events[defines.events.on_player_joined_game] = refresh_overlays
 export.events[defines.events.on_player_left_game] = refresh_overlays

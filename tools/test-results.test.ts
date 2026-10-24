@@ -162,6 +162,27 @@ test("native recommended dependencies and version-independent incompatibilities 
   expect(satisfies("1.0.0", incompatible)).toBe(false);
   expect(satisfies("10.0.0", incompatible)).toBe(false);
 });
+test("two-component native dependency versions mean patch zero, not a wildcard", async () => {
+  for (const [operator, expected] of [
+    [">=", true],
+    [">", true],
+    ["=", false],
+    ["<=", false],
+    ["<", false],
+  ] as const) {
+    const requirement = await Effect.runPromise(
+      parseDependency(`base ${operator} 2.1`),
+    );
+    expect(requirement.version).toBe("2.1.0");
+    expect(satisfies("2.1.21", requirement)).toBe(expected);
+  }
+  const exact = await Effect.runPromise(parseDependency("base = 2.1"));
+  expect(satisfies("2.1.0", exact)).toBe(true);
+  expect(satisfies("2.1.1", exact)).toBe(false);
+  expect(
+    await Effect.runPromise(Effect.flip(parseDependency("base >= 2.65536"))),
+  ).toBeInstanceOf(BoundaryError);
+});
 test("Steam and standalone version probes retain their real distribution identities", async () => {
   const steam = await Effect.runPromise(
     parseEngineVersion(

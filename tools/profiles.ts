@@ -23,11 +23,13 @@ import {
   dependencyPin,
   resolveDependency,
   parseDependency,
+  profileDependencies,
   satisfies,
 } from "./dependencies.ts";
 import type { Requirement } from "./dependencies.ts";
-import { hashFile } from "./files.ts";
+import { hashFile, verifyPinnedFile } from "./files.ts";
 import type { ResolvedEngine } from "./engine.ts";
+import { GraphicsPreset, resolveGraphicsPreset } from "./engine.ts";
 import { inspectArchive } from "./packaging.ts";
 import { newRun } from "./runs.ts";
 import { RunId } from "./logs.ts";
@@ -90,6 +92,18 @@ export interface Companion {
   readonly project: ResolvedProject;
   readonly artifact: Packaged;
 }
+const ProfileInputs = Schema.Struct({
+  graphics: Schema.optionalKey(GraphicsPreset),
+  dependencies: Schema.optionalKey(
+    Schema.Array(ModId).check(
+      Schema.makeFilter((items) => new Set(items).size === items.length),
+    ),
+  ),
+  productEnabled: Schema.optionalKey(Schema.Boolean),
+  settings: Schema.optionalKey(
+    Schema.Struct({ file: AbsolutePath, sha256: Sha256 }),
+  ),
+});
 interface ArchiveInput {
   readonly path: string;
   readonly sha256: string;
@@ -104,6 +118,7 @@ function resolveClosure(
   artifact: typeof ArchiveIdentity.Type,
   companions: readonly Companion[],
   purpose: typeof VerificationPurpose.Type,
+  inputs: typeof ProfileInputs.Type,
 ) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -144,7 +159,7 @@ function resolveClosure(
       if (
         packaged.mod.name !== entry.project.info.name ||
         packaged.mod.version !== entry.project.info.version ||
-        enabled.has(packaged.mod.name)
+        archives.has(packaged.mod.name)
       )
         return yield* Effect.fail(
           new BoundaryError({
@@ -152,15 +167,18 @@ function resolveClosure(
             message: "Duplicate, stale or wrong-target profile artifact",
           }),
         );
-      enabled.set(packaged.mod.name, packaged.mod.version);
+      const selected =
+        entry.project !== project || inputs.productEnabled !== false;
+      if (selected) enabled.set(packaged.mod.name, packaged.mod.version);
       archives.set(packaged.mod.name, {
         path: packaged.archive,
         sha256: packaged.sha256,
         version: packaged.mod.version,
         dependencies: packaged.dependencies,
       });
-      for (const declaration of packaged.dependencies)
-        pending.push({ owner: packaged.mod.name, declaration });
+      if (selected)
+        for (const declaration of packaged.dependencies)
+          pending.push({ owner: packaged.mod.name, declaration });
     }
     if (profile === "space-age" && !bundled.has("space-age"))
       return yield* Effect.fail(
@@ -172,6 +190,8 @@ function resolveClosure(
     const initial = [
       "base",
       ...(purpose === "suite" ? ["factorio-test"] : []),
+      ...profileDependencies[profile],
+      ...(inputs.dependencies ?? []),
       ...(profile === "space-age"
         ? [...builtins].filter((name) => name !== "base" && bundled.has(name))
         : []),
@@ -253,10 +273,40 @@ export function prepareProfile(
   artifact: typeof ArchiveIdentity.Type,
   companions: readonly Companion[],
   purpose: typeof VerificationPurpose.Type,
+  input: typeof ProfileInputs.Type = {},
 ) {
   return Effect.gen(function* () {
     yield* decode(Profile, profile, "test profile");
     yield* decode(Locale, language, "profile locale");
+    const inputs = yield* decode(ProfileInputs, input, "profile inputs");
+    const graphics = profile === "native" || profile === "gallery",
+      gallery = profile === "gallery";
+    if (!graphics && inputs.graphics !== undefined)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: profile,
+          message: "Headless profiles do not accept graphics settings",
+        }),
+      );
+    const graphicsPreset = graphics
+      ? yield* resolveGraphicsPreset(
+          gallery ? "asset" : "test",
+          inputs.graphics,
+        )
+      : null;
+    if (
+      (inputs.productEnabled === false && purpose !== "session") ||
+      (inputs.dependencies ?? []).some(
+        (name) => !project.development.verificationDependencies?.includes(name),
+      )
+    )
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: project.info.name,
+          message:
+            "Extra roots must be declared verification dependencies; product removal is session-only",
+        }),
+      );
     if (project.locales.length !== 0 && !project.locales.includes(language))
       return yield* Effect.fail(
         new BoundaryError({
@@ -294,7 +344,19 @@ export function prepareProfile(
       artifact,
       companions,
       purpose,
+      inputs,
     );
+    if (
+      inputs.productEnabled === false &&
+      closure.enabled.has(project.info.name)
+    )
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: project.info.name,
+          message:
+            "The selected closure requires the explicitly disabled product",
+        }),
+      );
     if (closure.enabled.has(observerId))
       return yield* Effect.fail(
         new BoundaryError({
@@ -311,6 +373,15 @@ export function prepareProfile(
             "Framework-free execution cannot enable FactorioTest through a production dependency",
         }),
       );
+    if (inputs.settings)
+      yield* verifyPinnedFile(
+        {
+          path: inputs.settings.file,
+          sha256: inputs.settings.sha256,
+          maxBytes: 1024 * 1024,
+        },
+        "explicit profile-settings preparation",
+      );
     const run = yield* newRun(
         project,
         `${purpose === "suite" ? "test" : purpose}-${profile}-${language}`,
@@ -326,6 +397,17 @@ export function prepareProfile(
           new BoundaryError({
             boundary: name,
             message: "Staged archive differs from the verified input",
+          }),
+        );
+    }
+    if (inputs.settings) {
+      const destination = join(modsDirectory, "mod-settings.dat");
+      yield* fs.copyFile(inputs.settings.file, destination);
+      if ((yield* hashFile(destination)) !== inputs.settings.sha256)
+        return yield* Effect.fail(
+          new BoundaryError({
+            boundary: destination,
+            message: "Staged settings differ from the verified input",
           }),
         );
     }
@@ -394,6 +476,7 @@ export function prepareProfile(
         .filter((name) => name !== "core")
         .map((name) => [name, false] as const),
     );
+    for (const name of closure.archives.keys()) toggles.set(name, false);
     for (const name of closure.enabled.keys())
       if (name !== "core") toggles.set(name, true);
     const modList = yield* decode(
@@ -414,8 +497,6 @@ export function prepareProfile(
       seed = join(directory, "input.zip");
     const seedSha256 = yield* hashFile(seedSource);
     yield* fs.copyFile(seedSource, seed);
-    const graphics = profile === "native" || profile === "gallery",
-      gallery = profile === "gallery";
     const config = yield* decode(
       RunnerConfig,
       {
@@ -427,16 +508,17 @@ export function prepareProfile(
         forbidOnly: true,
         outputTimeout: 60,
         mods: [...toggles].map(([name, enabled]) => `${name}=${enabled}`),
-        factorioArgs: graphics
-          ? [
-              "--disable-migration-window",
-              "--disable-audio",
-              "--window-size",
-              gallery ? "1920x1080" : "1600x1000",
-              "--force-graphics-preset",
-              "extreme",
-            ]
-          : [],
+        factorioArgs:
+          graphicsPreset !== null
+            ? [
+                "--disable-migration-window",
+                "--disable-audio",
+                "--window-size",
+                gallery ? "1920x1080" : "1600x1000",
+                "--force-graphics-preset",
+                graphicsPreset,
+              ]
+            : [],
         test: {
           default_timeout: 120,
           log_passed_tests: true,
@@ -463,7 +545,7 @@ export function prepareProfile(
       );
     yield* fs.writeFileString(
       join(directory, "config.ini"),
-      `[path]\nread-data=${engine.readData}\nwrite-data=${directory}\n[general]\nlocale=${language}\n[graphics]\nfull-screen=false\n${gallery ? "[interface]\nautomatic-ui-scale=false\ncustom-ui-scale=1.25\nshow-tips-and-tricks=false\n" : ""}[sound]\nmaster-muted=true\n[other]\ncheck-updates=false\nenable-crash-log-uploading=false\nautosave-interval=0\n`,
+      `[path]\nread-data=${engine.readData}\nwrite-data=${directory}\n[general]\nlocale=${language}\n[graphics]\nfull-screen=false\n${graphics ? `[interface]\nautomatic-ui-scale=false\ncustom-ui-scale=${gallery ? 1.25 : 0.75}\nshow-tips-and-tricks=false\n` : ""}[sound]\nmaster-muted=true\n[other]\ncheck-updates=false\nenable-crash-log-uploading=false\nautosave-interval=0\n`,
     );
     return {
       run,
@@ -471,6 +553,7 @@ export function prepareProfile(
       config,
       engine,
       profile,
+      graphics: graphicsPreset,
       language,
       request,
       expectedMods: Object.fromEntries(closure.enabled),

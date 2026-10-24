@@ -283,6 +283,10 @@ export function loadPrepared(project: ResolvedProject, inputVersion: string) {
           entry.request.language === manifest.locale,
         "Native proof has the wrong profile or locale",
       );
+      yield* requireRelease(
+        entry.graphics === "extreme",
+        "Prepared release captures require verified Extreme graphics",
+      );
       const scenes =
         profile === "native"
           ? project.development.native!.scenes
@@ -446,7 +450,7 @@ export function prepareRelease(
         );
         const source = yield* sourceSeal(project);
         const listing = yield* readListing(project);
-        const report = yield* verifyProjects([project], backend);
+        const report = yield* verifyProjects([project], backend, false);
         const row = report.projects[0];
         if (!row || row.status !== "passed")
           return yield* Effect.fail(
@@ -469,6 +473,7 @@ export function prepareRelease(
           ? yield* runEngineSuite(project, "native", {
               artifact,
               language,
+              graphics: "extreme",
               ...(options.engine === undefined
                 ? {}
                 : { engine: options.engine }),

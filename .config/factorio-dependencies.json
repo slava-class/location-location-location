@@ -1,0 +1,162 @@
+[
+  {
+    "name": "assemblyanalyst",
+    "version": "2.1.4",
+    "sha256": "16251be4d0ba70a74c6b90914e504c1a9f2642709e4c3a4ee5473f977a938a06"
+  },
+  {
+    "name": "belt-direction-indicator",
+    "version": "1.0.2",
+    "sha256": "f78a56dc4cb59cbf18d27e8c68574fae613c6b138dc2eeb0b39b90831908cec5"
+  },
+  {
+    "name": "belt-visualizer",
+    "version": "2.1.4",
+    "sha256": "5f81c798f26c4a3221ebe68e1cfeeb90fb25363fae8e395aff5a0e73536da993"
+  },
+  {
+    "name": "enable-all-feature-flags",
+    "version": "1.1.0",
+    "sha256": "890873e0f67c9172d13d229dab6e988814dd0f497825f2574b624839964daeb6"
+  },
+  {
+    "name": "factorio-test",
+    "version": "3.1.0",
+    "sha256": "b88d99e61307ab0af82ab3d2107aaa66f280d10373c5544fdabe6db048ec21a6"
+  },
+  {
+    "name": "flib",
+    "version": "0.17.2",
+    "sha256": "0a48c15dc0fc6c13bb3fe8293ba6cb35a07f3b0f37d37acb50ab30e32e8e019d"
+  },
+  {
+    "name": "fluid-connection-indicators",
+    "version": "0.2.9",
+    "sha256": "3538012ba9395604e40cce4778baf49a18a3f00c269ff8004e336e801e07e92e"
+  },
+  {
+    "name": "heat-visualizer",
+    "version": "2.1.1",
+    "sha256": "a721a500aa20623247ad80f728285338935bb7798a1517c6ae34336fd41a0c3e"
+  },
+  {
+    "name": "inserter-throughput-fork",
+    "version": "0.1.7",
+    "sha256": "c1bcdb5175fd606390433811e3d65ab6570f1ac913a19f05e59f7a5b0398b403"
+  },
+  {
+    "name": "inserter-throughput-lib",
+    "version": "2.1.0",
+    "sha256": "b77b75065a43f3d9c26680193abc9f8f66307368f1fcc11bd0d594cd9a6300c5"
+  },
+  {
+    "name": "pyalienlife",
+    "version": "3.1.8",
+    "sha256": "2b5e59abd509bd0a15e61f45293b72311860dcbec61be006af483720f5eb33ef"
+  },
+  {
+    "name": "pyalienlifegraphics",
+    "version": "3.1.1",
+    "sha256": "bc85c6d47ed1ecbf60106dd15c411f809bf5899f0d2cfe64412c243fc07a41b2"
+  },
+  {
+    "name": "pyalienlifegraphics2",
+    "version": "3.1.0",
+    "sha256": "af240ab03fd46a5266511648b56c1bfe9cd9576fac3b2faeab9ef88eb7be30ef"
+  },
+  {
+    "name": "pyalienlifegraphics3",
+    "version": "3.1.0",
+    "sha256": "6dba347caa017df4a16391680ad932ab9c0c97cc0561ae7390c21c399ae9c35a"
+  },
+  {
+    "name": "pyalternativeenergy",
+    "version": "3.2.9",
+    "sha256": "65d0defd061ee71dc5c26b7f55b070fc16f2cd6182741038c624ac9b7a0c2e68"
+  },
+  {
+    "name": "pyalternativeenergygraphics",
+    "version": "3.1.1",
+    "sha256": "456d29b87bdfc071f985b2f189bed4f3d8f2e9aa4ecb02097c443d2b1223e429"
+  },
+  {
+    "name": "pYBetterItemFluidStorageIcons",
+    "version": "1.0.2",
+    "sha256": "2de37fd95c4ca70bec712e15d4db65fd30ebbd3902c4102f150dfcaa4e5ebeee"
+  },
+  {
+    "name": "pycoalprocessing",
+    "version": "3.1.7",
+    "sha256": "1d4798749f2f20094b9833227b5a6c92070f26173f8586f9587f0dee9ae19f7c"
+  },
+  {
+    "name": "pycoalprocessinggraphics",
+    "version": "3.1.1",
+    "sha256": "de35f60b1767fae6261f483ae22e2720be733667c6a056d2704a5c7c528540b4"
+  },
+  {
+    "name": "pyfusionenergy",
+    "version": "3.1.5",
+    "sha256": "6be0a63d37086915eab88b82ec146c15b100a85848cc7946ee43140bf44444f4"
+  },
+  {
+    "name": "pyfusionenergygraphics",
+    "version": "3.1.1",
+    "sha256": "cfcffab7cd077e269e8424dd5e08da54eedce772cd43cc5d1e44b43488180c82"
+  },
+  {
+    "name": "pyhardmode",
+    "version": "1.3.38",
+    "sha256": "89b92f2de1d55023a96f51f195dc165e5686e1c5ada9e29d2083f7514e0dc9dc"
+  },
+  {
+    "name": "pyhightech",
+    "version": "3.1.5",
+    "sha256": "de2062a89102a41117a167eaf3c28516784564c7bba5fe77e08875b42faa5da0"
+  },
+  {
+    "name": "pyhightechgraphics",
+    "version": "3.1.1",
+    "sha256": "7dc3c18c365b9724e3f61173a49d180559affda0c01d817cd41dbb29ffa0918c"
+  },
+  {
+    "name": "pyindustry",
+    "version": "3.1.6",
+    "sha256": "ca1fe4e7c7916167352634bed28fdb45a18a4cee6d31a6eff3ddd660adf55f8c"
+  },
+  {
+    "name": "pyindustrygraphics",
+    "version": "3.1.1",
+    "sha256": "abe73128c68c7e4582436f750021d3e92fd54e22027176487730319e693b4670"
+  },
+  {
+    "name": "pypetroleumhandling",
+    "version": "3.1.3",
+    "sha256": "5c372c4c16fa9ade8db109b767a4c051e626a5d07bafcd2ea615450217febbb0"
+  },
+  {
+    "name": "pypetroleumhandlinggraphics",
+    "version": "3.1.1",
+    "sha256": "84cf13a3bafb6eaf5b38ba286beef879567009599f3b3dd960e2c6aff08ac6ee"
+  },
+  {
+    "name": "pypostprocessing",
+    "version": "3.1.6",
+    "sha256": "4e456e474db3e30b676787ab8a5091cd8af7efcdf2a79ad369ac05e29f9774b3"
+  },
+  {
+    "name": "pyrawores",
+    "version": "3.1.4",
+    "sha256": "075182d84347ce9cdc85b51e83ae6da566329f193cfb45919eed432f3c2fe3c9"
+  },
+  {
+    "name": "pyraworesgraphics",
+    "version": "3.1.1",
+    "sha256": "5dbc36c0aa56eb6826fe9e68cd91ed9abc2095277f17e3d74eaae50d9100e03c"
+  },
+  {
+    "name": "UndergroundIndicatorsFixed",
+    "version": "1.4.1",
+    "sha256": "e720c9231fd350c51281897e5fd1d9bebbcfab1c07d90de02796398d564d143b"
+  }
+]

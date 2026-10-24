@@ -1,0 +1,54 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+  Changes:
+    - Nearby recipes can follow the pointer across empty ground without helper tooltips in single-player; normal entity tooltips remain available.
+  Compatibility:
+    - Multiplayer pointer following can still show a helper tooltip or outline. Non-pointer focus modes avoid this limitation.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.5
+  Changes:
+    - Increase the default nearby recipe radius from 6 to 12 tiles, preserving existing per-player overrides.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.4
+  Features:
+    - Keep nearby recipes visible across empty gaps, with per-player retained, short-grace and immediate-hide choices.
+    - Add a shortcut-toggleable live controls panel that stays open while inspecting the factory.
+    - Show hovered inserter and ghost transfer capacity, with explicit estimates and unsupported cases.
+    - Add independent inserter, mining-drill and fluid-connection diagnostics with local ground hand-off detection.
+  Compatibility:
+    - Require Inserter Throughput Lib 2.1.0 or newer.
+    - Replace Inserter Throughput, its fork and Fluid Connection Indicators; simultaneous activation is rejected.
+  Bugfixes:
+    - Place splitter filter icons on their configured output through rotation and priority changes.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.3
+  Changes:
+    - Align connected fluid icons with native pipe icons and simplify ordinary filter overlays.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.2
+  Changes:
+    - Match recipe and content icon sizing to native ALT and preserve resolved prototype layouts.
+    - Use native yellow connection triangles that follow rotation and mirroring, including held previews.
+    - Show actual-fluid and filter-only icons at full opacity without tinting.
+    - Remove temperature labels from fluid overlays.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+  Changes:
+    - Keep a machine's recipe icon the same size when switching between nearby and hovered views.
+    - Enlarge fluid icons, remove their surrounding circles, and use filled direction triangles without arrow stems.
+    - Separate temperature labels from fluid icons and direction markers.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2026-10-21
+  Features:
+    - Independently authored contextual hover information and nearby recipe-only presentation.
+    - Quiet joint native fluid decluttering with per-player local background and construction detail.
+    - Independent optional resource icons, electrical bars, ammunition counts and temporary native ALT.
+    - Per-player presentation ownership, selection cleanup and English/German settings text.
+  Compatibility:
+    - Requires Factorio 2.1.21 or newer; no required runtime library.
+    - Explicitly excludes hover-alt-mode, Cleaner-Alt-Mode and alt-alt-mode.
+    - Keeps recipe-name text, prototype storage layouts and diagnostic mods separate.
+  Notes:
+    - The initial nearby recipe radius is a calibration trial, not a measured performance recommendation.
+    - Startup fluid suppression is shared by all players; local presentation preferences do not restore native prototypes.

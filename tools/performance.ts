@@ -313,6 +313,9 @@ function runBenchmark(
         : scenario.activity === null
           ? "benchmark"
           : "benchmark-activity",
+      {
+        dependencies: scenario.dependencies ?? [],
+      },
     );
     const { run, directory } = context;
     const save = join(directory, "input.zip");

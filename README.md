@@ -7,6 +7,7 @@ One workspace for independently packaged Factorio mods and their shared developm
 - [Location Location Location](mods/location-location-location/README.md): recipe-based map tags, factory surveying and build planning.
 - [Reversed Underground Belt Detector](mods/reversed-underground-belt-detector/README.md): an independently packaged detector, with its own tests and appearance studio.
 - [Pyanodons Polytechnic](mods/py-research-dossier/README.md): curated scientific dossiers and offline research/feedback audits. Its verification does **not** launch Factorio.
+- [Recipe Name Tooltip](mods/recipe-name-tooltip/README.md): the current recipe's localized name in a machine's existing entity tooltip.
 
 ## Start developing
 
@@ -37,6 +38,12 @@ Dependency provisioning follows the selected product's verification contract. En
 Every owned subprocess announces its run ID and exact live-log command. Generated profiles, saves, logs, captures, receipts and local release bundles live under ignored `.factorio-test/`, separately from the normal game profile.
 
 `mise run mods` is the offline fleet overview: declared capabilities, source freshness of the latest readable verification, actual profile coverage, prepared-release usability, blockers and exact next commands. It does not launch Factorio or contact the Portal; use explicit `release-status -- <mod>` when a live Portal readback is wanted.
+
+## Repository skills
+
+[factorio-mod-subsumption](.agents/skills/factorio-mod-subsumption/SKILL.md) discovers, runs and dissects current and historical mods, then hands a reviewed source-free behavior specification to a separate implementation agent. Source readers do not author the replacement; donor code is never copied or relicensed. Its investigation and handoff checklist is packaged alongside it.
+
+Skills live in the portable `.agents/skills/<name>/SKILL.md` layout. OMP discovers project skills at startup; start a new session in this checkout after adding one, then invoke `/skill:factorio-mod-subsumption` with a mod URL or capability and the desired scope. Research-only requests do not authorize implementation or publication. Workspace-wide `format --all` and `check --all` include skill Markdown.
 
 ## Licensing and attribution
 

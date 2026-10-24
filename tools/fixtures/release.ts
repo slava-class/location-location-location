@@ -11,6 +11,7 @@ import { sourceSeal } from "../source.ts";
 import { selectedCases, TestInventory } from "../test-results.ts";
 import { VerificationResult } from "../testing.ts";
 import { SmokeResult } from "../smoke.ts";
+import { Phase } from "../verification.ts";
 
 export const runFiles = <A, E>(
   effect: Effect.Effect<
@@ -229,6 +230,7 @@ export async function releaseFixture(
     return Schema.decodeUnknownSync(VerificationResult)({
       request,
       engine,
+      graphics: profile === "base" ? null : "extreme",
       source,
       directory: "/fixture/run",
       inventorySha256: source.files[`mods/${name}/dev/engine-inventory.json`],
@@ -322,7 +324,7 @@ export async function releaseFixture(
       gallery,
       smoke,
       verification: {
-        schema: 1,
+        schema: 2,
         runId: crypto.randomUUID(),
         mod,
         directory: "/fixture/verify",
@@ -332,19 +334,14 @@ export async function releaseFixture(
         startedAt: stamp,
         elapsedMs: 1,
         phase: "seal",
-        completed: [
-          "toolchain",
-          "whitespace",
-          "quality",
-          "audit",
-          "lint",
-          "types",
-          "tool-tests",
-          "models",
-          "package",
-          "engine",
-          "seal",
-        ],
+        completed: Phase.literals,
+        timings: Phase.literals.map((phase) => ({
+          phase,
+          status: "passed",
+          elapsedMs: 0,
+          execution: "project",
+          runs: [],
+        })),
         status: "passed",
         checks: {
           toolchain: { bun: "1.4.2", packages: {}, native: {} },

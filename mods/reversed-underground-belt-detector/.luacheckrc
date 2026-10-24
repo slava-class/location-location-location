@@ -13,6 +13,9 @@ files["reversed_underground_belt_detector/**/*.lua"] = {
 files["reversed_underground_belt_detector/appearance.lua"] = {
     read_globals = { data = { fields = { extend = {} } } },
 }
+files["reversed_underground_belt_detector/warning_planner.lua"] = {
+    read_globals = { data = { fields = { extend = {}, raw = { other_fields = true } } } },
+}
 files["tests/**/*.lua"] = {
     std = "+workshop_runtime+workshop_tests",
     read_globals = { storage = storage_fields },

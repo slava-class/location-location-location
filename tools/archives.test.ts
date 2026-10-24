@@ -127,6 +127,22 @@ test("ZIP64 and directory records retain exact payloads; Factorio's omitted depe
     ),
   ).toEqual(Buffer.from("payload to corrupt"));
 });
+test("engine-valid unversioned mod roots retain identity and exact relative members", async () => {
+  const path = await fixture(
+    await zipped([
+      { name: "probe", directory: true },
+      { name: "probe/info.json", text: valid[0]!.text },
+      { name: "probe/file.lua", text: valid[1]!.text },
+    ]),
+  );
+  const sha256 = new Bun.CryptoHasher("sha256")
+    .update(await readFile(path))
+    .digest("hex");
+  const result = await runFiles(inspectArchive(path, sha256));
+  expect(result.mod).toEqual({ name: "probe", version: "1.0.0" });
+  expect(result.members).toEqual(["file.lua", "info.json"]);
+  expect(result.sha256).toBe(sha256);
+});
 test("ZIP rejects corrupt payloads, truncation, local-name disagreement, encryption and dishonest sizes", async () => {
   const original = await zipped(valid);
   const corrupt = Buffer.from(original);
@@ -245,6 +261,8 @@ test("package metadata must agree with its one root; dependency types are valida
   for (const entries of [
     [...valid, { name: "elsewhere/file.lua" }],
     [{ name: "wrong_1.0.0/info.json", text: valid[0]!.text }],
+    [{ name: "probe_0.9.0/info.json", text: valid[0]!.text }],
+    [...valid, { name: "probe/file.lua" }],
     [
       {
         name: "probe_1.0.0/info.json",

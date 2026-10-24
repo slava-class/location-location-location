@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import {
+  access,
   copyFile,
   mkdir,
   mkdtemp,
@@ -9,6 +10,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { dependencyPin } from "./dependencies.ts";
 import { runFiles } from "./fixtures/release.ts";
 import { packageProject } from "./packaging.ts";
 import { prepareProfile } from "./profiles.ts";
@@ -171,3 +173,153 @@ test("frozen profile inputs reject wrong targets, versions and changed bytes", a
     ),
   ).toBeInstanceOf(BoundaryError);
 }, 30000);
+
+test("pY verification fails on an unprovisioned pinned closure before allocating a run", async () => {
+  const f = await fixture();
+  const archive = await f.build();
+  const pin = await runFiles(dependencyPin("pyhardmode"));
+  const failure = await runFiles(
+    Effect.flip(
+      prepareProfile(
+        f.project,
+        f.engine,
+        "py-hardmode",
+        "en",
+        archive,
+        [],
+        "benchmark",
+      ),
+    ),
+  );
+  expect(failure).toMatchObject({
+    _tag: "BoundaryError",
+    boundary: join(
+      f.root,
+      ".factorio-test/cache/dependencies",
+      `${pin.name}_${pin.version}.zip`,
+    ),
+  });
+  expect(
+    await access(join(f.project.outputRoot, "runs")).catch(
+      (error: unknown) => error,
+    ),
+  ).toMatchObject({ code: "ENOENT" });
+});
+
+test("session removal stages the exact product disabled and never relaxes verification profiles", async () => {
+  const f = await fixture(),
+    built = await f.build();
+  const context = await runFiles(
+    prepareProfile(f.project, f.engine, "base", "en", built, [], "session", {
+      productEnabled: false,
+    }),
+  );
+  expect(context.expectedMods).toEqual({ base: "2.1.21" });
+  expect(context.archives.probe?.sha256).toBe(built.sha256);
+  for (const purpose of ["suite", "package-smoke", "benchmark"] as const)
+    expect(
+      await runFiles(
+        Effect.flip(
+          prepareProfile(
+            f.project,
+            f.engine,
+            "base",
+            "en",
+            built,
+            [],
+            purpose,
+            {
+              productEnabled: false,
+            },
+          ),
+        ),
+      ),
+    ).toBeInstanceOf(BoundaryError);
+});
+
+test("undeclared and duplicate verification roots fail before profile allocation", async () => {
+  const f = await fixture(),
+    built = await f.build();
+  for (const dependencies of [["flib"], ["flib", "flib"]]) {
+    expect(
+      await runFiles(
+        Effect.flip(
+          prepareProfile(
+            f.project,
+            f.engine,
+            "base",
+            "en",
+            built,
+            [],
+            "session",
+            {
+              dependencies,
+            },
+          ),
+        ),
+      ),
+    ).toBeInstanceOf(BoundaryError);
+  }
+  expect(
+    await access(join(f.project.outputRoot, "runs")).catch(
+      (error: unknown) => error,
+    ),
+  ).toMatchObject({ code: "ENOENT" });
+});
+
+test("declared optional verification roots require their exact provisioned pin", async () => {
+  const f = await fixture(),
+    built = await f.build();
+  const project = {
+    ...f.project,
+    development: { verificationDependencies: ["flib"] },
+  };
+  const pin = await runFiles(dependencyPin("flib"));
+  const failure = await runFiles(
+    Effect.flip(
+      prepareProfile(project, f.engine, "base", "en", built, [], "session", {
+        dependencies: ["flib"],
+      }),
+    ),
+  );
+  expect(failure).toMatchObject({
+    _tag: "BoundaryError",
+    boundary: join(
+      f.root,
+      ".factorio-test/cache/dependencies",
+      `${pin.name}_${pin.version}.zip`,
+    ),
+  });
+  expect(
+    await access(join(f.project.outputRoot, "runs")).catch(
+      (error: unknown) => error,
+    ),
+  ).toMatchObject({ code: "ENOENT" });
+});
+
+test("changed profile settings fail before allocating a run", async () => {
+  const f = await fixture(),
+    built = await f.build();
+  const file = join(f.root, "owned-mod-settings.dat");
+  const original = new Uint8Array([1, 2, 3, 4]);
+  const sha256 = new Bun.CryptoHasher("sha256").update(original).digest("hex");
+  await writeFile(file, new Uint8Array([1, 2, 3, 5]));
+  const failure = await runFiles(
+    Effect.flip(
+      prepareProfile(f.project, f.engine, "base", "en", built, [], "session", {
+        settings: { file, sha256 },
+      }),
+    ),
+  );
+  expect(failure).toMatchObject({
+    _tag: "BoundaryError",
+    boundary: file,
+    message:
+      "Cached input differs from its size/checksum pin; refusing substitution",
+  });
+  expect(
+    await access(join(f.project.outputRoot, "runs")).catch(
+      (error: unknown) => error,
+    ),
+  ).toMatchObject({ code: "ENOENT" });
+});

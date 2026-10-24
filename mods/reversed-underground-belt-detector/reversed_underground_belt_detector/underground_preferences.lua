@@ -1,3 +1,4 @@
+local planner = require("reversed_underground_belt_detector.warning_planner")
 local export = {
     alert_setting = "reversed_underground_belt_detector_alerts",
     overlay_setting = "reversed_underground_belt_detector_overlay",
@@ -16,16 +17,22 @@ function export.hovered_mouth(player)
 end
 
 ---@param force LuaForce
----@return table<RUBDStyle, RUBDAudience>
+---@return RUBDAudiences
 function export.audiences(force)
-    ---@type table<RUBDStyle, RUBDAudience>
+    ---@type RUBDAudiences
     local result = {
         pulsing = { mouths = {}, hovering = {} },
         steady = { mouths = {}, hovering = {} },
+        managers = {},
     }
     for _, player in pairs(force.players) do
+        local managing = player.connected and planner.held(player)
         local mode = player.mod_settings[export.overlay_setting].value
         ---@cast mode RUBDOverlayMode
+        if managing then
+            result.managers[#result.managers + 1] = player
+            mode = "steady"
+        end
         if mode ~= "off" then
             local audience = result[mode]
             audience.mouths[#audience.mouths + 1] = player

@@ -501,30 +501,47 @@ test("unsupported save versions fail rather than reusing an old progression resu
   });
 });
 
-test("numeric chunk ordering joins split records and reads only the supported first nine chunks", async () => {
-  const data = saveFixture();
-  await withSave(data, async (save, rewrite) => {
-    const chunks = Array.from({ length: 11 }, (_, index) => ({
-      name: `fixture/level.dat${index}`,
-      bytes:
-        index < 9
-          ? deflateSync(
-              data.subarray(
-                Math.floor((data.length * index) / 9),
-                Math.floor((data.length * (index + 1)) / 9),
-              ),
-            )
-          : Buffer.from("outside the supported parsing window"),
-    })).reverse();
-    await rewrite(data, { chunks });
-    const result = await Effect.runPromise(
-      readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
-    );
-    expect(result.decompressedBytes).toBe(data.length);
-    expect(result.forces.player.enabledRecipes).toEqual(["enabled"]);
-    expect(result.forces.player.researchedTechnologies).toEqual(["early"]);
-  });
-});
+test.each(["large player record", "split records"])(
+  "saved-force readback follows complete records beyond nine chunks: %s",
+  async (layout) => {
+    let data = saveFixture();
+    if (layout === "large player record") {
+      const enemy = data.indexOf("\x02\x05enemy");
+      data = Buffer.concat([
+        data.subarray(0, enemy),
+        Buffer.alloc(9 * 1024 * 1024),
+        data.subarray(enemy),
+      ]);
+    }
+    const chunkSize = layout === "large player record" ? 1024 * 1024 : 7;
+    await withSave(data, async (save, rewrite) => {
+      const chunks = [];
+      for (let offset = 0; offset < data.length; offset += chunkSize) {
+        chunks.push({
+          name: `fixture/level.dat${chunks.length}`,
+          bytes: deflateSync(data.subarray(offset, offset + chunkSize)),
+        });
+      }
+      chunks.push({
+        name: `fixture/level.dat${chunks.length}`,
+        bytes: Buffer.from("world data outside the completed force prefix"),
+      });
+      await rewrite(data, { chunks: chunks.reverse() });
+      const result = await Effect.runPromise(
+        readSavedProgress(save).pipe(Effect.provide(BunServices.layer)),
+      );
+      expect(result.decompressedBytes).toBe(data.length);
+      expect(result.forces.player.enabledRecipes).toEqual(["enabled"]);
+      expect(result.forces.player.researchedTechnologies).toEqual(["early"]);
+      expect(result.forces.player.triggers).toEqual([
+        { technology: "triggered", kind: 0, progress: 5 },
+      ]);
+      expect(result.forces.enemy.researchedTechnologies).toEqual([]);
+      expect(result.forces.neutral.enabledRecipes).toEqual([]);
+      expect(result.forces.neutral.researchedTechnologies).toEqual([]);
+    });
+  },
+);
 test("prototype serialization order does not replace numeric research identities", async () => {
   const data = saveFixture();
   data.writeUInt16LE(2, data.indexOf("enabled") + "enabled".length);
@@ -551,6 +568,7 @@ test.each(
     },
     "ambiguous normal force": (data) =>
       Buffer.concat([data, Buffer.from("\x03\x07neutral")]),
+    "truncated final force": (data) => data.subarray(0, -1),
     "ambiguous player vectors": (data) => {
       const player = data.indexOf("\x01\x06player") + 8,
         enemy = data.indexOf("\x02\x05enemy");
@@ -657,6 +675,30 @@ test("nested level decompression is bounded before binary parsing", async () => 
     );
     expect(error).toBeInstanceOf(BoundaryError);
     expect(error.boundary).toBe("fixture/level.dat0");
+  });
+});
+test("incomplete force prefixes cannot inflate beyond the aggregate ceiling", async () => {
+  const fixture = saveFixture();
+  const first = Buffer.alloc(16 * 1024 * 1024);
+  fixture.subarray(0, fixture.indexOf("\x03\x07neutral")).copy(first);
+  const empty = deflateSync(Buffer.alloc(first.length));
+  await withSave(fixture, async (save, rewrite) => {
+    const chunks = Array.from({ length: 9 }, (_, index) => ({
+      name: `fixture/level.dat${index}`,
+      bytes: index === 0 ? deflateSync(first) : empty,
+    }));
+    chunks.push({
+      name: "fixture/level.dat9",
+      bytes: deflateSync(Buffer.from([0])),
+    });
+    await rewrite(fixture, { chunks });
+    const error = await Effect.runPromise(
+      Effect.flip(readSavedProgress(save)).pipe(
+        Effect.provide(BunServices.layer),
+      ),
+    );
+    expect(error).toBeInstanceOf(BoundaryError);
+    expect(error.message).toContain("144 MiB inflated limit");
   });
 });
 test("save identity retains whole-second and microsecond UTC timestamps", async () => {

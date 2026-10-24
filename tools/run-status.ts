@@ -430,6 +430,9 @@ function inspectRecord(record: typeof RunRecord.Type) {
           if (
             result.source.sha256 !== request.source.sha256 ||
             result.engine.sha256 !== request.engine.sha256 ||
+            ("graphics" in request &&
+              (!("graphics" in result) ||
+                result.graphics !== request.graphics)) ||
             result.request.artifactSha256 !== request.request.artifactSha256 ||
             result.request.mod.version !== request.request.mod.version ||
             result.request.profile !== request.request.profile ||

@@ -115,7 +115,11 @@ export const LuaTypeName = Schema.String.check(
 export const Locale = Schema.String.check(
   Schema.isPattern(/^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$(?![\s\S])/u),
 );
-export const TestProfile = Schema.Literals(["base", "space-age"]);
+export const TestProfile = Schema.Literals([
+  "base",
+  "space-age",
+  "py-hardmode",
+]);
 export const TunerId = Schema.String.check(
   Schema.isPattern(/^[a-z][a-z0-9-]{0,47}$(?![\s\S])/u),
 );
@@ -148,6 +152,7 @@ const DevConfig = Schema.Struct({
   ),
   packageExtras: Schema.optionalKey(Schema.Array(RelativePath)),
   companions: Schema.optionalKey(Schema.Array(ModId)),
+  verificationDependencies: Schema.optionalKey(Schema.Array(ModId)),
   performance: Schema.optionalKey(RelativePath),
   tuners: Schema.optionalKey(Schema.Array(TunerId)),
 });

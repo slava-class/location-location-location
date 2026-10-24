@@ -15,6 +15,10 @@ export default {
         name: "01 reversed-underground",
         file: "release-ui/01-reversed-underground.png",
       },
+      {
+        name: "02 warning-planner",
+        file: "release-ui/02-warning-planner.png",
+      },
     ],
     gallerySuite: "Underground detector gallery",
     gallery: [

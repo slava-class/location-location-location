@@ -2,6 +2,7 @@ describe("reversed underground warnings", function()
     local undergrounds = require("reversed_underground_belt_detector.undergrounds")
     local appearance = require("reversed_underground_belt_detector.appearance")
     local preferences = require("reversed_underground_belt_detector.underground_preferences")
+    local planner = require("reversed_underground_belt_detector.warning_planner")
     local surface, player, force
     local extra_surfaces = {}
     local message = { "reversed-underground-belt-detector.warning" }
@@ -53,6 +54,27 @@ describe("reversed underground warnings", function()
         return entities
     end
 
+    local function create_mouth(x, y, direction, role, target)
+        return assert((target or surface).create_entity({
+            name = "underground-belt",
+            position = { x, y },
+            direction = direction,
+            type = role,
+            force = force,
+            raise_built = true,
+        }))
+    end
+
+    local function feed(x, y, direction, target)
+        return assert((target or surface).create_entity({
+            name = "transport-belt",
+            position = { x, y },
+            direction = direction,
+            force = force,
+            raise_built = true,
+        }))
+    end
+
     local function grid(count, target, columns)
         columns = columns or 8
         local rows, result = math.ceil(count / columns), {}
@@ -83,6 +105,24 @@ describe("reversed underground warnings", function()
         return target
     end
 
+    local function manage(entities, restore, item)
+        local event = restore and defines.events.on_player_alt_selected_area or defines.events.on_player_selected_area
+        undergrounds.events[event]({
+            name = event,
+            player_index = player.index,
+            entities = entities,
+            item = item or planner.name,
+            surface = surface,
+        })
+    end
+
+    local function acknowledged(entity)
+        local warning = assert(storage.reversed_underground_belt_detector.warnings[entity.unit_number])
+        assert(warning.acknowledged and not warning.sprite.visible and not warning.span and not warning.steady)
+        assert(#alerts(entity) == 0, "Intentional connections must not renew map alerts")
+        return warning
+    end
+
     before_all(function()
         surface = game.create_surface("underground-warning-tests", { width = 128, height = 128, water = 0 })
         surface.request_to_generate_chunks({ 0, 0 }, 2)
@@ -102,12 +142,14 @@ describe("reversed underground warnings", function()
         player.set_controller({ type = defines.controllers.god })
         player.force = force
         player.teleport({ 0, 10 }, surface)
+        player.cursor_stack.clear()
         player.clear_selected_entity()
         set_overlay("pulsing")
         force.chart(surface, { { -32, -32 }, { 32, 32 } })
     end)
     after_each(function()
         generate_alerts(false)
+        player.cursor_stack.clear()
         player.teleport({ 0, 10 }, surface)
         for _, target in ipairs(extra_surfaces) do
             if target.valid then
@@ -158,10 +200,199 @@ describe("reversed underground warnings", function()
         end)
     end)
 
-    test("waits for both exterior belts and a connected pair instead of flagging turns or dead ends", function()
+    test(
+        "detects reversed directions and endpoint roles from one attached surface belt in every orientation",
+        function()
+            local target = extra_surface("underground-role-matrix")
+            -- Facing inputs are normalized by native placement into a correct pair.
+            local cases = {
+                { false, "input", false, "input" },
+                { false, "input", true, "output" },
+                { true, "output", false, "input" },
+                { true, "output", true, "input" },
+                { true, "output", false, "output" },
+                { true, "output", true, "output" },
+            }
+            local connections = {}
+            for row, case in ipairs(cases) do
+                for column, spec in ipairs(directions) do
+                    local direction, dx, dy = spec[1], spec[2], spec[3]
+                    local reverse = (direction + 8) % 16
+                    local x, y = -60 + column * 24, -80 + row * 20
+                    local first = create_mouth(x, y, case[1] and reverse or direction, case[2], target)
+                    local second =
+                        create_mouth(x + 4 * dx, y + 4 * dy, case[3] and reverse or direction, case[4], target)
+                    feed(x - dx, y - dy, direction, target)
+                    connections[#connections + 1] = { first, second, case = row, direction = direction }
+                end
+            end
+            after_ticks(2, function()
+                local warnings = storage.reversed_underground_belt_detector.warnings
+                for _, connection in ipairs(connections) do
+                    for index, entity in ipairs(connection) do
+                        local other = connection[3 - index]
+                        local warning = assert(
+                            warnings[entity.unit_number],
+                            "Missing case "
+                                .. connection.case
+                                .. " direction "
+                                .. connection.direction
+                                .. " endpoint "
+                                .. index
+                                .. " actual "
+                                .. entity.belt_to_ground_type
+                                .. "/"
+                                .. entity.direction
+                                .. " other "
+                                .. other.belt_to_ground_type
+                                .. "/"
+                                .. other.direction
+                                .. " native "
+                                .. tostring(entity.underground_belt_neighbour ~= nil)
+                                .. "/"
+                                .. tostring(other.underground_belt_neighbour ~= nil)
+                        )
+                        assert(warning.partner_id == connection[3 - index].unit_number)
+                        assert(warning.sprite.orientation == entity.direction / 16, "Arrows must show actual direction")
+                        if not entity.underground_belt_neighbour then
+                            assert(not warning.span, "A possible connection must not pretend to have a native span")
+                        end
+                    end
+                end
+            end)
+        end
+    )
+
+    test("detects the crossing layout without warning its perpendicular underground pair", function()
+        local first = create_mouth(-8, 0, defines.direction.west, "output")
+        local second = create_mouth(-4, 0, defines.direction.west, "output")
+        local top = create_mouth(-4, -1, defines.direction.north, "output")
+        local bottom = create_mouth(-4, 1, defines.direction.north, "input")
+        assert(top.underground_belt_neighbour == bottom)
+        feed(-9, 0, defines.direction.east)
+        for y = -3, 3 do
+            feed(-5, y, defines.direction.south)
+            feed(-3, y, defines.direction.north)
+        end
+        after_ticks(61, function()
+            local warnings = storage.reversed_underground_belt_detector.warnings
+            assert(warnings[first.unit_number] and warnings[second.unit_number])
+            assert(#alerts(first) == 1 and #alerts(second) == 1)
+            assert(not warnings[top.unit_number] and not warnings[bottom.unit_number])
+            assert(not warnings[first.unit_number].span and not warnings[second.unit_number].span)
+        end)
+    end)
+
+    test("tracks construction and removal of the evidence for an unpaired candidate", function()
+        local first = create_mouth(-8, 0, defines.direction.west, "output")
+        after_ticks(2, function()
+            local belt = feed(-9, 0, defines.direction.east)
+            after_ticks(2, function()
+                assert(not storage.reversed_underground_belt_detector.warnings[first.unit_number])
+                local second = create_mouth(-4, 0, defines.direction.west, "output")
+                local second_id = second.unit_number
+                after_ticks(2, function()
+                    local warnings = storage.reversed_underground_belt_detector.warnings
+                    assert(warnings[first.unit_number] and warnings[second_id])
+                    belt.destroy({ raise_destroy = true })
+                    after_ticks(2, function()
+                        assert(not warnings[first.unit_number] and not warnings[second_id])
+                        feed(-9, 0, defines.direction.east)
+                        after_ticks(2, function()
+                            assert(warnings[first.unit_number] and warnings[second_id])
+                            second.destroy({ raise_destroy = true })
+                            after_ticks(2, function()
+                                assert(not warnings[first.unit_number] and not warnings[second_id])
+                                assert(storage.reversed_underground_belt_detector.validation_count == 0)
+                            end)
+                        end)
+                    end)
+                end)
+            end)
+        end)
+    end)
+
+    test("does not infer a connection from hood-adjacent belts or mouths paired elsewhere", function()
+        local back = create_mouth(-12, -8, defines.direction.east, "output")
+        local other = create_mouth(-8, -8, defines.direction.west, "output")
+        feed(-13, -8, defines.direction.east)
+        local isolated = create_mouth(-12, 8, defines.direction.west, "output")
+        feed(-13, 8, defines.direction.east)
+        local paired = create_mouth(-8, 8, defines.direction.west, "output")
+        local partner = create_mouth(-6, 8, defines.direction.west, "input")
+        assert(paired.underground_belt_neighbour == partner)
+        after_ticks(61, function()
+            local warnings = storage.reversed_underground_belt_detector.warnings
+            for _, entity in ipairs({ back, other, isolated, paired, partner }) do
+                assert(not warnings[entity.unit_number], "Adjacency must not override actual mouth or pairing geometry")
+            end
+        end)
+    end)
+
+    test("leaves competing possible connections unclassified", function()
+        local first = create_mouth(-8, 0, defines.direction.west, "output")
+        local middle = create_mouth(-5, 0, defines.direction.west, "output")
+        local last = create_mouth(-2, 0, defines.direction.west, "output")
+        feed(-9, 0, defines.direction.east)
+        feed(-6, 0, defines.direction.east)
+        after_ticks(61, function()
+            local warnings = storage.reversed_underground_belt_detector.warnings
+            assert(
+                not warnings[first.unit_number] and not warnings[middle.unit_number] and not warnings[last.unit_number]
+            )
+        end)
+    end)
+
+    test("relinks warnings to the new surface-fed pair and clears the former partner", function()
+        local entities = line(directions[1], true, { -8, 0 })
+        after_ticks(2, function()
+            local warnings = storage.reversed_underground_belt_detector.warnings
+            local old_span = warnings[entities[3].unit_number].span
+            local replacement = create_mouth(-6, 0, defines.direction.west, "input")
+            after_ticks(2, function()
+                assert(entities[2].underground_belt_neighbour == replacement)
+                assert(warnings[entities[2].unit_number].partner_id == replacement.unit_number)
+                assert(warnings[replacement.unit_number].partner_id == entities[2].unit_number)
+                assert(not warnings[entities[3].unit_number])
+                for _, sprite in ipairs(old_span) do
+                    assert(not sprite.valid, "The former span must not survive relinking")
+                end
+            end)
+        end)
+    end)
+
+    test("surveys and reloads unpaired warnings and clears them after the intended connection is corrected", function()
+        create_mouth(-8, 0, defines.direction.west, "output")
+        create_mouth(-4, 0, defines.direction.west, "output")
+        feed(-9, 0, defines.direction.east)
+        undergrounds.on_configuration_changed()
+        after_ticks(2, function()
+            assert(table_size(storage.reversed_underground_belt_detector.warnings) == 2)
+        end)
+    end).after_reload_mods(function()
+        surface = game.surfaces["underground-warning-tests"]
+        force = game.forces["underground-warning-team"]
+        player = game.get_player(1)
+        local first = assert(surface.find_entity("underground-belt", { -7.5, 0.5 }))
+        local second = assert(surface.find_entity("underground-belt", { -3.5, 0.5 }))
+        local warnings = storage.reversed_underground_belt_detector.warnings
+        assert(warnings[first.unit_number] and warnings[second.unit_number])
+        first.destroy({ raise_destroy = true })
+        second.destroy({ raise_destroy = true })
+        local input = create_mouth(-8, 0, defines.direction.east, "input")
+        local output = create_mouth(-4, 0, defines.direction.east, "output")
+        assert(input.underground_belt_neighbour == output)
+        after_ticks(2, function()
+            assert(not next(warnings), "Correcting both role and direction must clear the possible-connection warning")
+        end)
+    end)
+
+    test("requires a compatible connection and attached surface flow rather than flagging isolated mouths", function()
         local missing = line(directions[1], true, { -12, -8 })
+        missing[1].destroy({ raise_destroy = true })
         missing[4].destroy({ raise_destroy = true })
         local turning = line(directions[1], true, { -12, 0 })
+        turning[1].direction = defines.direction.north
         turning[4].direction = defines.direction.south
         local unpaired = line(directions[1], true, { -12, 8 })
         unpaired[3].destroy({ raise_destroy = true })
@@ -172,44 +403,56 @@ describe("reversed underground warnings", function()
         end)
     end)
 
-    test("building the last exterior belt detects the pair and removing it clears only owned warnings", function()
-        async(240)
-        local entities = line(directions[1], true, { -8, 0 })
-        entities[4].destroy({ raise_destroy = true })
-        after_ticks(61, function()
-            assert(#alerts(entities[2]) == 0)
-            entities[4] = assert(surface.create_entity({
-                name = "transport-belt",
-                position = { -3, 0 },
-                direction = defines.direction.east,
-                force = force,
-                raise_built = true,
-            }))
+    test(
+        "building the first exterior belt detects the pair and removing the last clears only owned warnings",
+        function()
+            async(240)
+            local entities = line(directions[1], true, { -8, 0 })
+            entities[1].destroy({ raise_destroy = true })
+            entities[4].destroy({ raise_destroy = true })
             after_ticks(61, function()
-                assert(#alerts(entities[2]) == 1 and #alerts(entities[3]) == 1)
-                local sprite = storage.reversed_underground_belt_detector.warnings[entities[2].unit_number].sprite
-                local span = storage.reversed_underground_belt_detector.warnings[entities[3].unit_number].span
-                player.add_custom_alert(entities[2], { type = "item", name = "iron-plate" }, "Unrelated alert", true)
-                entities[4].destroy({ raise_destroy = true })
+                assert(#alerts(entities[2]) == 0)
+                entities[4] = assert(surface.create_entity({
+                    name = "transport-belt",
+                    position = { -3, 0 },
+                    direction = defines.direction.east,
+                    force = force,
+                    raise_built = true,
+                }))
                 after_ticks(61, function()
-                    assert(#alerts(entities[2]) == 0 and #alerts(entities[3]) == 0)
-                    assert(not sprite.valid, "Resolved warnings must disappear from the world")
-                    for _, object in ipairs(span) do
-                        assert(not object.valid, "Resolving a warning must remove its entire underground span")
-                    end
-                    local remaining = player.get_alerts({
-                        entity = entities[2],
-                        type = defines.alert_type.custom,
-                        message = "Unrelated alert",
-                    })
-                    assert(remaining[surface.index][defines.alert_type.custom][1], "Other custom alerts must survive")
-                    done()
+                    assert(#alerts(entities[2]) == 1 and #alerts(entities[3]) == 1)
+                    local sprite = storage.reversed_underground_belt_detector.warnings[entities[2].unit_number].sprite
+                    local span = storage.reversed_underground_belt_detector.warnings[entities[3].unit_number].span
+                    player.add_custom_alert(
+                        entities[2],
+                        { type = "item", name = "iron-plate" },
+                        "Unrelated alert",
+                        true
+                    )
+                    entities[4].destroy({ raise_destroy = true })
+                    after_ticks(61, function()
+                        assert(#alerts(entities[2]) == 0 and #alerts(entities[3]) == 0)
+                        assert(not sprite.valid, "Resolved warnings must disappear from the world")
+                        for _, object in ipairs(span) do
+                            assert(not object.valid, "Resolving a warning must remove its entire underground span")
+                        end
+                        local remaining = player.get_alerts({
+                            entity = entities[2],
+                            type = defines.alert_type.custom,
+                            message = "Unrelated alert",
+                        })
+                        assert(
+                            remaining[surface.index][defines.alert_type.custom][1],
+                            "Other custom alerts must survive"
+                        )
+                        done()
+                    end)
                 end)
             end)
-        end)
-    end)
+        end
+    )
 
-    for _, action in ipairs({ "rotate exterior", "remove exterior", "remove mouth", "relink pair" }) do
+    for _, action in ipairs({ "rotate exterior", "remove exterior evidence", "remove mouth" }) do
         test("clears both mouths and span promptly after " .. action, function()
             async(180)
             local entities = line(directions[1], true, { -8, 0 })
@@ -230,19 +473,11 @@ describe("reversed underground warnings", function()
                             name = defines.events.on_player_rotated_entity,
                             previous_direction = defines.direction.east,
                         })
-                    elseif action == "remove exterior" then
+                    elseif action == "remove exterior evidence" then
                         entities[1].destroy({ raise_destroy = true })
+                        entities[4].destroy({ raise_destroy = true })
                     elseif action == "remove mouth" then
                         entities[2].destroy({ raise_destroy = true })
-                    else
-                        assert(surface.create_entity({
-                            name = "underground-belt",
-                            position = { -6, 0 },
-                            direction = defines.direction.west,
-                            type = "input",
-                            force = force,
-                            raise_built = true,
-                        }))
                     end
                     after_ticks(2, function()
                         assert(not left.valid and not right.valid, "Both mouth warnings must clear within two ticks")
@@ -306,7 +541,7 @@ describe("reversed underground warnings", function()
     test("rotation of ordinary belts into opposing flow detects an existing underground pair", function()
         async(180)
         local entities = line(directions[1], true, { -8, 0 }, "fast-underground-belt")
-        entities[4].direction = defines.direction.south
+        entities[4].direction = defines.direction.west
         after_ticks(61, function()
             assert(#alerts(entities[2]) == 0)
             local previous = entities[4].direction
@@ -330,6 +565,7 @@ describe("reversed underground warnings", function()
         local own = line(directions[1], true, { -8, -4 })
         local foreign = line(directions[1], true, { -8, 4 })
         foreign[1].force = game.forces.player
+        foreign[4].force = game.forces.player
         after_ticks(61, function()
             assert(#alerts(own[2]) == 1 and #alerts(foreign[2]) == 0)
             player.force = game.forces.player
@@ -465,6 +701,7 @@ describe("reversed underground warnings", function()
             after_ticks(61, function()
                 assert(warnings[entities[2].unit_number] and warnings[entities[3].unit_number])
                 entities[1].force = game.forces.player
+                entities[4].force = game.forces.player
                 after_ticks(61, function()
                     assert(not warnings[entities[2].unit_number] and not warnings[entities[3].unit_number])
                     assert(#alerts(entities[2]) == 0 and #alerts(entities[3]) == 0)
@@ -709,6 +946,7 @@ describe("reversed underground warnings", function()
             end
             local id, sprite = revived[2].unit_number, warnings[revived[2].unit_number].sprite
             assert(revived[1].die())
+            assert(revived[4].die())
             after_ticks(2, function()
                 assert(not sprite.valid and not warnings[id] and not warnings[revived[3].unit_number])
                 assert(warnings[cloned[2].unit_number].sprite.valid)
@@ -782,6 +1020,7 @@ describe("reversed underground warnings", function()
             -- while every surviving entry still needs background repair.
             for _, index in ipairs({ 1, 1000, 2000 }) do
                 entities[index][1].destroy({ raise_destroy = true })
+                entities[index][4].destroy({ raise_destroy = true })
             end
             local previous, elapsed = 0, 0
             local function sample()
@@ -922,6 +1161,194 @@ describe("reversed underground warnings", function()
                 assert(not sprite.valid)
                 local other = assert(surface.find_entity("express-underground-belt", { -3.5, 0.5 }))
                 assert(#alerts(other) == 0, "A removed endpoint must clear its surviving partner's warning")
+                done()
+            end)
+        end)
+    end)
+
+    test("acknowledges either mouth in bulk and restores only selected connections", function()
+        local rows, selected = {}, {}
+        for index, spec in ipairs(directions) do
+            rows[index] = line(spec, true, { -12 + index * 6, -12 })
+            selected[#selected + 1] = rows[index][index % 2 + 2]
+        end
+        selected[#selected + 1] = rows[1][2]
+        selected[#selected + 1] = rows[1][3]
+        local foreign = line(directions[1], true, { -8, 14 })
+        for _, entity in ipairs(foreign) do
+            entity.force = game.forces.player
+        end
+        selected[#selected + 1] = foreign[2]
+        after_ticks(61, function()
+            manage(selected, false, "deconstruction-planner")
+            assert(not storage.reversed_underground_belt_detector.warnings[rows[1][2].unit_number].acknowledged)
+            manage(selected)
+            manage(selected) -- Selecting both ends or selecting again must never toggle.
+            for _, row in ipairs(rows) do
+                acknowledged(row[2])
+                acknowledged(row[3])
+            end
+            assert(not storage.reversed_underground_belt_detector.warnings[foreign[2].unit_number].acknowledged)
+            manage({ rows[1][3], rows[1][2] }, true)
+            for _, index in ipairs({ 2, 3 }) do
+                local warning = storage.reversed_underground_belt_detector.warnings[rows[1][index].unit_number]
+                assert(not warning.acknowledged and warning.sprite.visible and #alerts(rows[1][index]) == 1)
+            end
+            for index = 2, #rows do
+                acknowledged(rows[index][2])
+                acknowledged(rows[index][3])
+            end
+        end)
+    end)
+
+    test("acknowledges unpaired caps without ignoring future faults in the same area", function()
+        async(180)
+        local a = create_mouth(-8, 0, defines.direction.west, "output")
+        local b = create_mouth(-4, 0, defines.direction.west, "output")
+        feed(-9, 0, defines.direction.east)
+        after_ticks(61, function()
+            assert(not a.underground_belt_neighbour and not b.underground_belt_neighbour)
+            manage({ a })
+            acknowledged(a)
+            acknowledged(b)
+            manage({})
+            local new = line(directions[1], true, { -8, 4 })
+            after_ticks(61, function()
+                acknowledged(a)
+                acknowledged(b)
+                assert(#alerts(new[2]) == 1 and #alerts(new[3]) == 1)
+                manage({ b }, true)
+                assert(#alerts(a) == 1 and #alerts(b) == 1)
+                done()
+            end)
+        end)
+    end)
+
+    test("keeps acknowledgements through unrelated building item flow hover and overlay changes", function()
+        async(240)
+        local row = line(directions[1], true, { -8, 0 })
+        after_ticks(61, function()
+            manage({ row[2] })
+            feed(-7, 0, defines.direction.north) -- Beside the hood, not exterior flow evidence.
+            assert(row[1].get_transport_line(1).insert_at_back({ name = "iron-plate", count = 1 }))
+            set_overlay("steady")
+            player.selected = row[2]
+            after_ticks(61, function()
+                acknowledged(row[2])
+                acknowledged(row[3])
+                player.clear_selected_entity()
+                set_overlay("off")
+                after_ticks(2, function()
+                    acknowledged(row[2])
+                    acknowledged(row[3])
+                    set_overlay("pulsing")
+                    after_ticks(61, function()
+                        acknowledged(row[2])
+                        acknowledged(row[3])
+                        done()
+                    end)
+                end)
+            end)
+        end)
+    end)
+
+    test("restores warnings when relevant exterior evidence changes", function()
+        async(300)
+        local row = line(directions[1], true, { -8, 0 })
+        after_ticks(61, function()
+            manage({ row[2] })
+            row[1].destroy({ raise_destroy = true })
+            after_ticks(61, function()
+                assert(
+                    #alerts(row[2]) == 1 and #alerts(row[3]) == 1,
+                    "Losing one of two relevant exterior belts changes the acknowledged arrangement"
+                )
+                manage({ row[3] })
+                row[4].direction = defines.direction.west -- Native flow now agrees; no raised event.
+                after_ticks(61, function()
+                    local warnings = storage.reversed_underground_belt_detector.warnings
+                    assert(not warnings[row[2].unit_number] and not warnings[row[3].unit_number])
+                    row[4].direction = defines.direction.east
+                    undergrounds.on_configuration_changed()
+                    after_ticks(61, function()
+                        assert(#alerts(row[2]) == 1 and #alerts(row[3]) == 1)
+                        done()
+                    end)
+                end)
+            end)
+        end)
+    end)
+
+    test("does not transfer acknowledgement to a replacement mouth or a repaired then reversed pair", function()
+        async(240)
+        local row = line(directions[1], true, { -8, 0 })
+        after_ticks(61, function()
+            manage({ row[2] })
+            local position, direction, role = row[3].position, row[3].direction, row[3].belt_to_ground_type
+            row[3].destroy({ raise_destroy = true })
+            row[3] = create_mouth(position.x, position.y, direction, role)
+            after_ticks(61, function()
+                assert(#alerts(row[2]) == 1 and #alerts(row[3]) == 1)
+                manage({ row[3] })
+                assert(row[2].rotate({ by_player = player }))
+                after_ticks(2, function()
+                    assert(not storage.reversed_underground_belt_detector.warnings[row[2].unit_number])
+                    assert(row[2].rotate({ by_player = player }))
+                    after_ticks(61, function()
+                        assert(#alerts(row[2]) == 1 and #alerts(row[3]) == 1)
+                        done()
+                    end)
+                end)
+            end)
+        end)
+    end)
+
+    test("retains acknowledgements through surveys render repair and native mod reload", function()
+        async(180)
+        local row = line(directions[1], true, { -8, 0 })
+        after_ticks(61, function()
+            manage({ row[3] })
+            acknowledged(row[2]).sprite.destroy()
+            undergrounds.on_configuration_changed()
+            after_ticks(61, function()
+                assert(acknowledged(row[2]).sprite.valid)
+                acknowledged(row[3])
+                done()
+            end)
+        end)
+    end).after_reload_mods(function()
+        surface = game.surfaces["underground-warning-tests"]
+        force = game.forces["underground-warning-team"]
+        player = game.get_player(1)
+        local a = assert(surface.find_entity("underground-belt", { -7.5, 0.5 }))
+        local b = assert(surface.find_entity("underground-belt", { -3.5, 0.5 }))
+        after_ticks(61, function()
+            acknowledged(a)
+            acknowledged(b)
+            manage({ b }, true)
+            assert(#alerts(a) == 1 and #alerts(b) == 1)
+        end)
+    end)
+
+    test("cleans acknowledged connections after surface deletion and force changes", function()
+        async(180)
+        local row = line(directions[1], true, { -8, 0 })
+        local target = extra_surface("acknowledged-surface-removal")
+        local removed = line(directions[1], true, { -8, 0 }, nil, nil, target)
+        after_ticks(61, function()
+            manage({ row[2] })
+            manage({ removed[3] })
+            local removed_ids = { removed[2].unit_number, removed[3].unit_number }
+            for _, entity in ipairs(row) do
+                entity.force = game.forces.player
+            end
+            game.delete_surface(target)
+            after_ticks(61, function()
+                local state = storage.reversed_underground_belt_detector
+                assert(not state.warnings[removed_ids[1]] and not state.warnings[removed_ids[2]])
+                assert(not state.warnings[row[2].unit_number].acknowledged)
+                assert(not state.warnings[row[3].unit_number].acknowledged)
+                assert(state.validation_count == 2, "Acknowledged mouths must not leak validation entries")
                 done()
             end)
         end)

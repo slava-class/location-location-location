@@ -1,0 +1,22 @@
+{
+  "name": "no-alt-needed",
+  "version": "0.1.6",
+  "title": "No ALT Needed",
+  "author": "slava-class",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "base >= 2.1.21",
+    "inserter-throughput-lib >= 2.1.0",
+    "! hover-alt-mode",
+    "! Cleaner-Alt-Mode",
+    "! alt-alt-mode",
+    "! inserter-throughput-fork",
+    "! inserter-throughput",
+    "! fluid-connection-indicators",
+    "? pypostprocessing",
+    "? pYBetterItemFluidStorageIcons",
+    "? factorio-test >= 3.1.0"
+  ],
+  "description": "Inspect nearby machines and fluid connections, see hovered inserter capacity, and find missing transfer connections without a factory-wide ALT overlay.",
+  "homepage": "https://github.com/slava-class/location-location-location"
+}

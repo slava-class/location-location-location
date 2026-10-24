@@ -100,6 +100,12 @@ export const ParentRun = Context.Service<{
     event: typeof ChildRunEvent.Type,
   ) => Effect.Effect<void, BoundaryError | PlatformError.PlatformError>;
 }>("modkit/ParentRun");
+
+/** Presentation only: persisted records and parent lifecycle logs are unconditional. */
+export const RunAnnouncements = Context.Service<{
+  readonly write: (record: typeof RunRecord.Type) => Effect.Effect<void>;
+}>("modkit/RunAnnouncements");
+
 export function announceRun(run: {
   modId: string | null;
   runId: string;
@@ -169,6 +175,9 @@ export function announceRun(run: {
           "child run event",
         ),
       );
-    yield* Console.error(JSON.stringify(value));
+    const announcements = yield* Effect.serviceOption(RunAnnouncements);
+    yield* Option.isSome(announcements)
+      ? announcements.value.write(value)
+      : Console.error(JSON.stringify(value));
   });
 }

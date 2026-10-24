@@ -1,0 +1,1810 @@
+{
+  "schema": 2,
+  "scenarios": [
+    {
+      "name": "empty-ground",
+      "description": "Saved native viewer over a fixed 121-machine factory: stationary empty-ground hit-testing, per-update opposite-edge movement, zoom changes and disabled cleanup. Includes grid population and public driver work; not physical input, GPU or live multiplayer latency.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/idle.zip",
+        "sha256": "e938bfefce7e7857de09322842b79773f0225361b3e15c525163e22dfab02248"
+      },
+      "correctness": "dev/performance/pointer-observe.lua",
+      "activity": {
+        "file": "dev/performance/pointer-activity.lua",
+        "sha256": "d6d11e2bcaeb08bdb72b71b57ae410b92dc5f0a5e7bf5d8bd001f5b08b3b470e",
+        "checkpoints": [
+          {
+            "update": 200,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "active": 1,
+              "helper_bound_errors": 0,
+              "disabled_helpers": 0,
+              "missing_focus_recipe": 0,
+              "unexpected_recipe_icons": 0,
+              "selected_helpers": 0
+            }
+          },
+          {
+            "update": 600,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "active": 1,
+              "helper_bound_errors": 0,
+              "disabled_helpers": 0,
+              "missing_focus_recipe": 0,
+              "unexpected_recipe_icons": 0,
+              "selected_helpers": 0
+            }
+          },
+          {
+            "update": 1000,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "active": 1,
+              "helper_bound_errors": 0,
+              "disabled_helpers": 0,
+              "missing_focus_recipe": 0,
+              "unexpected_recipe_icons": 0,
+              "selected_helpers": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "connected_players": 1,
+        "machines": 121,
+        "active": 0,
+        "helper_bound_errors": 0,
+        "disabled_helpers": 0,
+        "missing_focus_recipe": 0,
+        "unexpected_recipe_icons": 0,
+        "selected_helpers": 0
+      },
+      "preparedWarmupTicks": 126,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "idle",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; idle, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/idle.zip",
+        "sha256": "e938bfefce7e7857de09322842b79773f0225361b3e15c525163e22dfab02248"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": null,
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 126,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "radius-6",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/radius-6.zip",
+        "sha256": "93172ac746a07db9d87508c24535d018871ba39cd4a4924935803d35857efc95"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 124,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "radius-10",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 10, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/radius-10.zip",
+        "sha256": "5c3c4cda91a2d184e626d149d75a426dff6d004d725ccad13590401ccc0de0f5"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 123,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "radius-15",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 15, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/radius-15.zip",
+        "sha256": "5b3f53bf267b70ffce51ba8da7204230e9a2b0afeb2528cc851fc19559362ac8"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 127,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "rapid",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; rapid, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/rapid.zip",
+        "sha256": "8026c870bc95d8c48d8e83cb3ff08eb65299c6492e4ea0bf16bd9d4f896c4927"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 127,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "recipe-changes",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; recipes, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/recipe-changes.zip",
+        "sha256": "7cd335a94266a065fbab5681fc559091b7378b1a25e6d921577c3bdd249793ee"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 126,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "cleanup-burst",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; burst, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/cleanup-burst.zip",
+        "sha256": "a37cacbda6f8039c273f4db3302a01f6c04ee56e5e2feff8c473633b32c6dd2c"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 0,
+              "pumps": 121,
+              "modules": 0,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 125,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "construction",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; construction, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/construction.zip",
+        "sha256": "0309c55e0d360bbde95f33276d48389cf150e1d9bb9de10f5360fdfc8029aae5"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 32,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 124,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "fluid-icons",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; background, recipe radius 6, fluid background icons, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/fluid-icons.zip",
+        "sha256": "c95c7fec6c808af5b4d981befc4a096af711a21d13bd7e3260447fceea2399b9"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 122,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "fluid-arrows",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; background, recipe radius 6, fluid background arrows, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/fluid-arrows.zip",
+        "sha256": "032d7e5adf8d593715a8b260a1df479b083f288c95508ee109ac4de8612b0a62"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 126,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "disabled",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 6, fluid background none, inspection disabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/disabled.zip",
+        "sha256": "a2845bb5623e26338ba0056dc1baba6d2672957d24ea9c23b01aeaa33af8462f"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 125,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "radius-6-retained",
+      "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence. Five retained specialist mods use their native defaults; this is a distinct aggregate workload, not a same-closure speedup comparison.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/radius-6.zip",
+        "sha256": "93172ac746a07db9d87508c24535d018871ba39cd4a4924935803d35857efc95"
+      },
+      "correctness": "dev/performance/observe.lua",
+      "activity": {
+        "file": "dev/performance/activity.lua",
+        "sha256": "54b95e819a493ccb306ba23c59444c398da15e1343dda20dba94595749c988f7",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 120,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 620,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 1,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "machines": 121,
+              "pumps": 121,
+              "modules": 484,
+              "connected_players": 1,
+              "selected_players": 0,
+              "missing_recipes": 0,
+              "missing_fluids": 0,
+              "missing_arrows": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "machines": 121,
+        "pumps": 121,
+        "modules": 484,
+        "connected_players": 1,
+        "selected_players": 0,
+        "missing_recipes": 0,
+        "missing_fluids": 0,
+        "missing_arrows": 0
+      },
+      "preparedWarmupTicks": 124,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null,
+      "dependencies": [
+        "assemblyanalyst",
+        "belt-direction-indicator",
+        "belt-visualizer",
+        "heat-visualizer",
+        "UndergroundIndicatorsFixed"
+      ]
+    },
+    {
+      "name": "py-module-grids",
+      "description": "Actual pinned pY/Hardmode plantation fixture with 10/20/30/40 native module slots, 100 installed acidosis-module-mk01 modules and unlocked fawogae recipes. Saved native viewer state uses radius 8; no deliberate pre-save warmup window is claimed. Public selection changes exercise each grid and cleanup. This is aggregate pY simulation cost, not exclusive No ALT Needed or live-client latency.",
+      "profile": "py-hardmode",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/py-module-grids.zip",
+        "sha256": "815d5a6bb7016e2d78f11da6ab8c00c31eeecfab7f6393d10b0b879f26d597e8"
+      },
+      "correctness": "dev/performance/py-observe.lua",
+      "activity": {
+        "file": "dev/performance/py-activity.lua",
+        "sha256": "6c06dd5d03d6bce810a8e294511475ea5be8503bc74db0278958f02b30760f86",
+        "checkpoints": [
+          {
+            "update": 20,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 40,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 10,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 480,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 20,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 630,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 30,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 780,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 40,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 1179,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 1,
+              "module_icons": 40,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "farms": 4,
+              "modules": 100,
+              "connected_players": 1,
+              "selected_players": 0,
+              "module_icons": 0,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "farms": 4,
+        "modules": 100,
+        "connected_players": 1,
+        "selected_players": 0,
+        "module_icons": 0,
+        "recipe_errors": 0,
+        "audience_errors": 0,
+        "inactive_renderings": 0
+      },
+      "preparedWarmupTicks": 0,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "mixed-remote",
+      "description": "Two genuinely connected native viewers saved with independent settings: A has radius-6 nearby recipes, B has radius 10 with nearby recipes disabled. Two identical 121-machine surfaces exercise shared hover, remote-surface transitions, one remaining viewer and final cleanup. Offline benchmark preserves their saved viewer state; this is not network input latency or live-client graphics evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/mixed-remote.zip",
+        "sha256": "1b693457a81b42f697b6a56f3b484b454a689270aa19c7217f2f4f2bcbe21da6"
+      },
+      "correctness": "dev/performance/mixed-observe.lua",
+      "activity": {
+        "file": "dev/performance/mixed-activity.lua",
+        "sha256": "a9fecd3fad30e9751be0eda9b1e4485e0dd7167ba68e701a657256d7515470c0",
+        "checkpoints": [
+          {
+            "update": 30,
+            "workload": {
+              "connected_players": 2,
+              "selected_players": 2,
+              "remote_players": 0,
+              "expected_recipes": 22,
+              "recipe_icons": 22,
+              "module_icons": 8,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 330,
+            "workload": {
+              "connected_players": 2,
+              "selected_players": 2,
+              "remote_players": 1,
+              "expected_recipes": 22,
+              "recipe_icons": 22,
+              "module_icons": 8,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 630,
+            "workload": {
+              "connected_players": 2,
+              "selected_players": 1,
+              "remote_players": 0,
+              "expected_recipes": 21,
+              "recipe_icons": 21,
+              "module_icons": 4,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 930,
+            "workload": {
+              "connected_players": 2,
+              "selected_players": 1,
+              "remote_players": 0,
+              "expected_recipes": 1,
+              "recipe_icons": 1,
+              "module_icons": 4,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "connected_players": 2,
+              "selected_players": 0,
+              "remote_players": 0,
+              "expected_recipes": 0,
+              "recipe_icons": 0,
+              "module_icons": 0,
+              "recipe_errors": 0,
+              "audience_errors": 0,
+              "inactive_renderings": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "connected_players": 2,
+        "selected_players": 0,
+        "remote_players": 0,
+        "expected_recipes": 0,
+        "recipe_icons": 0,
+        "module_icons": 0,
+        "recipe_errors": 0,
+        "audience_errors": 0,
+        "inactive_renderings": 0
+      },
+      "preparedWarmupTicks": 0,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "inserter-diagnostics",
+      "description": "The fixed base factory gains 81 native inserters at update 1, with capacity and missing-endpoint warnings active. Connect both endpoints at 400, remove connections at 700, disable both layers at 1100 and prove cleanup before removing the created hosts at 1150. All creation and cleanup work is measured; saved viewer state is not live-client or GPU evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/radius-6.zip",
+        "sha256": "93172ac746a07db9d87508c24535d018871ba39cd4a4924935803d35857efc95"
+      },
+      "correctness": "dev/performance/diagnostics-observe.lua",
+      "activity": {
+        "file": "dev/performance/diagnostics-activity.lua",
+        "sha256": "7ef6298bdcc68eb2baa9f49b7cfcb69f8b29c8b2182d33db739f1139cf951702",
+        "checkpoints": [
+          {
+            "update": 120,
+            "workload": {
+              "hosts": 81,
+              "markers": 162,
+              "capacities": 1,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 399,
+            "workload": {
+              "hosts": 81,
+              "markers": 162,
+              "capacities": 1,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 600,
+            "workload": {
+              "hosts": 81,
+              "markers": 0,
+              "capacities": 1,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 950,
+            "workload": {
+              "hosts": 81,
+              "markers": 162,
+              "capacities": 1,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 1101,
+            "workload": {
+              "hosts": 81,
+              "markers": 0,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "hosts": 0,
+              "markers": 0,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "hosts": 0,
+        "markers": 0,
+        "capacities": 0,
+        "connected_players": 1
+      },
+      "preparedWarmupTicks": 124,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "fluid-diagnostics",
+      "description": "The fixed 121-pump fixture enables issue diagnostics at update 1. Connect native ports at update 400, remove those connections at 700, disable diagnostics at 1100. Existing fixture warmup does not warm the new diagnostic layer. All driver work is measured; saved viewer state is not live-client or GPU evidence.",
+      "profile": "base",
+      "language": "en",
+      "fixture": {
+        "file": "dev/performance/fixtures/construction.zip",
+        "sha256": "0309c55e0d360bbde95f33276d48389cf150e1d9bb9de10f5360fdfc8029aae5"
+      },
+      "correctness": "dev/performance/diagnostics-observe.lua",
+      "activity": {
+        "file": "dev/performance/diagnostics-activity.lua",
+        "sha256": "7ef6298bdcc68eb2baa9f49b7cfcb69f8b29c8b2182d33db739f1139cf951702",
+        "checkpoints": [
+          {
+            "update": 120,
+            "workload": {
+              "hosts": 121,
+              "markers": 242,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 399,
+            "workload": {
+              "hosts": 121,
+              "markers": 242,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 600,
+            "workload": {
+              "hosts": 121,
+              "markers": 0,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 950,
+            "workload": {
+              "hosts": 121,
+              "markers": 242,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 1101,
+            "workload": {
+              "hosts": 121,
+              "markers": 0,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          },
+          {
+            "update": 1200,
+            "workload": {
+              "hosts": 121,
+              "markers": 0,
+              "capacities": 0,
+              "connected_players": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "hosts": 121,
+        "markers": 0,
+        "capacities": 0,
+        "connected_players": 1
+      },
+      "preparedWarmupTicks": 124,
+      "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    }
+  ]
+}

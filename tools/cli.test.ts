@@ -24,6 +24,11 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
   );
   roots.push(root);
   await cp(import.meta.dir, join(root, "tools"), { recursive: true });
+  await mkdir(join(root, ".config"));
+  await cp(
+    resolve(import.meta.dir, "../.config/factorio-dependencies.json"),
+    join(root, ".config/factorio-dependencies.json"),
+  );
   await symlink(
     resolve(import.meta.dir, "../node_modules"),
     join(root, "node_modules"),
@@ -56,7 +61,12 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
     Bun.spawnSync({
       cmd: [process.execPath, join(root, "tools/cli.ts"), ...args],
       cwd: root,
-      env: { PATH: "", HOME: root, BUN_RUNTIME_TRANSPILER_CACHE_PATH: "0" },
+      env: {
+        PATH: "",
+        HOME: root,
+        TERM_PROGRAM: "tern",
+        BUN_RUNTIME_TRANSPILER_CACHE_PATH: "0",
+      },
       stdout: "pipe",
       stderr: "pipe",
     });
@@ -99,4 +109,18 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
     expect(invoke(...args).exitCode).not.toBe(0);
   }
   expect((await readdir(root, { recursive: true })).sort()).toEqual(before);
+  // Progress must not corrupt the machine-readable result, including when
+  // OMP's captured process inherits Tern's terminal environment.
+  const failed = invoke("verify", "offline-probe");
+  expect(failed.exitCode).not.toBe(0);
+  const report = JSON.parse(failed.stdout.toString());
+  expect(report.status).toBe("failed");
+  expect(
+    report.projects.map(
+      (project: { mod: { name: string }; status: string }) => ({
+        name: project.mod.name,
+        status: project.status,
+      }),
+    ),
+  ).toEqual([{ name: "offline-probe", status: "prerequisite-failed" }]);
 });

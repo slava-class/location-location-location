@@ -11,9 +11,7 @@ import type { ResolvedProject } from "../projects.ts";
 import { resolveEngine } from "../engine.ts";
 import { packageProject } from "../packaging.ts";
 import { ModList, prepareProfile } from "../profiles.ts";
-import { newRun } from "../runs.ts";
 import { RunId } from "../logs.ts";
-import { withProcess } from "../process.ts";
 import type { OwnedProcess } from "../process.ts";
 import { sourceSeal, verifySourceSeal } from "../source.ts";
 import { withFactorioRcon } from "../rcon.ts";
@@ -33,6 +31,7 @@ import {
 } from "./contracts.ts";
 import { resolveStudio } from "./source.ts";
 import type { Studio } from "./source.ts";
+import { prepareNativeClient, withNativeClient } from "../native-client.ts";
 
 const companion = "modkit-studio-fixture";
 const fault = (boundary: string, message: string) =>
@@ -177,8 +176,6 @@ export function withStudio<A, E, R>(
       [],
       "session",
     );
-    const client = yield* newRun(project, `studio:${tuner}:client`);
-    yield* fs.chmod(client.directory, 0o700);
     const metadata = yield* decode(
       Info,
       {
@@ -240,31 +237,23 @@ export function withStudio<A, E, R>(
         ),
       ),
     );
-    yield* fs.copy(
-      join(host.directory, "mods"),
-      join(client.directory, "mods"),
-    );
-    yield* fs.writeFileString(
-      join(client.directory, "config.ini"),
-      `[path]\nread-data=${engine.readData}\nwrite-data=${client.directory}\n[general]\nlocale=${studioViewport.locale}\n[graphics]\nfull-screen=false\n[interface]\nautomatic-ui-scale=false\ncustom-ui-scale=${studioViewport.scale}\nshow-tips-and-tricks=false\n[sound]\nmaster-muted=true\n[other]\ncheck-updates=false\nenable-crash-log-uploading=false\nautosave-interval=0\n`,
-    );
-    yield* fs.writeFileString(
-      join(client.directory, "player-data.json"),
-      JSON.stringify({
-        "service-username": "ModkitStudio",
-        "service-token": "",
-      }),
-    );
+    const client = yield* prepareNativeClient(project, host, {
+      profile: `studio:${tuner}:client`,
+      playerName: "ModkitStudio",
+      viewport: studioViewport,
+      // Appearance tuning is visual-fidelity work, not a routine behavioral test.
+      graphics: "extreme",
+    });
     let manifest = yield* decode(
       StudioManifest,
       {
         schema: 1,
         session: host.run.runId,
-        clientRun: client.runId,
+        clientRun: client.run.runId,
         mod: request.mod,
         tuner,
         directory: host.directory,
-        clientDirectory: client.directory,
+        clientDirectory: client.run.directory,
         status: "starting",
         descriptor: studio.descriptor,
         baseline: studio.baseline,
@@ -309,44 +298,12 @@ export function withStudio<A, E, R>(
             JSON.stringify(connection),
             { flag: "wx", mode: 0o600 },
           );
-          const result = yield* withProcess(
-            {
-              ...client,
-              evidence: "studio",
-              deadlineMs: options.deadlineMs,
-              shutdownMs: 10000,
-              gameLog: {
-                current: join(client.directory, "factorio-current.log"),
-                previous: join(client.directory, "factorio-previous.log"),
-              },
-              command: [
-                engine.executable,
-                "--config",
-                join(client.directory, "config.ini"),
-                "--mod-directory",
-                join(client.directory, "mods"),
-                "--mp-connect",
-                `127.0.0.1:${engineSession.gamePort}`,
-                "--disable-audio",
-                "--disable-migration-window",
-                "--window-size",
-                `${studioViewport.width}x${studioViewport.height}`,
-                "--force-graphics-preset",
-                "extreme",
-              ],
-            },
-            (window) =>
+          const result = yield* withNativeClient(
+            client,
+            engineSession,
+            { evidence: "studio", deadlineMs: options.deadlineMs },
+            ({ window }) =>
               Effect.gen(function* () {
-                yield* window.waitForText(
-                  /Factorio initialised/,
-                  "studio renderer startup",
-                  120000,
-                );
-                yield* window.waitForText(
-                  /changing state from\([^)]+\) to\(InGame\)/,
-                  "studio graphical client joined",
-                  10000,
-                );
                 yield* window.waitForText(
                   new RegExp(`MODKIT_STUDIO_READY:${manifest.session}`),
                   "studio scene ready",
@@ -388,21 +345,7 @@ export function withStudio<A, E, R>(
                   manifest,
                   engineSession,
                   window,
-                }).pipe(
-                  Effect.raceFirst(
-                    window.waitForExit.pipe(
-                      Effect.flatMap(() =>
-                        Effect.fail(
-                          fault(
-                            manifest.session,
-                            "Graphical client exited before the studio was discarded",
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-                yield* window.stop;
+                });
                 return value;
               }),
           );

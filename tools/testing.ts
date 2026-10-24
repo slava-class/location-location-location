@@ -2,7 +2,12 @@ import { Cause, Effect, Exit, FileSystem, Schema } from "effect";
 import { join } from "node:path";
 import { AbsolutePath, ElapsedMs, Sha256 } from "./contracts.ts";
 import type { Packaged } from "./contracts.ts";
-import { Engine, resolveEngine } from "./engine.ts";
+import {
+  Engine,
+  GraphicsPreset,
+  resolveEngine,
+  resolveGraphicsPreset,
+} from "./engine.ts";
 import { hashFile } from "./files.ts";
 import type { Backend } from "./backend.ts";
 import { ImageEvidence, verifyPNG } from "./images.ts";
@@ -53,6 +58,7 @@ const NativeResult = Schema.Struct({
 const VerificationIdentity = Schema.Struct({
   request: ObservationRequest,
   engine: Engine,
+  graphics: Schema.NullOr(GraphicsPreset),
   source: SourceSeal,
   directory: AbsolutePath,
   inventorySha256: Sha256,
@@ -95,6 +101,7 @@ export function runEngineSuite(
     engine?: string;
     artifact?: Packaged;
     backend?: typeof Backend.Type;
+    graphics?: typeof GraphicsPreset.Type;
   } = {},
 ) {
   return Effect.gen(function* () {
@@ -102,10 +109,7 @@ export function runEngineSuite(
       graphics = profile === "native" || profile === "gallery";
     if (
       project.capabilities.verification !== "engine" ||
-      (!graphics &&
-        !project.capabilities.profiles.includes(
-          profile as "base" | "space-age",
-        ))
+      (!graphics && !project.capabilities.profiles.includes(profile))
     )
       return yield* Effect.fail(
         new BoundaryError({
@@ -126,6 +130,19 @@ export function runEngineSuite(
       options.language ?? "en",
       "suite locale",
     );
+    if (!graphics && options.graphics !== undefined)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: profile,
+          message: "Headless suites do not accept graphics settings",
+        }),
+      );
+    const graphicsPreset = graphics
+      ? yield* resolveGraphicsPreset(
+          profile === "gallery" ? "asset" : "test",
+          options.graphics,
+        )
+      : null;
     if (project.locales.length !== 0 && !project.locales.includes(language))
       return yield* Effect.fail(
         new BoundaryError({
@@ -165,6 +182,7 @@ export function runEngineSuite(
       artifact,
       companions,
       "suite",
+      graphicsPreset === null ? {} : { graphics: graphicsPreset },
     );
     const { run, directory, request } = context;
     const startedAt = new Date().toISOString(),
@@ -175,6 +193,7 @@ export function runEngineSuite(
     const identity = () => ({
       request,
       engine,
+      graphics: context.graphics,
       source,
       directory,
       inventorySha256,
@@ -288,13 +307,13 @@ export function runEngineSuite(
           result.player.locale !== context.language ||
           result.player.width !== width ||
           result.player.height !== height ||
-          (profile === "gallery" && result.player.scale !== 1.25) ||
-          !log.includes("Forced graphics settings preset: extreme")
+          result.player.scale !== (profile === "gallery" ? 1.25 : 0.75) ||
+          !log.includes(`Forced graphics settings preset: ${graphicsPreset}`)
         )
           return yield* Effect.fail(
             new BoundaryError({
               boundary: run.runId,
-              message: `Native capture contract mismatch: expected locale=${context.language}, viewport=${width}x${height}${profile === "gallery" ? ", scale=1.25" : ""}, preset=extreme; observed locale=${result.player.locale}, viewport=${result.player.width}x${result.player.height}, scale=${result.player.scale}, Extreme log confirmation=${log.includes("Forced graphics settings preset: extreme")}`,
+              message: `Native capture contract mismatch: expected locale=${context.language}, viewport=${width}x${height}, scale=${profile === "gallery" ? 1.25 : 0.75}, preset=${graphicsPreset}; observed locale=${result.player.locale}, viewport=${result.player.width}x${result.player.height}, scale=${result.player.scale}, preset log confirmation=${log.includes(`Forced graphics settings preset: ${graphicsPreset}`)}`,
             }),
           );
         const scenes = profile === "gallery" ? native.gallery : native.scenes,

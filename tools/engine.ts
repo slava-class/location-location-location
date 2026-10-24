@@ -25,6 +25,27 @@ export const Engine = Schema.Struct({
   docker: Schema.optionalKey(DockerRuntime),
 });
 export type ResolvedEngine = typeof Engine.Type;
+export const GraphicsPreset = Schema.Literals(["low", "extreme"]);
+export function resolveGraphicsPreset(
+  purpose: "test" | "asset",
+  requested?: typeof GraphicsPreset.Type,
+) {
+  return Effect.gen(function* () {
+    const preset = yield* decode(
+      GraphicsPreset,
+      requested ?? (purpose === "asset" ? "extreme" : "low"),
+      "graphics preset",
+    );
+    if (purpose === "asset" && preset !== "extreme")
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "graphics preset",
+          message: "Final presentation assets require Extreme graphics",
+        }),
+      );
+    return preset;
+  });
+}
 export function parseEngineVersion(text: string) {
   return Effect.gen(function* () {
     const match =

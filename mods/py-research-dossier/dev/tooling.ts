@@ -2,7 +2,7 @@ import { Console, Effect, Option } from "effect";
 import { Command, Flag } from "effect/cli";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { defineProjectTooling } from "../../../tools/project-tooling.ts";
+import type { ProjectTooling } from "../../../tools/project-tooling.ts";
 import { BoundaryError, readJSON } from "../../../tools/projects.ts";
 import type { ResolvedProject } from "../../../tools/projects.ts";
 import { AuditMode, auditCorpus, runAudit } from "./audit.ts";
@@ -117,7 +117,7 @@ function commands(project: ResolvedProject) {
     ]),
   );
 }
-export default defineProjectTooling({
+export default {
   setup: (project) => provisionPyHelper(project).pipe(Effect.asVoid),
   audit: ({ project }) =>
     Effect.gen(function* () {
@@ -148,4 +148,4 @@ export default defineProjectTooling({
     }),
   command: ({ project, args }) =>
     Command.runWith(commands(project), { version: project.info.version })(args),
-});
+} satisfies ProjectTooling;

@@ -5,6 +5,7 @@
 ---@field warnings table<integer, RUBDWarning?>
 ---@field alerts_dirty boolean
 ---@field hovering table<integer, integer?> Selected underground-mouth IDs; persistent for multiplayer load/join.
+---@field managing table<integer, boolean> Cursor-tool state; ordinary cursor changes do not refresh the factory.
 ---@field validation_first integer?
 ---@field validation_last integer?
 ---@field validation_count integer
@@ -15,6 +16,11 @@
 
 ---@alias RUBDStyle "pulsing" | "steady"
 ---@alias RUBDOverlayMode RUBDStyle | "off"
+
+---@class RUBDAudiences
+---@field pulsing RUBDAudience
+---@field steady RUBDAudience
+---@field managers LuaPlayer[] Connected players holding the warning planner.
 
 ---@class RUBDAudience
 ---@field mouths LuaPlayer[]
@@ -40,7 +46,10 @@
 ---@field direction defines.direction
 ---@field belt_type "input"|"output"
 ---@field distance number
----@field exterior RUBDExterior Cached opposing-belt lookup, revalidated before reuse.
+---@field exterior RUBDExterior? Cached attached surface-belt lookup, revalidated before reuse.
+---@field exterior_direction defines.direction? Snapshot of the relevant surface flow, not its mutable entity property.
+---@field acknowledged boolean? Intentionally retained in validation until the arrangement changes.
+---@field intentional_marker LuaRenderObject? Exists only while a force member holds the planner.
 ---@field steady RUBDRender? Created only while someone requests the steady overlay.
 ---@field validation_previous integer?
 ---@field validation_next integer?

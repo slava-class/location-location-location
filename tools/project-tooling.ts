@@ -17,33 +17,7 @@ interface CommandContext {
   readonly args: readonly string[];
 }
 type Services = Layer.Success<typeof BunServices.layer> | HttpClient.HttpClient;
-type Work<Input> = (input: Input) => Effect.Effect<void, Error, Services>;
-type Hook<Input> = (input: Input, signal: AbortSignal) => Promise<void>;
-interface Definition {
-  readonly setup?: Work<ResolvedProject>;
-  readonly audit?: Work<AuditContext>;
-  readonly command?: Work<CommandContext>;
-}
-function own<Input>(work: Work<Input>): Hook<Input> {
-  return (input, signal) =>
-    Effect.runPromise(
-      work(input).pipe(
-        Effect.provide(BunServices.layer),
-        Effect.provide(BunHttpClient.layer),
-      ),
-      { signal },
-    );
-}
-/** Product-owned extensions share one typed, cancellable service boundary. @public */
-export function defineProjectTooling(definition: Definition) {
-  return {
-    ...(definition.setup === undefined ? {} : { setup: own(definition.setup) }),
-    ...(definition.audit === undefined ? {} : { audit: own(definition.audit) }),
-    ...(definition.command === undefined
-      ? {}
-      : { command: own(definition.command) }),
-  };
-}
+type Hook<Input> = (input: Input) => Effect.Effect<void, Error, Services>;
 function hook<Input>() {
   return Schema.declare(
     (value): value is Hook<Input> => typeof value === "function",
@@ -54,6 +28,8 @@ const Tooling = Schema.Struct({
   audit: Schema.optional(hook<AuditContext>()),
   command: Schema.optional(hook<CommandContext>()),
 });
+/** Product-owned extensions share one typed, cancellable service boundary. @public */
+export type ProjectTooling = typeof Tooling.Type;
 export function projectTooling(project: ResolvedProject) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -81,28 +57,33 @@ export function invokeProjectTool<Input>(
   input: Input,
   boundary: string,
 ) {
+  const failure = (error: unknown) =>
+    error instanceof BoundaryError
+      ? error
+      : new BoundaryError({
+          boundary,
+          message: `Product tooling failed: ${String(error)}`,
+        });
   return Effect.gen(function* () {
-    const result: unknown = yield* Effect.tryPromise({
-      try: async (signal) => {
-        const pending: unknown = operation(input, signal);
-        if (!(pending instanceof Promise))
-          throw new BoundaryError({
-            boundary,
-            message:
-              "Product tooling must use defineProjectTooling to own its Effect services",
-          });
-        return await pending;
-      },
-      catch: (error) =>
-        error instanceof BoundaryError
-          ? error
-          : new BoundaryError({
-              boundary,
-              message: `Product tooling failed: ${String(error)}`,
-            }),
+    const pending = yield* Effect.try({
+      try: () => operation(input),
+      catch: failure,
     });
+    if (!Effect.isEffect(pending))
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary,
+          message: "Product tooling hooks must return an Effect",
+        }),
+      );
+    const result: unknown = yield* pending;
     yield* decode(Schema.Undefined, result, boundary);
-  });
+  }).pipe(
+    Effect.provide(BunServices.layer),
+    Effect.provide(BunHttpClient.layer),
+    Effect.catchDefect((error) => Effect.fail(failure(error))),
+    Effect.mapError(failure),
+  );
 }
 export function runProjectCommand(
   project: ResolvedProject,
