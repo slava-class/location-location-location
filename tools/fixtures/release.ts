@@ -238,6 +238,14 @@ export async function releaseFixture(
       fixtureSha256: "2".repeat(64),
       startedAt: stamp,
       elapsedMs: 1,
+      timings: [
+        { phase: "resolve", elapsedMs: 0 },
+        { phase: "inputs", elapsedMs: 0 },
+        { phase: "package", elapsedMs: 0 },
+        { phase: "profile", elapsedMs: 0 },
+        { phase: "process", elapsedMs: 1 },
+        { phase: "qualify", elapsedMs: 0 },
+      ],
       status: "passed",
       observed: {
         ...request,

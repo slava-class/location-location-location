@@ -1,6 +1,6 @@
 import { Effect, FileSystem, Schema } from "effect";
 import { join, relative, resolve } from "node:path";
-import { AbsolutePath, TypesRequest } from "./contracts.ts";
+import { AbsolutePath, TypesRequest, TypesResult } from "./contracts.ts";
 import {
   BoundaryError,
   decode,
@@ -17,7 +17,7 @@ import {
   resolveDependency,
   requirements,
 } from "./dependencies.ts";
-import { prepareTypes } from "./types.ts";
+import { makeTypePreparer } from "./types.ts";
 import { runCommand } from "./commands.ts";
 import { packageInventory } from "./packaging.ts";
 import { RunId } from "./logs.ts";
@@ -54,6 +54,7 @@ export const LuaTypecheckResult = Schema.Union([
   Schema.Struct({
     ...LuaPassed.fields,
     negativeControl: Schema.Literal("invalid-engine-call-rejected"),
+    preparation: TypesResult,
   }),
 ]);
 
@@ -185,7 +186,10 @@ export function lintProject(project: ResolvedProject) {
     );
   });
 }
-export function typecheckProject(project: ResolvedProject) {
+export function typecheckProject(
+  project: ResolvedProject,
+  prepareTypes = makeTypePreparer(),
+) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     if (
@@ -226,7 +230,7 @@ export function typecheckProject(project: ResolvedProject) {
           }),
         );
       flib = {
-        archive: yield* resolveDependency(project, pin),
+        archive: (yield* resolveDependency(project, pin)).archive,
         sha256: pin.sha256,
         version: pin.version,
         styleType: project.development.flibStyleType ?? null,
@@ -378,6 +382,7 @@ export function typecheckProject(project: ResolvedProject) {
         status: "passed",
         runId: result.run.runId,
         files: report.length,
+        preparation: types,
         negativeControl: "invalid-engine-call-rejected",
       },
       "typecheck result",

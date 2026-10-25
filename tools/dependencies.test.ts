@@ -22,6 +22,7 @@ import {
 } from "./dependencies.ts";
 import { BoundaryError, resolveProject, resolveWorkspace } from "./projects.ts";
 import { withOwnedLock } from "./locks.ts";
+import { writeZip } from "./archives.ts";
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -40,18 +41,34 @@ async function fixture() {
   const project = await Effect.runPromise(
     resolveWorkspace(root).pipe(Effect.provide(BunServices.layer)),
   );
-  const bytes = new TextEncoder().encode("immutable reviewed input");
+  const source = join(root, "source.zip");
+  await Effect.runPromise(
+    writeZip(source, [
+      {
+        name: "fixture_1.0.0/info.json",
+        bytes: new TextEncoder().encode(
+          JSON.stringify({
+            name: "fixture",
+            version: "1.0.0",
+            factorio_version: "2.1",
+            title: "Fixture",
+            author: "test",
+            dependencies: ["base"],
+          }),
+        ),
+      },
+    ]).pipe(Effect.provide(BunServices.layer)),
+  );
+  const bytes = new Uint8Array(await readFile(source));
   const pin = {
     name: "fixture",
     version: "1.0.0",
     sha256: new Bun.CryptoHasher("sha256").update(bytes).digest("hex"),
   };
-  const source = join(root, "source.zip");
   const cached = join(
     root,
     ".factorio-test/cache/dependencies/fixture_1.0.0.zip",
   );
-  await writeFile(source, bytes);
   let requests = 0;
   const client = HttpClient.make((request) =>
     Effect.sync(() => {
@@ -100,11 +117,31 @@ test("explicit local provisioning validates content and later resolution rejects
         Effect.provide(BunServices.layer),
       ),
     ),
-  ).toBe(f.cached);
+  ).toMatchObject({
+    archive: f.cached,
+    mod: { name: f.pin.name, version: f.pin.version },
+    sha256: f.pin.sha256,
+  });
   expect(new Uint8Array(await readFile(f.cached))).toEqual(f.bytes);
   await writeFile(f.cached, "corrupt cached input");
   expect(provision()).rejects.toBeInstanceOf(BoundaryError);
   expect(await readFile(f.cached, "utf8")).toBe("corrupt cached input");
+  expect(f.requests()).toBe(0);
+});
+
+test("dependency resolution rejects valid pinned bytes with a foreign product identity", async () => {
+  const f = await fixture();
+  const wrongVersion = { ...f.pin, version: "1.1.0" };
+  const path = join(dirname(f.cached), "fixture_1.1.0.zip");
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, f.bytes);
+  expect(
+    Effect.runPromise(
+      resolveDependency(f.project, wrongVersion).pipe(
+        Effect.provide(BunServices.layer),
+      ),
+    ),
+  ).rejects.toThrow("Pinned ZIP metadata does not match its pin");
   expect(f.requests()).toBe(0);
 });
 

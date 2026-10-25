@@ -37,7 +37,7 @@ const optionalGuidance = [
   "MOD_IDEAS.md",
 ];
 const excluded = new Set(["node_modules", ".git", ".factorio-test", "dist"]);
-export function sourceFiles(
+export function sourceProjects(
   input: ResolvedProject | readonly ResolvedProject[],
 ) {
   return Effect.gen(function* () {
@@ -53,7 +53,40 @@ export function sourceFiles(
           message: "Select at least one project from the same workspace",
         }),
       );
-    const fs = yield* FileSystem.FileSystem,
+    const visited = new Set<string>();
+    const selected: ResolvedProject[] = [];
+    const include = (
+      target: ResolvedProject,
+    ): Effect.Effect<
+      void,
+      BoundaryError | PlatformError.PlatformError,
+      FileSystem.FileSystem
+    > =>
+      Effect.gen(function* () {
+        const key = JSON.stringify([
+          target.info.name,
+          target.development.companions ?? [],
+        ]);
+        if (visited.has(key)) return;
+        visited.add(key);
+        selected.push(target);
+        for (const id of target.development.companions ?? [])
+          yield* include(
+            yield* resolveProject(project.repoRoot, id, project.repoRoot),
+          );
+      });
+    for (const target of projects) yield* include(target);
+    return selected;
+  });
+}
+
+export function sourceFiles(
+  input: ResolvedProject | readonly ResolvedProject[],
+) {
+  return Effect.gen(function* () {
+    const projects = yield* sourceProjects(input),
+      project = projects[0]!,
+      fs = yield* FileSystem.FileSystem,
       files = new Set<string>();
     const visit = (
       path: string,
@@ -94,28 +127,7 @@ export function sourceFiles(
         yield* visit(join(project.repoRoot, name));
     for (const name of ["tools", "patches", ".config"])
       yield* visit(join(project.repoRoot, name));
-    const visited = new Set<string>();
-    const include = (
-      target: ResolvedProject,
-    ): Effect.Effect<
-      void,
-      BoundaryError | PlatformError.PlatformError,
-      FileSystem.FileSystem
-    > =>
-      Effect.gen(function* () {
-        const key = JSON.stringify([
-          target.info.name,
-          target.development.companions ?? [],
-        ]);
-        if (visited.has(key)) return;
-        visited.add(key);
-        yield* visit(target.modRoot);
-        for (const id of target.development.companions ?? [])
-          yield* include(
-            yield* resolveProject(project.repoRoot, id, project.repoRoot),
-          );
-      });
-    for (const selected of projects) yield* include(selected);
+    for (const selected of projects) yield* visit(selected.modRoot);
     return [...files].sort();
   });
 }

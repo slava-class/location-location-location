@@ -18,7 +18,7 @@ import type {
   ResolvedProject,
 } from "./projects.ts";
 import { getBytes, getJSON } from "./network.ts";
-import { provisionPinnedFile, verifyPinnedFile } from "./files.ts";
+import { provisionPinnedFile } from "./files.ts";
 import { inspectArchive } from "./packaging.ts";
 
 const Dependency = Schema.Struct({
@@ -196,14 +196,25 @@ function dependencyPath(project: ExecutionContext, pin: Pin) {
 export function resolveDependency(project: ExecutionContext, pin: Pin) {
   return Effect.gen(function* () {
     yield* decode(DependencyPin, pin, "dependency pin");
-    return yield* verifyPinnedFile(
-      {
-        path: dependencyPath(project, pin),
-        sha256: pin.sha256,
-        maxBytes: 256 * 1024 * 1024,
-      },
-      "dependencies-provision with the selected mod or --all",
-    );
+    const fs = yield* FileSystem.FileSystem;
+    const path = dependencyPath(project, pin);
+    if (!(yield* fs.exists(path)))
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: path,
+          message:
+            "Missing pinned dependency; run dependencies-provision with the selected mod or --all",
+        }),
+      );
+    const archive = yield* inspectArchive(path, pin.sha256);
+    if (archive.mod.name !== pin.name || archive.mod.version !== pin.version)
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: pin.name,
+          message: "Pinned ZIP metadata does not match its pin",
+        }),
+      );
+    return archive;
   });
 }
 

@@ -86,6 +86,7 @@ export const TypesRequest = Schema.Struct({
 export const TypesResult = Schema.Struct({
   schema: Schema.Literal(1),
   version: Version,
+  base: AbsolutePath,
   library: AbsolutePath,
   dependencies: Schema.Array(AbsolutePath),
 });

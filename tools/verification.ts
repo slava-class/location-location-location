@@ -47,6 +47,8 @@ import { runEngineSuite, VerificationResult } from "./testing.ts";
 import { withWorkspaceSnapshot } from "./workspace.ts";
 import { QualityResult, runQuality } from "./quality.ts";
 import { Backend } from "./backend.ts";
+import { makeTypePreparer } from "./types.ts";
+import { AffectedSelection, verifyAffectedSelection } from "./affected.ts";
 
 export const Phase = Schema.Literals([
   "toolchain",
@@ -75,6 +77,7 @@ const VerificationPlan = Schema.Struct({
     }),
   ).check(Schema.isMinLength(1)),
   commit: Schema.Literals(["none", "local", "push"]),
+  selection: Schema.NullOr(AffectedSelection),
 });
 
 /** Metadata only: no source seal, prerequisite checks, processes, or run allocation. */
@@ -82,6 +85,7 @@ export function planVerification(
   projects: readonly ResolvedProject[],
   backend: typeof Backend.Type,
   command: typeof VerificationPlan.Type.command,
+  selection: typeof AffectedSelection.Type | null = null,
 ) {
   return decode(
     VerificationPlan,
@@ -89,6 +93,7 @@ export function planVerification(
       schema: 1,
       status: "planned",
       command,
+      selection,
       phases: Phase.literals,
       projects: projects.map((project) => ({
         mod: { name: project.info.name, version: project.info.version },
@@ -203,6 +208,7 @@ interface SharedChecks {
   toolchain: ReturnType<typeof checkToolchain>;
   quality: ReturnType<typeof runQuality>;
   toolTests: ReturnType<typeof runBunTests>;
+  prepareTypes: ReturnType<typeof makeTypePreparer>;
   used: Set<typeof Phase.Type>;
   failure: typeof WorkspaceFailure.Type | null;
 }
@@ -243,11 +249,14 @@ const VerificationReport = Schema.Struct({
   status: Schema.Literals(["passed", "failed"]),
   elapsedMs: ElapsedMs,
   projects: Schema.Array(ProjectSummary),
+  selection: Schema.NullOr(AffectedSelection),
+  selectionError: Schema.NullOr(Schema.String),
 });
 export function verifyProjects(
   projects: readonly ResolvedProject[],
   backend: typeof Backend.Type,
   workspaceQuality: boolean,
+  selection: typeof AffectedSelection.Type | null = null,
 ) {
   return Effect.gen(function* () {
     const started = performance.now();
@@ -268,6 +277,22 @@ export function verifyProjects(
         new BoundaryError({
           boundary: "verify",
           message: "Shared verification requires projects from one workspace",
+        }),
+      );
+    if (
+      selection !== null &&
+      JSON.stringify(selection.projects) !==
+        JSON.stringify(
+          projects.map((project) => ({
+            name: project.info.name,
+            version: project.info.version,
+          })),
+        )
+    )
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "affected selection",
+          message: "Execution projects do not match the affected selection",
         }),
       );
     const workspace = resolveWorkspace(projects[0]!.repoRoot);
@@ -301,6 +326,7 @@ export function verifyProjects(
           ),
         ),
       ),
+      prepareTypes: makeTypePreparer(),
       used: new Set<typeof Phase.Type>(),
       failure: null,
     };
@@ -393,14 +419,31 @@ export function verifyProjects(
         ),
       );
     });
+    const selectedScope =
+      selection === null
+        ? Exit.succeed(undefined)
+        : yield* verifyAffectedSelection(projects[0]!.repoRoot, selection).pipe(
+            Effect.exit,
+          );
+    if (
+      Exit.isFailure(selectedScope) &&
+      Cause.hasInterrupts(selectedScope.cause)
+    )
+      return yield* Effect.failCause(selectedScope.cause);
     return yield* decode(
       VerificationReport,
       {
         elapsedMs: performance.now() - started,
-        status: rows.every((row) => row.status === "passed")
-          ? "passed"
-          : "failed",
+        status:
+          Exit.isSuccess(selectedScope) &&
+          rows.every((row) => row.status === "passed")
+            ? "passed"
+            : "failed",
         projects: rows,
+        selection,
+        selectionError: Exit.isFailure(selectedScope)
+          ? Cause.pretty(selectedScope.cause)
+          : null,
       },
       "verification report",
     );
@@ -604,8 +647,10 @@ function verifyProject(
       const models = yield* step("models", testModels(project), (value) =>
         value.status === "passed" ? [value.runId] : [],
       );
-      const types = yield* step("types", typecheckProject(project), (value) =>
-        value.status === "passed" ? [value.runId] : [],
+      const types = yield* step(
+        "types",
+        typecheckProject(project, shared.prepareTypes),
+        (value) => (value.status === "passed" ? [value.runId] : []),
       );
       const quality = yield* step(
         "quality",

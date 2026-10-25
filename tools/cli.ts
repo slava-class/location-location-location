@@ -35,13 +35,14 @@ import { Backend } from "./backend.ts";
 import { provisionDockerRuntime } from "./docker-runtime.ts";
 import { provisionDependencies } from "./dependencies.ts";
 import { fleetStatus } from "./fleet.ts";
-import { RunRecord } from "./runs.ts";
+import { RunAnnouncements, RunRecord } from "./runs.ts";
 import { BenchmarkWindow } from "./benchmark.ts";
 import { comparePerformance } from "./performance-analysis.ts";
 import { readPerformance, runPerformance } from "./performance.ts";
 import { studioCommand } from "./tuning/cli.ts";
 import { runProjectCommand } from "./project-tooling.ts";
 import { GraphicsPreset } from "./engine.ts";
+import { AffectedSelection, selectAffected } from "./affected.ts";
 
 const backendFlag = Flag.String("backend").pipe(
   Flag.withSchema(Schema.String.pipe(Schema.decodeTo(Backend))),
@@ -699,23 +700,54 @@ const verify = Command.make(
     all: Flag.Boolean("all").pipe(Flag.withDefault(false)),
     backend: backendFlag,
     plan: Flag.Boolean("plan").pipe(Flag.withDefault(false)),
+    affected: Flag.String("affected").pipe(Flag.optional),
   },
-  ({ mod, all, backend, plan }) =>
+  ({ mod, all, backend, plan, affected }) =>
     Effect.gen(function* () {
-      if (Option.isSome(mod) && all)
+      if (
+        Number(Option.isSome(mod)) +
+          Number(all) +
+          Number(Option.isSome(affected)) >
+        1
+      )
         return yield* Effect.fail(
           new BoundaryError({
             boundary: "verify",
-            message: "A mod selector and --all are mutually exclusive",
+            message:
+              "A mod selector, --all and --affected are mutually exclusive",
           }),
         );
-      const projects = Option.isSome(mod)
-        ? [yield* resolveProject(root, mod.value, process.cwd())]
-        : yield* discoverProjects(root);
+      const scope = Option.isSome(affected)
+        ? yield* selectAffected(root, affected.value)
+        : null;
+      const projects =
+        scope !== null
+          ? scope.projects
+          : Option.isSome(mod)
+            ? [yield* resolveProject(root, mod.value, process.cwd())]
+            : yield* discoverProjects(root);
+      if (scope !== null && projects.length === 0) {
+        const empty = yield* decode(
+          Schema.Struct({
+            status: Schema.Literal("not-needed"),
+            plan: Schema.Boolean,
+            selection: AffectedSelection,
+          }),
+          { status: "not-needed", plan, selection: scope.selection },
+          "empty affected selection",
+        );
+        yield* Console.log(JSON.stringify(empty, null, 2));
+        return;
+      }
       if (plan) {
         yield* Console.log(
           JSON.stringify(
-            yield* planVerification(projects, backend, "verify"),
+            yield* planVerification(
+              projects,
+              backend,
+              "verify",
+              scope?.selection ?? null,
+            ),
             null,
             2,
           ),
@@ -725,7 +757,10 @@ const verify = Command.make(
       const report = yield* runReportedVerification(
         projects,
         backend,
-        Option.isNone(mod),
+        scope === null
+          ? Option.isNone(mod)
+          : scope.selection.workspaceChanges.length > 0,
+        scope?.selection ?? null,
       );
       if (report.status === "failed")
         return yield* Effect.fail(
@@ -735,7 +770,9 @@ const verify = Command.make(
               "Selected verification failed; inspect the reported run receipts and live logs",
           }),
         );
-    }),
+    }).pipe(
+      Effect.provideService(RunAnnouncements, { write: () => Effect.void }),
+    ),
 );
 
 function checkpointCommand(name: "checkpoint" | "vac") {

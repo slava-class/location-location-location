@@ -98,3 +98,21 @@ test("a product source failure does not prevent another product from checking sh
     throw new Error("Expected shared failure blocker");
   expect(blocked.blockedBy.mod).toEqual({ name: "second", version: "1.0.1" });
 });
+
+test("an affected scope cannot certify a narrower execution selection", async () => {
+  const projects = await fixture();
+  expect(
+    runFiles(
+      verifyProjects([projects[0]!], "native", false, {
+        schema: 1,
+        base: "a".repeat(40),
+        changed: ["tools/shared.ts"],
+        workspaceChanges: ["tools/shared.ts"],
+        projects: projects.map((project) => ({
+          name: project.info.name,
+          version: project.info.version,
+        })),
+      }),
+    ),
+  ).rejects.toThrow("Execution projects do not match");
+});

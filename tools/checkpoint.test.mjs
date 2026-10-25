@@ -19,7 +19,7 @@ async function fixture(verify = "git diff --check HEAD") {
   roots.push(root);
   const cwd = join(root, "work");
   await mkdir(cwd);
-  const env = { ...process.env, MISE_TRUSTED_CONFIG_PATHS: root };
+  const env = { ...process.env };
   delete env.GIT_INDEX_FILE;
   async function run(args, extraEnv = {}) {
     const child = Bun.spawn(args, {
@@ -50,11 +50,6 @@ async function fixture(verify = "git diff --check HEAD") {
     JSON.stringify({ private: true, type: "module" }),
   );
   await writeFile(join(cwd, ".gitignore"), ".factorio-test/\n");
-  await mkdir(join(cwd, ".config"));
-  await writeFile(
-    join(cwd, ".config/mise.toml"),
-    `[tasks.verify]\nrun = ${JSON.stringify(verify)}\n`,
-  );
   await writeFile(join(cwd, "content.txt"), "initial\n");
   await git("add", "-A");
   await git("commit", "-qm", "initial");
@@ -70,10 +65,8 @@ async function fixture(verify = "git diff --check HEAD") {
               runCommand(
                 workspace,
                 "checkpoint-fixture-verification",
-                ["mise", "run", "verify"],
-                {
-                  env: { ...snapshot.env, MISE_TRUSTED_CONFIG_PATHS: root },
-                },
+                ["sh", "-c", verify],
+                { env: snapshot.env },
               ).pipe(Effect.as({ status: "passed" })),
           );
         }).pipe(Effect.provide(BunServices.layer)),

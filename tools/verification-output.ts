@@ -4,12 +4,14 @@ import type { ResolvedProject } from "./projects.ts";
 import { RunAnnouncements } from "./runs.ts";
 import { Phase, VerificationProgress, verifyProjects } from "./verification.ts";
 import type { ProjectVerificationState } from "./verification.ts";
+import type { AffectedSelection } from "./affected.ts";
 
 /** OMP job widgets consume stderr; stdout remains the authoritative JSON summary. */
 export function runReportedVerification(
   projects: readonly ResolvedProject[],
   backend: typeof Backend.Type,
   workspaceQuality: boolean,
+  selection: typeof AffectedSelection.Type | null = null,
 ) {
   return Effect.gen(function* () {
     const states = new Map<string, typeof ProjectVerificationState.Type>();
@@ -51,7 +53,12 @@ export function runReportedVerification(
       "Phase totals count completed executions; shared checks count once.",
     );
     for (const phase of Phase.literals) yield* phaseTotal(phase);
-    return yield* verifyProjects(projects, backend, workspaceQuality).pipe(
+    return yield* verifyProjects(
+      projects,
+      backend,
+      workspaceQuality,
+      selection,
+    ).pipe(
       Effect.provideService(RunAnnouncements, {
         write: (record) =>
           record.kind === "verification"

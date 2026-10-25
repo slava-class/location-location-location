@@ -18,7 +18,7 @@ afterEach(async () => {
     await rm(root, { recursive: true, force: true });
 });
 
-test("CLI plans cannot execute checkpoint mutations or engine work in an unprovisioned workspace", async () => {
+async function fixture() {
   const root = await realpath(
     await mkdtemp(join(tmpdir(), "modkit-cli-plan-")),
   );
@@ -56,7 +56,6 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
       `export default ${JSON.stringify({ verification, profiles })};\n`,
     );
   }
-  const before = (await readdir(root, { recursive: true })).sort();
   const invoke = (...args: string[]) =>
     Bun.spawnSync({
       cmd: [process.execPath, join(root, "tools/cli.ts"), ...args],
@@ -70,6 +69,12 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
       stdout: "pipe",
       stderr: "pipe",
     });
+  return { root, invoke };
+}
+
+test("CLI plans cannot execute checkpoint mutations or engine work in an unprovisioned workspace", async () => {
+  const { root, invoke } = await fixture();
+  const before = (await readdir(root, { recursive: true })).sort();
   for (const [command, commit] of [
     ["verify", "none"],
     ["checkpoint", "local"],
@@ -100,8 +105,16 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
       (project: { mod: { name: string } }) => project.mod.name,
     ),
   ).toEqual(["offline-probe"]);
+  expect((await readdir(root, { recursive: true })).sort()).toEqual(before);
+});
+
+test("invalid CLI selections cannot allocate work in an unprovisioned workspace", async () => {
+  const { root, invoke } = await fixture();
+  const before = (await readdir(root, { recursive: true })).sort();
   for (const args of [
     ["verify", "offline-probe", "--all", "--plan"],
+    ["verify", "--all", "--affected", "HEAD", "--plan"],
+    ["verify", "offline-probe", "--affected", "HEAD", "--plan"],
     ["verify", "missing", "--plan"],
     ["vac"],
     ["checkpoint"],
@@ -109,6 +122,10 @@ test("CLI plans cannot execute checkpoint mutations or engine work in an unprovi
     expect(invoke(...args).exitCode).not.toBe(0);
   }
   expect((await readdir(root, { recursive: true })).sort()).toEqual(before);
+});
+
+test("verification failure retains a machine-readable result under Tern", async () => {
+  const { invoke } = await fixture();
   // Progress must not corrupt the machine-readable result, including when
   // OMP's captured process inherits Tern's terminal environment.
   const failed = invoke("verify", "offline-probe");

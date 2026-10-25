@@ -229,21 +229,10 @@ function resolveClosure(
           pending.push({ owner: builtin.name, declaration });
       } else {
         const pin = yield* dependencyPin(requirement.name),
-          path = yield* resolveDependency(project, pin);
-        const metadata = yield* inspectArchive(path, pin.sha256);
-        if (
-          metadata.mod.name !== pin.name ||
-          metadata.mod.version !== pin.version
-        )
-          return yield* Effect.fail(
-            new BoundaryError({
-              boundary: pin.name,
-              message: "Pinned ZIP metadata does not match its pin",
-            }),
-          );
+          metadata = yield* resolveDependency(project, pin);
         enabled.set(pin.name, pin.version);
         archives.set(pin.name, {
-          path,
+          path: metadata.archive,
           sha256: pin.sha256,
           version: pin.version,
           dependencies: metadata.dependencies,

@@ -59,6 +59,18 @@ const NativeResult = Schema.Struct({
     scale: Schema.Number,
   }),
 });
+const EnginePhase = Schema.Literals([
+  "resolve",
+  "inputs",
+  "package",
+  "profile",
+  "process",
+  "qualify",
+]);
+const EngineTiming = Schema.Struct({
+  phase: EnginePhase,
+  elapsedMs: ElapsedMs,
+});
 const VerificationIdentity = Schema.Struct({
   request: ObservationRequest,
   engine: Engine,
@@ -70,6 +82,7 @@ const VerificationIdentity = Schema.Struct({
   fixtureSha256: Sha256,
   startedAt: Schema.String,
   elapsedMs: ElapsedMs,
+  timings: Schema.Array(EngineTiming),
 });
 export const VerificationRequest = Schema.Struct({
   ...VerificationIdentity.fields,
@@ -109,6 +122,17 @@ export function runEngineSuite(
   } = {},
 ) {
   return Effect.gen(function* () {
+    const startedAt = new Date().toISOString(),
+      start = performance.now();
+    const timings: (typeof EngineTiming.Type)[] = [];
+    let phase: typeof EnginePhase.Type = "resolve",
+      phaseStart = start;
+    function advance(next: typeof EnginePhase.Type) {
+      const now = performance.now();
+      timings.push({ phase, elapsedMs: now - phaseStart });
+      phase = next;
+      phaseStart = now;
+    }
     const fs = yield* FileSystem.FileSystem,
       graphics = profile === "native" || profile === "gallery";
     if (
@@ -168,11 +192,13 @@ export function runEngineSuite(
       options.engine,
       options.backend,
     );
+    advance("inputs");
     const source = yield* sourceSeal(project);
     const inventoryPath = join(project.modRoot, "dev", "engine-inventory.json");
     const inventory = yield* readJSON(TestInventory, inventoryPath),
       expected = yield* selectedCases(inventory, profile);
     const inventorySha256 = yield* hashFile(inventoryPath);
+    advance("package");
     const artifact = options.artifact ?? (yield* packageProject(project));
     const companions = [];
     for (const id of project.development.companions ?? []) {
@@ -186,6 +212,7 @@ export function runEngineSuite(
         artifact: yield* packageProject(companion),
       });
     }
+    advance("profile");
     const context = yield* prepareProfile(
       project,
       engine,
@@ -197,23 +224,25 @@ export function runEngineSuite(
       graphicsPreset === null ? {} : { graphics: graphicsPreset },
     );
     const { run, directory, request } = context;
-    const startedAt = new Date().toISOString(),
-      start = performance.now(),
-      fixtureSha256 = yield* hashFile(
-        join(context.observerDirectory, "control.lua"),
-      );
-    const identity = () => ({
-      request,
-      engine,
-      graphics: context.graphics,
-      source,
-      directory,
-      inventorySha256,
-      seedSha256: context.seedSha256,
-      fixtureSha256,
-      startedAt,
-      elapsedMs: performance.now() - start,
-    });
+    const fixtureSha256 = yield* hashFile(
+      join(context.observerDirectory, "control.lua"),
+    );
+    const identity = () => {
+      const now = performance.now();
+      return {
+        request,
+        engine,
+        graphics: context.graphics,
+        source,
+        directory,
+        inventorySha256,
+        seedSha256: context.seedSha256,
+        fixtureSha256,
+        startedAt,
+        elapsedMs: now - start,
+        timings: [...timings, { phase, elapsedMs: now - phaseStart }],
+      };
+    };
     const input = yield* decode(
       VerificationRequest,
       { ...identity(), expectedMods: context.expectedMods, expected },
@@ -224,6 +253,7 @@ export function runEngineSuite(
       JSON.stringify(input, null, 2) + "\n",
     );
     const operation = Effect.gen(function* () {
+      advance("process");
       yield* withProcess(
         {
           ...run,
@@ -264,6 +294,7 @@ export function runEngineSuite(
             } else yield* child.waitForExit;
           }),
       );
+      advance("qualify");
       if ((yield* hashFile(context.seedSource)) !== context.seedSha256)
         return yield* Effect.fail(
           new BoundaryError({
