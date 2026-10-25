@@ -194,11 +194,24 @@ class ProjectVerificationError extends Data.TaggedError(
   readonly elapsedMs: number;
   readonly timings: readonly (typeof PhaseTiming.Type)[];
 }> {}
+const WorkspaceFailure = Schema.Struct({
+  mod: ModIdentity,
+  phase: Phase,
+  runId: RunId,
+});
+interface SharedChecks {
+  toolchain: ReturnType<typeof checkToolchain>;
+  quality: ReturnType<typeof runQuality>;
+  toolTests: ReturnType<typeof runBunTests>;
+  used: Set<typeof Phase.Type>;
+  failure: typeof WorkspaceFailure.Type | null;
+}
 const SummaryIdentity = Schema.Struct({
   mod: ModIdentity,
   capabilities: Capabilities,
   elapsedMs: Schema.NullOr(ElapsedMs),
   timings: Schema.Array(PhaseTiming),
+  notRun: Schema.Array(Phase),
 });
 const ProjectSummary = Schema.Union([
   Schema.Struct({
@@ -219,6 +232,11 @@ const ProjectSummary = Schema.Union([
     ...SummaryIdentity.fields,
     status: Schema.Literal("prerequisite-failed"),
     error: Schema.String,
+  }),
+  Schema.Struct({
+    ...SummaryIdentity.fields,
+    status: Schema.Literal("blocked"),
+    blockedBy: WorkspaceFailure,
   }),
 ]);
 const VerificationReport = Schema.Struct({
@@ -245,12 +263,22 @@ export function verifyProjects(
           message: "No projects selected",
         }),
       );
+    if (projects.some((project) => project.repoRoot !== projects[0]!.repoRoot))
+      return yield* Effect.fail(
+        new BoundaryError({
+          boundary: "verify",
+          message: "Shared verification requires projects from one workspace",
+        }),
+      );
     const workspace = resolveWorkspace(projects[0]!.repoRoot);
     // Capture every source before the first shared check, not when a later mod starts.
     const sources = yield* Effect.forEach(projects, (project) =>
       sourceSeal(project).pipe(Effect.exit),
     );
-    const shared = {
+    const shared: SharedChecks = {
+      toolchain: yield* Effect.cached(
+        workspace.pipe(Effect.flatMap(checkToolchain)),
+      ),
       quality: yield* Effect.cached(
         workspace.pipe(
           Effect.flatMap((context) =>
@@ -274,6 +302,7 @@ export function verifyProjects(
         ),
       ),
       used: new Set<typeof Phase.Type>(),
+      failure: null,
     };
     const progress = yield* Effect.serviceOption(VerificationProgress);
     const rows = yield* Effect.forEach(projects, (project, index) => {
@@ -282,60 +311,81 @@ export function verifyProjects(
         capabilities: project.capabilities,
       };
       const source = sources[index]!;
-      return (
-        Exit.isFailure(source)
-          ? Effect.failCause(source.cause)
-          : verifyProject(project, selectedBackend, source.value, shared)
-      ).pipe(
-        Effect.flatMap((result) =>
-          decode(
-            ProjectSummary,
-            {
-              ...identity,
-              status: "passed",
-              elapsedMs: result.elapsedMs,
-              timings: result.timings,
-              runId: result.runId,
-              directory: result.directory,
-              engineProfiles: result.engine.map(
-                (proof) => proof.request.profile,
-              ),
-            },
-            "verification summary",
-          ),
-        ),
-        Effect.catchTag("ProjectVerificationError", (error) =>
-          decode(
-            ProjectSummary,
-            {
-              ...identity,
-              status: "failed",
-              elapsedMs: error.elapsedMs,
-              timings: error.timings,
-              runId: error.runId,
-              directory: error.directory,
-              error: error.message,
-            },
-            "failed verification summary",
-          ),
-        ),
-        Effect.catchCause((cause) =>
-          Effect.gen(function* () {
-            if (Cause.hasInterrupts(cause))
-              return yield* Effect.failCause(cause);
-            return yield* decode(
+      const result =
+        Exit.isSuccess(source) && shared.failure !== null
+          ? decode(
               ProjectSummary,
               {
                 ...identity,
+                status: "blocked",
+                blockedBy: shared.failure,
                 elapsedMs: null,
                 timings: [],
-                status: "prerequisite-failed",
-                error: Cause.pretty(cause),
+                notRun: Phase.literals,
               },
-              "verification prerequisite failure",
+              "blocked verification summary",
+            )
+          : (Exit.isFailure(source)
+              ? Effect.failCause(source.cause)
+              : verifyProject(project, selectedBackend, source.value, shared)
+            ).pipe(
+              Effect.flatMap((result) =>
+                decode(
+                  ProjectSummary,
+                  {
+                    ...identity,
+                    status: "passed",
+                    elapsedMs: result.elapsedMs,
+                    timings: result.timings,
+                    notRun: [],
+                    runId: result.runId,
+                    directory: result.directory,
+                    engineProfiles: result.engine.map(
+                      (proof) => proof.request.profile,
+                    ),
+                  },
+                  "verification summary",
+                ),
+              ),
+              Effect.catchTag("ProjectVerificationError", (error) =>
+                decode(
+                  ProjectSummary,
+                  {
+                    ...identity,
+                    status: "failed",
+                    elapsedMs: error.elapsedMs,
+                    timings: error.timings,
+                    notRun: Phase.literals.filter(
+                      (phase) =>
+                        !error.timings.some((timing) => timing.phase === phase),
+                    ),
+                    runId: error.runId,
+                    directory: error.directory,
+                    error: error.message,
+                  },
+                  "failed verification summary",
+                ),
+              ),
+              Effect.catchCause((cause) =>
+                Effect.gen(function* () {
+                  if (Cause.hasInterrupts(cause))
+                    return yield* Effect.failCause(cause);
+                  return yield* decode(
+                    ProjectSummary,
+                    {
+                      ...identity,
+                      elapsedMs: null,
+                      timings: [],
+                      notRun: Phase.literals,
+                      status: "prerequisite-failed",
+                      error: Cause.pretty(cause),
+                    },
+                    "verification prerequisite failure",
+                  );
+                }),
+              ),
             );
-          }),
-        ),
+      return result.pipe(
         Effect.tap((summary) =>
           Option.isSome(progress)
             ? progress.value.complete(summary)
@@ -361,11 +411,7 @@ function verifyProject(
   project: ResolvedProject,
   backend: typeof Backend.Type,
   source: typeof SourceSeal.Type,
-  shared: {
-    quality: ReturnType<typeof runQuality>;
-    toolTests: ReturnType<typeof runBunTests>;
-    used: Set<typeof Phase.Type>;
-  },
+  shared: SharedChecks,
 ) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem,
@@ -462,6 +508,16 @@ function verifyProject(
           }),
           Effect.onExit((exit) =>
             Effect.gen(function* () {
+              if (
+                workspaceCheck &&
+                Exit.isFailure(exit) &&
+                !Cause.hasInterrupts(exit.cause)
+              )
+                shared.failure = {
+                  mod: source.mod,
+                  phase: name,
+                  runId: run.runId,
+                };
               const timing = yield* decode(
                 PhaseTiming,
                 {
@@ -500,8 +556,9 @@ function verifyProject(
     const operation = Effect.gen(function* () {
       const toolchain = yield* step(
         "toolchain",
-        checkToolchain(project),
+        shared.toolchain,
         (value) => Object.values(value.native).map((proof) => proof.runId),
+        true,
       );
       const whitespace = yield* step(
         "whitespace",

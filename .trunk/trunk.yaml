@@ -59,6 +59,8 @@ lint:
       regexes: ['^\.github/workflows/.*\.ya?ml$']
     - name: workshop-knip
       regexes: ['^\.config/knip\.ts$']
+    - name: workshop-typescript-project
+      regexes: ['^tsconfig\.json$']
     - name: workshop-text
       extensions:
         [
@@ -86,24 +88,27 @@ lint:
     # Mise owns native binaries; Bun's lockfile owns JS packages and the Effect patch.
     # No second Node/Python runtime or independently installed Oxc copy belongs here.
     - name: oxlint-bun
-      files: [javascript, javascript-xml, typescript, typescript-xml]
+      files: [workshop-typescript-project]
       known_good_version: ""
-      environment: &native_environment
+      environment: &project_environment
         - name: PATH
           list: ["${env.PATH}"]
+        - name: MODKIT_SOURCE_SELECTION
+          value: "${env.MODKIT_SOURCE_SELECTION}"
       commands:
         - name: lint
-          run: bun ${workspace}/node_modules/oxlint/bin/oxlint --type-aware --type-check --deny-warnings --format sarif -- ${target}
+          run: bun ${workspace}/tools/oxlint.ts ${env.MODKIT_SOURCE_SELECTION}
           output: sarif
           read_output_from: stdout
           success_codes: [0, 1]
-          batch: true
           cache_results: false
           disable_upstream: true
     - name: oxfmt-bun
       files: [workshop-oxfmt]
       known_good_version: ""
-      environment: *native_environment
+      environment: &native_environment
+        - name: PATH
+          list: ["${env.PATH}"]
       commands:
         - name: format
           run: bun ${workspace}/node_modules/oxfmt/bin/oxfmt --write -- ${target}
@@ -208,11 +213,7 @@ lint:
     - name: knip-bun
       files: [workshop-knip]
       known_good_version: ""
-      environment:
-        - name: PATH
-          list: ["${env.PATH}"]
-        - name: MODKIT_SOURCE_SELECTION
-          value: "${env.MODKIT_SOURCE_SELECTION}"
+      environment: *project_environment
       commands:
         - name: lint
           run: bun ${workspace}/node_modules/knip/bin/knip-bun.js --config ${workspace}/.config/knip.ts --no-progress --reporter sarif --treat-config-hints-as-errors

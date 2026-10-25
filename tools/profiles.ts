@@ -34,6 +34,7 @@ import { inspectArchive } from "./packaging.ts";
 import { newRun } from "./runs.ts";
 import { RunId } from "./logs.ts";
 import { luaString } from "./lua-string.ts";
+import { emptyModSettings } from "./mod-settings.ts";
 
 const observerId = "modkit-verification-fixture";
 const Metadata = Schema.Struct({
@@ -410,6 +411,12 @@ export function prepareProfile(
             message: "Staged settings differ from the verified input",
           }),
         );
+    } else if (purpose === "suite") {
+      // FactorioTest otherwise boots a disposable world solely to create this file.
+      yield* fs.writeFile(
+        join(modsDirectory, "mod-settings.dat"),
+        yield* emptyModSettings(engine.version),
+      );
     }
     const request = yield* decode(
       ObservationRequest,

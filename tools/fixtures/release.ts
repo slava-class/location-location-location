@@ -304,6 +304,7 @@ export async function releaseFixture(
     status: "not-applicable",
     reason: "Synthetic receipt fixture",
   };
+  const qualityRunId = crypto.randomUUID();
   const manifest = Schema.decodeUnknownSync(ReleaseManifest)({
     schema: 1,
     mod,
@@ -350,11 +351,19 @@ export async function releaseFixture(
             status: "passed",
             mode: "check",
             scope: mod.name,
-            runId: crypto.randomUUID(),
+            runId: qualityRunId,
             files: Object.keys(source.files),
             changed: [],
             before: source.sha256,
             after: source.sha256,
+            timings: {
+              schema: 1,
+              runId: qualityRunId,
+              processElapsedMs: 0,
+              status: "complete",
+              coverage: "invocation",
+              checkers: [],
+            },
           },
           audit: { mod, languages: [], localeKeys: 0, projectAudit: false },
           lint: noLua,

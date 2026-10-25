@@ -1,18 +1,16 @@
 import { Effect, Exit, FileSystem, Schema } from "effect";
 import { basename, extname, join } from "node:path";
 import { Sha256 } from "./contracts.ts";
-import { runCommand } from "./commands.ts";
+import { readCommandOutput, runCommand } from "./commands.ts";
 import { hashFile } from "./files.ts";
 import { RunId } from "./logs.ts";
 import { withOwnedLock } from "./locks.ts";
-import {
-  BoundaryError,
-  decode,
-  prepareOutputDirectory,
-  RelativePath,
-} from "./projects.ts";
+import { withProcess } from "./process.ts";
+import { QualityTimings, retainQualityTimings } from "./quality-timings.ts";
+import { newRun } from "./runs.ts";
+import { BoundaryError, decode, RelativePath } from "./projects.ts";
 import type { ExecutionContext, ResolvedProject } from "./projects.ts";
-import { sourceFiles } from "./source.ts";
+import { sourceFiles, SourceSelection } from "./source.ts";
 
 // Mise pins the JS launcher; force Bun instead of its Node shebang.
 export const trunkCommand = [
@@ -28,10 +26,11 @@ export const QualityResult = Schema.Struct({
   mode: QualityMode,
   scope: Schema.String,
   runId: RunId,
-  files: Schema.Array(RelativePath),
+  files: SourceSelection,
   changed: Schema.Array(RelativePath),
   before: Sha256,
   after: Sha256,
+  timings: QualityTimings,
 });
 
 const TrunkSummary = Schema.Struct({
@@ -219,50 +218,44 @@ export function runQuality(
         return hashes;
       });
     const before = yield* snapshot();
-    const selectionDirectory = join(
-      context.outputRoot,
-      "quality",
-      crypto.randomUUID(),
-    );
-    yield* prepareOutputDirectory(selectionDirectory);
-    const selectionPath = join(selectionDirectory, "selection.json");
+    const base = yield* newRun(context, mode);
+    const selectionPath = join(base.directory, "selection.json");
     yield* fs.writeFileString(selectionPath, JSON.stringify(files));
     const targets = wholeWorkspace ? ["--all"] : ["--", ...files];
-    const command =
-      mode === "format"
-        ? [
-            ...trunkCommand,
-            "fmt",
-            "--show-existing",
-            "--no-progress",
-            "--cache=false",
-            "--color=false",
-            ...targets,
-          ]
-        : [
-            ...trunkCommand,
-            "check",
-            "--no-fix",
-            "--show-existing",
-            "--cache=false",
-            "--no-progress",
-            "--color=false",
-            ...(mode === "format-check" ? ["--filter", formatterFilter] : []),
-            ...targets,
-          ];
-    const { result, after, changed } = yield* Effect.uninterruptibleMask(
+    const command = [
+      ...trunkCommand,
+      mode === "format" ? "fmt" : "check",
+      ...(mode === "format" ? [] : ["--no-fix"]),
+      "--show-existing",
+      "--no-progress",
+      "--cache=false",
+      "--color=false",
+      "--verbose",
+      "--output-file",
+      join(base.directory, "trunk.json"),
+      ...(mode === "format-check" ? ["--filter", formatterFilter] : []),
+      ...targets,
+    ];
+    const run = {
+      ...base,
+      command,
+      env: {
+        ...base.env,
+        TRUNK_TELEMETRY: "off",
+        MODKIT_SOURCE_SELECTION: selectionPath,
+      },
+    };
+    const { after, changed, timings } = yield* Effect.uninterruptibleMask(
       (restore) =>
         Effect.gen(function* () {
           const outcome = yield* Effect.exit(
-            restore(
-              runCommand(context, mode, command, {
-                cwd: context.repoRoot,
-                env: {
-                  TRUNK_TELEMETRY: "off",
-                  MODKIT_SOURCE_SELECTION: selectionPath,
-                },
-                deadlineMs: 300_000,
-              }),
+            restore(withProcess(run, (child) => child.waitForExit)),
+          );
+          const timingOutcome = yield* Effect.exit(
+            retainQualityTimings(
+              run,
+              files,
+              mode === "format" ? "TRUNK_VERB_FMT" : "TRUNK_VERB_CHECK",
             ),
           );
           // Read back even failed/cancelled checks before propagating their outcome.
@@ -289,14 +282,24 @@ export function runQuality(
             );
           if (Exit.isFailure(outcome))
             return yield* Effect.failCause(outcome.cause);
-          return { result: outcome.value, after, changed };
+          if (Exit.isFailure(timingOutcome))
+            return yield* Effect.failCause(timingOutcome.cause);
+          if (timingOutcome.value.status !== "complete")
+            return yield* Effect.fail(
+              new BoundaryError({
+                boundary: run.runId,
+                message: `Quality timings unavailable; inspect quality-timings.json: ${timingOutcome.value.reason}`,
+              }),
+            );
+          return { after, changed, timings: timingOutcome.value };
         }),
     );
+    const result = yield* readCommandOutput(run.directory, run.runId);
     const count = result.stdout.match(/\bChecked ([0-9]+) files?\b/);
     if (!count || Number(count[1]) !== files.length)
       return yield* Effect.fail(
         new BoundaryError({
-          boundary: result.run.runId,
+          boundary: run.runId,
           message:
             "Trunk did not confirm the complete explicit file selection; inspect its logs",
         }),
@@ -317,11 +320,12 @@ export function runQuality(
             : "info" in context
               ? context.info.name
               : "workspace",
-        runId: result.run.runId,
+        runId: run.runId,
         files,
         changed,
         before: digest(before),
         after: digest(after),
+        timings,
       },
       "quality result",
     );

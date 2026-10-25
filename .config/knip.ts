@@ -1,20 +1,21 @@
 import { BunServices } from "@effect/platform-bun";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import type { KnipConfig } from "knip";
-import { readJSON, RelativePath } from "../tools/projects.ts";
+import { readJSON } from "../tools/projects.ts";
+import { SourceSelection } from "../tools/source.ts";
 
 const selection = process.env.MODKIT_SOURCE_SELECTION;
 const files = selection
   ? await Effect.runPromise(
-      readJSON(
-        Schema.Array(RelativePath).check(Schema.isMinLength(1)),
-        selection,
-      ).pipe(Effect.provide(BunServices.layer)),
+      readJSON(SourceSelection, selection).pipe(
+        Effect.provide(BunServices.layer),
+      ),
     )
   : undefined;
 const isEntry = (path: string) =>
   path === "tools/cli.ts" ||
   path === "tools/source-check.ts" ||
+  path === "tools/oxlint.ts" ||
   path === ".config/knip.ts" ||
   /\.test\.(?:ts|mjs)$/.test(path) ||
   path.startsWith("tools/fixtures/") ||
@@ -26,6 +27,7 @@ export default {
   entry: files?.filter(isEntry) ?? [
     "tools/cli.ts",
     "tools/source-check.ts",
+    "tools/oxlint.ts",
     "tools/**/*.test.{ts,mjs}",
     "tools/fixtures/**/*.ts",
     "mods/*/dev.config.ts",

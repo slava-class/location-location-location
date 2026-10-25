@@ -11,6 +11,8 @@ import {
 } from "./projects.ts";
 import type { ResolvedProject } from "./projects.ts";
 
+export const SourceSelection = Schema.NonEmptyArray(RelativePath);
+
 export const SourceSeal = Schema.Struct({
   schema: Schema.Literal(1),
   mod: ModIdentity,

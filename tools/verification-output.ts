@@ -15,7 +15,7 @@ export function runReportedVerification(
     const states = new Map<string, typeof ProjectVerificationState.Type>();
     const finished = new Map<
       string,
-      "passed" | "failed" | "prerequisite-failed"
+      "passed" | "failed" | "prerequisite-failed" | "blocked"
     >();
     const phaseTotal = (phase: typeof Phase.Type) => {
       let elapsedMs = 0;
@@ -34,13 +34,16 @@ export function runReportedVerification(
         for (const state of states.values())
           phasesCompleted += state.completed.length;
         let productsPassed = 0;
-        for (const result of finished.values())
+        let productsBlocked = 0;
+        for (const result of finished.values()) {
           if (result === "passed") productsPassed++;
-        const identity = `${status}:${phasesCompleted}:${finished.size}:${productsPassed}`;
+          if (result === "blocked") productsBlocked++;
+        }
+        const identity = `${status}:${phasesCompleted}:${finished.size}:${productsPassed}:${productsBlocked}`;
         if (identity === lastOverall) return;
         lastOverall = identity;
         yield* Console.error(
-          `Verification ${status} | phases ${phasesCompleted}/${projects.length * Phase.literals.length} | products ${finished.size}/${projects.length} | passed ${productsPassed} | failed ${finished.size - productsPassed}`,
+          `Verification ${status} | phases ${phasesCompleted}/${projects.length * Phase.literals.length} | products ${finished.size}/${projects.length} | passed ${productsPassed} | failed ${finished.size - productsPassed - productsBlocked}${productsBlocked ? ` | blocked ${productsBlocked}` : ""}`,
         );
       });
     yield* overall("running");
@@ -100,6 +103,10 @@ export function runReportedVerification(
         complete: (summary) =>
           Effect.gen(function* () {
             finished.set(summary.mod.name, summary.status);
+            if (summary.status === "blocked")
+              yield* Console.error(
+                `Blocked ${summary.mod.name}: workspace ${summary.blockedBy.phase} failed in ${summary.blockedBy.mod.name} (${summary.blockedBy.runId}); ${summary.notRun.length} phases not run`,
+              );
             if (states.get(summary.mod.name)?.status !== summary.status)
               yield* Console.error(
                 `Product ${summary.mod.name}: ${summary.status}`,
