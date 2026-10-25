@@ -74,6 +74,35 @@ test("readiness and two durable readers work while the child is alive, with fina
       .status,
   ).toBe("passed");
 });
+test("log matching returns complete split text without joining independent streams", async () => {
+  const input = await request(`
+    process.stdout.write("prefix:16");
+    for await (const chunk of Bun.stdin.stream()) {
+      const command = new TextDecoder().decode(chunk).trim();
+      if (command === "noise") process.stderr.write("99\\n");
+      if (command === "finish") process.stdout.write("00\\n");
+    }
+  `);
+  const matched = await Effect.runPromise(
+    withProcess(input, (owned) =>
+      Effect.gen(function* () {
+        yield* owned.waitForText(/prefix:16/, "partial stdout", 2000);
+        yield* owned.send("noise\n");
+        yield* owned.waitForText(/99\n/, "independent stderr", 2000);
+        yield* owned.send("finish\n");
+        const text = yield* owned.waitForText(
+          /prefix:[0-9]+\n/,
+          "complete stdout",
+          2000,
+        );
+        yield* owned.stop;
+        return text;
+      }),
+    ).pipe(Effect.provide(BunServices.layer)),
+  );
+  expect(matched).toBe("prefix:1600\n");
+});
+
 test("a failed diagnostic seal cannot leave a passed process receipt", async () => {
   const input = await request("console.log('completed');");
   expect(

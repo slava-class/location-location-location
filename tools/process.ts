@@ -171,7 +171,7 @@ export interface OwnedProcess {
     pattern: RegExp,
     phase: string,
     timeoutMs: number,
-  ) => Effect.Effect<void, BoundaryError | PlatformError.PlatformError>;
+  ) => Effect.Effect<string, BoundaryError | PlatformError.PlatformError>;
   readonly waitForExit: Effect.Effect<
     ObservedExit,
     BoundaryError | PlatformError.PlatformError
@@ -740,17 +740,21 @@ export function withProcess<A, E, R>(
         waitForText: (pattern, name, timeoutMs) =>
           Effect.gen(function* () {
             yield* setPhase(name);
-            let cursor = { runId: request.runId, sequence: 0 },
-              window = "";
+            let cursor = { runId: request.runId, sequence: 0 };
+            const windows = new Map<LogEvent["channel"], string>();
             const waitDeadline = performance.now() + timeoutMs;
             while (performance.now() < waitDeadline) {
               const page = yield* readLogPage(logDirectory, cursor);
               cursor = page.cursor;
               for (const item of page.records) {
                 if (item.channel === "lifecycle") continue;
-                window = (window + item.text).slice(-8192);
+                const window = (
+                  (windows.get(item.channel) ?? "") + item.text
+                ).slice(-8192);
+                windows.set(item.channel, window);
                 pattern.lastIndex = 0;
-                if (pattern.test(window)) return;
+                const match = pattern.exec(window);
+                if (match !== null) return match[0];
               }
               if (!(yield* child.isRunning))
                 return yield* Effect.fail(

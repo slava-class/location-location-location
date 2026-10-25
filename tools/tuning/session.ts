@@ -164,8 +164,8 @@ export function withStudio<A, E, R>(
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const studio = yield* resolveStudio(project, tuner);
-    const source = yield* sourceSeal(project);
     const engine = yield* resolveEngine(project, "native", options.engine);
+    const source = yield* sourceSeal(project);
     const artifact = yield* packageProject(project);
     const host = yield* prepareProfile(
       project,

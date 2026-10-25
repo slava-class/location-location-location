@@ -12,6 +12,10 @@ import { hashFile } from "./files.ts";
 import type { Backend } from "./backend.ts";
 import { ImageEvidence, verifyPNG } from "./images.ts";
 import { verifyEngineDiagnostics } from "./engine-diagnostics.ts";
+import {
+  verifyNativeGraphics,
+  waitForNativeGraphics,
+} from "./native-graphics.ts";
 import { packageProject } from "./packaging.ts";
 import { withProcess } from "./process.ts";
 import {
@@ -143,6 +147,14 @@ export function runEngineSuite(
           options.graphics,
         )
       : null;
+    const nativeGraphics =
+      graphicsPreset === null
+        ? null
+        : {
+            width: profile === "gallery" ? 1920 : 1600,
+            height: profile === "gallery" ? 1080 : 1000,
+            graphics: graphicsPreset,
+          };
     if (project.locales.length !== 0 && !project.locales.includes(language))
       return yield* Effect.fail(
         new BoundaryError({
@@ -150,18 +162,18 @@ export function runEngineSuite(
           message: `Locale is not declared by this mod: ${language}`,
         }),
       );
+    const engine = yield* resolveEngine(
+      project,
+      graphics ? "native" : "headless",
+      options.engine,
+      options.backend,
+    );
     const source = yield* sourceSeal(project);
     const inventoryPath = join(project.modRoot, "dev", "engine-inventory.json");
     const inventory = yield* readJSON(TestInventory, inventoryPath),
       expected = yield* selectedCases(inventory, profile);
     const inventorySha256 = yield* hashFile(inventoryPath);
-    const engine = yield* resolveEngine(
-        project,
-        graphics ? "native" : "headless",
-        options.engine,
-        options.backend,
-      ),
-      artifact = options.artifact ?? (yield* packageProject(project));
+    const artifact = options.artifact ?? (yield* packageProject(project));
     const companions = [];
     for (const id of project.development.companions ?? []) {
       const companion = yield* resolveProject(
@@ -241,7 +253,8 @@ export function runEngineSuite(
         },
         (child) =>
           Effect.gen(function* () {
-            if (graphics) {
+            if (nativeGraphics !== null) {
+              yield* waitForNativeGraphics(child, nativeGraphics, 210000);
               yield* child.waitForText(
                 new RegExp("MODKIT_CAPTURE_FLUSHED:" + run.runId),
                 "native-capture-flush",
@@ -289,7 +302,7 @@ export function runEngineSuite(
       const images: { file: string; evidence: typeof ImageEvidence.Type }[] =
         [];
       let summary: typeof TestSummary.Type;
-      if (graphics && native !== undefined) {
+      if (nativeGraphics !== null && native !== undefined) {
         const result = yield* readJSON(
           NativeResult,
           join(directory, "script-output", "modkit-native-result.json"),
@@ -301,19 +314,18 @@ export function runEngineSuite(
           expected.passed,
           run.runId,
         );
-        const width = profile === "gallery" ? 1920 : 1600,
-          height = profile === "gallery" ? 1080 : 1000;
+        const { width, height } = nativeGraphics;
+        yield* verifyNativeGraphics(log, nativeGraphics, run.runId);
         if (
           result.player.locale !== context.language ||
           result.player.width !== width ||
           result.player.height !== height ||
-          result.player.scale !== (profile === "gallery" ? 1.25 : 0.75) ||
-          !log.includes(`Forced graphics settings preset: ${graphicsPreset}`)
+          result.player.scale !== (profile === "gallery" ? 1.25 : 0.75)
         )
           return yield* Effect.fail(
             new BoundaryError({
               boundary: run.runId,
-              message: `Native capture contract mismatch: expected locale=${context.language}, viewport=${width}x${height}, scale=${profile === "gallery" ? 1.25 : 0.75}, preset=${graphicsPreset}; observed locale=${result.player.locale}, viewport=${result.player.width}x${result.player.height}, scale=${result.player.scale}, preset log confirmation=${log.includes(`Forced graphics settings preset: ${graphicsPreset}`)}`,
+              message: `Native capture contract mismatch: expected locale=${context.language}, viewport=${width}x${height}, scale=${profile === "gallery" ? 1.25 : 0.75}; observed locale=${result.player.locale}, viewport=${result.player.width}x${result.player.height}, scale=${result.player.scale}`,
             }),
           );
         const scenes = profile === "gallery" ? native.gallery : native.scenes,

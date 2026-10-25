@@ -14,6 +14,7 @@ import { readLogCursor, readLogPage, RunId } from "../logs.ts";
 import { ImageEvidence, verifyPNG } from "../images.ts";
 import { Revision, StudioManifest, Values } from "./contracts.ts";
 import { readStudioState } from "./session.ts";
+import { verifyNativeGraphics } from "../native-graphics.ts";
 
 const CaptureId = Schema.Int.check(
   Schema.isBetween({ minimum: 1, maximum: 2147483646 }),
@@ -132,18 +133,15 @@ export function captureStudio(
     const log = yield* fs.readFileString(
       join(manifest.clientDirectory, "factorio-current.log"),
     );
-    if (
-      !log.includes("Forced graphics settings preset: extreme") ||
-      !log.includes(
-        `Window: ${manifest.viewport.width}x${manifest.viewport.height}, Drawable: ${manifest.viewport.width}x${manifest.viewport.height}`,
-      )
-    )
-      return yield* Effect.fail(
-        fault(
-          manifest.session,
-          "Native window or Extreme graphics proof is absent",
-        ),
-      );
+    yield* verifyNativeGraphics(
+      log,
+      {
+        width: manifest.viewport.width,
+        height: manifest.viewport.height,
+        graphics: "extreme",
+      },
+      manifest.session,
+    );
     const evidence = yield* decode(
       CaptureEvidence,
       {

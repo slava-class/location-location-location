@@ -14,6 +14,10 @@ import type { OwnedProcess } from "./process.ts";
 import { verifyEngineDiagnostics } from "./engine-diagnostics.ts";
 import { luaString } from "./lua-string.ts";
 import { GraphicsPreset, resolveGraphicsPreset } from "./engine.ts";
+import {
+  verifyNativeGraphics,
+  waitForNativeGraphics,
+} from "./native-graphics.ts";
 
 const PositiveInt = Schema.Int.check(Schema.isGreaterThan(0));
 const PlayerName = Schema.String.check(
@@ -187,6 +191,11 @@ export function withNativeClient<A, E, R>(
       "config.ini",
       "player-data.json",
     ]);
+    const graphics = {
+      width: profile.viewport.width,
+      height: profile.viewport.height,
+      graphics: profile.graphics,
+    };
     const result = yield* withProcess(
       {
         ...profile.run,
@@ -216,6 +225,7 @@ export function withNativeClient<A, E, R>(
       },
       (window) =>
         Effect.gen(function* () {
+          yield* waitForNativeGraphics(window, graphics, execution.deadlineMs);
           yield* window.waitForText(
             /Factorio initialised/,
             "native renderer startup",
@@ -260,20 +270,7 @@ export function withNativeClient<A, E, R>(
           const log = yield* fs.readFileString(
             join(profile.run.directory, "factorio-current.log"),
           );
-          if (
-            !log.includes(
-              `Forced graphics settings preset: ${profile.graphics}`,
-            ) ||
-            !log.includes(
-              `Window: ${profile.viewport.width}x${profile.viewport.height}, Drawable: ${profile.viewport.width}x${profile.viewport.height}`,
-            )
-          )
-            return yield* Effect.fail(
-              fault(
-                profile.run.runId,
-                `Native window or ${profile.graphics} graphics proof is absent`,
-              ),
-            );
+          yield* verifyNativeGraphics(log, graphics, profile.run.runId);
           const evidence = yield* decode(
             NativeClientEvidence,
             {

@@ -192,6 +192,7 @@ export function runBunTests(
     const result = yield* runCommand(project, profile, [
       process.execPath,
       "test",
+      "--parallel=2",
       ...paths,
     ]);
     const output = result.stdout + "\n" + result.stderr;

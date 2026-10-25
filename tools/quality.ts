@@ -13,7 +13,11 @@ import type { ExecutionContext, ResolvedProject } from "./projects.ts";
 import { sourceFiles, SourceSelection } from "./source.ts";
 
 // Mise pins the JS launcher; force Bun instead of its Node shebang.
+// New macOS daemons inherit the launcher's QoS; do not strand checks at background.
 export const trunkCommand = [
+  ...(process.platform === "darwin"
+    ? ["/usr/sbin/taskpolicy", "-c", "utility"]
+    : []),
   process.execPath,
   "run",
   "--bun",
