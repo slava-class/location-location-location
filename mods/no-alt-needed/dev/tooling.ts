@@ -5,6 +5,8 @@ import type { ProjectTooling } from "../../../tools/project-tooling.ts";
 import { TestProfile } from "../../../tools/projects.ts";
 import { GraphicsPreset } from "../../../tools/engine.ts";
 import { FluidPolicy, verifyNative } from "./verification.ts";
+import { prepareFleet, verifyFleet } from "./fleet.ts";
+import { RunId } from "../../../tools/logs.ts";
 
 export default {
   command: ({ project, args }) =>
@@ -50,6 +52,30 @@ export default {
           ).pipe(
             Command.withDescription(
               "Verify the exact package with real en/de clients, fresh-process reload and optional insertion/removal or retained-QoL coverage. Never changes the normal profile.",
+            ),
+          ),
+          Command.make(
+            "prepare-fleet",
+            { engine: Flag.String("engine") },
+            ({ engine }) => prepareFleet(project, resolve(engine)),
+          ).pipe(
+            Command.withDescription(
+              "Rebuild the connected-viewer fleet fixture at Low and update its performance scenario pins. Uses isolated standalone profiles only.",
+            ),
+          ),
+          Command.make(
+            "verify-fleet",
+            {
+              engine: Flag.String("engine"),
+              preparation: Flag.String("preparation").pipe(
+                Flag.withSchema(Schema.String.pipe(Schema.decodeTo(RunId))),
+              ),
+            },
+            ({ engine, preparation }) =>
+              verifyFleet(project, resolve(engine), preparation),
+          ).pipe(
+            Command.withDescription(
+              "Verify a prepared fleet save in fresh native processes, then remove/save/re-add each product independently. Never changes normal profiles.",
             ),
           ),
         ]),

@@ -131,10 +131,10 @@ Unchecked means unfinished, not implicitly authorized or mandatory for every tin
 
 - [ ] **E1 — Cheap onboarding:** add the creation command with a genuinely small implemented mod and relevant behavior tests. No mandatory per-mod package/config, central registry, copied tools or placeholder-green scaffold. Refuse existing targets; never invent gameplay or publish a listing. Tram is not automatically this case.
 - [ ] **E2 — Useful studios:** add a studio only for a concrete consumer, retaining lifecycle-stage and proxy/product distinctions.
-- [ ] **E3 / V-T10 — Test-setting calibration:** compare repeated cold/warm end-to-end runs per workload/backend, retain coverage and Extreme assets, and report uncertainty rather than a speculative speed ranking.
+- [ ] **E3 / V-T10 — Broader test-setting calibration:** extend controlled base/Space Age/pY engine trials to genuinely cold-cache, native-UI and Docker conditions. Retain coverage and Extreme assets; a fresh process alone is not a cold run, and noisy settings comparisons do not establish a fastest configuration.
 - [ ] **E4 — Persisted affected-result reuse, only when justified:** source-based affected selection does not grant reuse. Prove membership/content and shared/companion/toolchain/engine/dependency/profile invalidation before reusing results, identify reused evidence and preserve full-workspace checkpoint scope.
-- [ ] **E5 — Bounded concurrency/batching, when justified:** measure startup amortization and contention; preserve single-primary accounting, isolated state, a separate graphics queue and standalone dependency/package proof.
-- [ ] **E6 — Fleet performance:** measure named combined workloads, periodic alignment and contention; extend calibrated budgets and soaks rather than multiplying a single-mod mean by 100.
+- [ ] **E5 — Bounded concurrency/batching, when justified:** require repeatable completed-work gains under acceptable host contention, including simultaneous process-tree memory and swap observations. Preserve single-primary accounting, isolated state, a separate graphics queue and standalone dependency/package proof.
+- [ ] **E6 — Fleet performance expansion:** extend the named base-game engine-only, individual-product and combined controls to representative production budgets, longer cleanup/resource soaks, multiplayer and relevant pY combinations. Do not multiply a single-mod mean by 100; preserve the offline-only Polytechnic boundary.
 - [ ] **E7 — Runtime sharing, only with demonstrated repetition:** assess deterministic inclusion versus a real library dependency without introducing hidden coupling.
 
 ### Verification capabilities and tool decisions

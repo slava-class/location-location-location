@@ -66,7 +66,9 @@ local function visible(player, entity)
 end
 
 local function context(player)
-    local blocked = not player.connected or player.opened ~= nil or player.render_mode == defines.render_mode.chart
+    local blocked = not player.connected
+        or player.opened_gui_type ~= defines.gui_type.none
+        or player.render_mode == defines.render_mode.chart
     local selected = not blocked and player.selected or nil
     if selected and (Pointer.is_target(selected) or not visible(player, selected)) then
         selected = nil

@@ -1296,6 +1296,13 @@
       "description": "Fixed 121-machine/484-module and 121-filled-pump fixture with saved native viewer state; steady, recipe radius 6, fluid background none, inspection enabled. Offline scripted actions are not live-client, physical-pointer or renderer evidence. Five retained specialist mods use their native defaults; this is a distinct aggregate workload, not a same-closure speedup comparison.",
       "profile": "base",
       "language": "en",
+      "dependencies": [
+        "assemblyanalyst",
+        "belt-direction-indicator",
+        "belt-visualizer",
+        "heat-visualizer",
+        "UndergroundIndicatorsFixed"
+      ],
       "fixture": {
         "file": "dev/performance/fixtures/radius-6.zip",
         "sha256": "93172ac746a07db9d87508c24535d018871ba39cd4a4924935803d35857efc95"
@@ -1411,14 +1418,7 @@
       "preparedWarmupTicks": 124,
       "ticks": 1200,
       "processes": 3,
-      "budget": null,
-      "dependencies": [
-        "assemblyanalyst",
-        "belt-direction-indicator",
-        "belt-visualizer",
-        "heat-visualizer",
-        "UndergroundIndicatorsFixed"
-      ]
+      "budget": null
     },
     {
       "name": "py-module-grids",
@@ -1803,6 +1803,644 @@
       },
       "preparedWarmupTicks": 124,
       "ticks": 1200,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "fleet-active",
+      "description": "Fixed connected-viewer fleet workload: idle, 1000-pair construction, dense recipe changes, GUI cleanup, repeated destruction/rebuild and overlapping pulse/alert periods across two 1800-update cycles. Select companions explicitly.",
+      "profile": "base",
+      "language": "en",
+      "productEnabled": true,
+      "fixture": {
+        "file": "dev/performance/fixtures/workshop-fleet.zip",
+        "sha256": "f5d6987272bfa13407a163d08de155cda02b9eeae85df2f3ea2f214e84982720"
+      },
+      "correctness": "dev/performance/fleet-observe.lua",
+      "activity": {
+        "file": "dev/performance/fleet-activity.lua",
+        "sha256": "ada53091b4ac868df8f82bd76a63cf6f1878bc7343c661d36c6bcc5d80125d06",
+        "checkpoints": [
+          {
+            "update": 119,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 240,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1319,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1380,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1470,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1530,
+            "workload": {
+              "connected_players": 1,
+              "machines": 0,
+              "copper_recipes": 0,
+              "modules": 0,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1600,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1919,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 2040,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3119,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3180,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3270,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3330,
+            "workload": {
+              "connected_players": 1,
+              "machines": 0,
+              "copper_recipes": 0,
+              "modules": 0,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3400,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "connected_players": 1,
+        "machines": 121,
+        "copper_recipes": 0,
+        "modules": 484,
+        "pumps": 121,
+        "mouths": 0,
+        "surface_belts": 0,
+        "recipe_errors": 0,
+        "tooltip_errors": 0,
+        "warning_errors": 0,
+        "planner_errors": 0,
+        "helper_bound_errors": 0,
+        "foreign_fields": 1,
+        "foreign_renders": 1,
+        "foreign_tags": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 3600,
+      "processes": 3,
+      "budget": null
+    },
+    {
+      "name": "fleet-control",
+      "description": "Fixed connected-viewer fleet workload: idle, 1000-pair construction, dense recipe changes, GUI cleanup, repeated destruction/rebuild and overlapping pulse/alert periods across two 1800-update cycles. Select companions explicitly.",
+      "profile": "base",
+      "language": "en",
+      "productEnabled": false,
+      "fixture": {
+        "file": "dev/performance/fixtures/workshop-fleet.zip",
+        "sha256": "f5d6987272bfa13407a163d08de155cda02b9eeae85df2f3ea2f214e84982720"
+      },
+      "correctness": "dev/performance/fleet-observe.lua",
+      "activity": {
+        "file": "dev/performance/fleet-activity.lua",
+        "sha256": "ada53091b4ac868df8f82bd76a63cf6f1878bc7343c661d36c6bcc5d80125d06",
+        "checkpoints": [
+          {
+            "update": 119,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 240,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1319,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1380,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1470,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1530,
+            "workload": {
+              "connected_players": 1,
+              "machines": 0,
+              "copper_recipes": 0,
+              "modules": 0,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1600,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 1919,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 2040,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3119,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3180,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3270,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 121,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 2000,
+              "surface_belts": 2000,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3330,
+            "workload": {
+              "connected_players": 1,
+              "machines": 0,
+              "copper_recipes": 0,
+              "modules": 0,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          },
+          {
+            "update": 3400,
+            "workload": {
+              "connected_players": 1,
+              "machines": 121,
+              "copper_recipes": 0,
+              "modules": 484,
+              "pumps": 121,
+              "mouths": 0,
+              "surface_belts": 0,
+              "recipe_errors": 0,
+              "tooltip_errors": 0,
+              "warning_errors": 0,
+              "planner_errors": 0,
+              "helper_bound_errors": 0,
+              "foreign_fields": 1,
+              "foreign_renders": 1,
+              "foreign_tags": 1
+            }
+          }
+        ]
+      },
+      "expected": {
+        "connected_players": 1,
+        "machines": 121,
+        "copper_recipes": 0,
+        "modules": 484,
+        "pumps": 121,
+        "mouths": 0,
+        "surface_belts": 0,
+        "recipe_errors": 0,
+        "tooltip_errors": 0,
+        "warning_errors": 0,
+        "planner_errors": 0,
+        "helper_bound_errors": 0,
+        "foreign_fields": 1,
+        "foreign_renders": 1,
+        "foreign_tags": 1
+      },
+      "preparedWarmupTicks": 120,
+      "ticks": 3600,
       "processes": 3,
       "budget": null
     }

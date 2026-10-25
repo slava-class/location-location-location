@@ -2,6 +2,8 @@
 Version: 0.1.6
   Changes:
     - Nearby recipes can follow the pointer across empty ground without helper tooltips in single-player; normal entity tooltips remain available.
+  Bugfixes:
+    - Clear contextual overlays when the player inventory or another native panel is open.
   Compatibility:
     - Multiplayer pointer following can still show a helper tooltip or outline. Non-pointer focus modes avoid this limitation.
 ---------------------------------------------------------------------------------------------------

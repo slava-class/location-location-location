@@ -145,7 +145,12 @@ export function qualifyBenchmark(
         "Retained benchmark archive inventory differs",
       );
     for (const [name, input] of Object.entries(request.archives))
-      if (request.expectedMods[name] !== input.version)
+      if (
+        request.expectedMods[name] !==
+        (name === request.mod.name && request.scenario.productEnabled === false
+          ? undefined
+          : input.version)
+      )
         return yield* failure(
           request.runId,
           "Archive version differs from the loaded closure",
@@ -315,6 +320,7 @@ function runBenchmark(
           : "benchmark-activity",
       {
         dependencies: scenario.dependencies ?? [],
+        productEnabled: scenario.productEnabled !== false,
       },
     );
     const { run, directory } = context;

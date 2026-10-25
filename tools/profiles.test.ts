@@ -72,6 +72,11 @@ async function fixture() {
     ),
     join(root, "node_modules/factorio-test-cli/headless-save.zip"),
   );
+  await mkdir(join(root, "tools/fixtures/benchmark"), { recursive: true });
+  await copyFile(
+    join(import.meta.dir, "fixtures/benchmark/control.lua"),
+    join(root, "tools/fixtures/benchmark/control.lua"),
+  );
   // Profile preparation reads engine metadata but does not execute an engine.
   const engine: ResolvedEngine = {
     executable: join(root, "not-launched"),
@@ -206,17 +211,33 @@ test("pY verification fails on an unprovisioned pinned closure before allocating
   ).toMatchObject({ code: "ENOENT" });
 });
 
-test("session removal stages the exact product disabled and never relaxes verification profiles", async () => {
+test("disabled controls retain archive identity without weakening suites or package smoke", async () => {
   const f = await fixture(),
-    built = await f.build();
-  const context = await runFiles(
-    prepareProfile(f.project, f.engine, "base", "en", built, [], "session", {
-      productEnabled: false,
-    }),
-  );
-  expect(context.expectedMods).toEqual({ base: "2.1.21" });
-  expect(context.archives.probe?.sha256).toBe(built.sha256);
-  for (const purpose of ["suite", "package-smoke", "benchmark"] as const)
+    built = await f.build({
+      ...f.info,
+      dependencies: ["base >= 2.1.20", "unprovisioned-product-dependency"],
+    });
+  for (const purpose of [
+    "session",
+    "benchmark",
+    "benchmark-activity",
+    "benchmark-proof",
+  ] as const) {
+    const context = await runFiles(
+      prepareProfile(f.project, f.engine, "base", "en", built, [], purpose, {
+        productEnabled: false,
+      }),
+    );
+    expect(context.expectedMods).not.toHaveProperty("probe");
+    expect(context.expectedMods.base).toBe("2.1.21");
+    expect(context.archives.probe?.sha256).toBe(built.sha256);
+    expect(
+      (
+        await Bun.file(join(context.directory, "mods/mod-list.json")).json()
+      ).mods.find((mod: { name: string }) => mod.name === "probe"),
+    ).toEqual({ name: "probe", enabled: false });
+  }
+  for (const purpose of ["suite", "package-smoke"] as const)
     expect(
       await runFiles(
         Effect.flip(

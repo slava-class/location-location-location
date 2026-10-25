@@ -24,7 +24,7 @@ The default **Follow pointer across gaps** mode uses invisible, collision-free s
 
 In **single-player**, clearing the sampled helper prevents its tooltip while leaving ordinary tooltips enabled. Multiplayer clients can still predict and display a helper tooltip or selection outline: empty-ground pointer following has this known presentation limitation. Use one of the non-pointer focus choices in multiplayer to avoid helper entities. No global tooltip setting is suppressed or left altered in the save.
 
-The live focus choice can instead retain the last valid neighbourhood, retain it for 20 ticks or hide it immediately. Overlapping recipe icons survive a focus change without being destroyed and redrawn. Exact hover details still clear immediately; native ALT, opened panels, surface/force changes and loss of visibility clear contextual recipes. The default radius is **12 tiles** and is configurable per player. Existing per-player overrides are preserved when updating.
+The live focus choice can instead retain the last valid neighbourhood, retain it for 20 ticks or hide it immediately. Overlapping recipe icons survive a focus change without being destroyed and redrawn. Exact hover details still clear immediately; native ALT, opened panels (including the player inventory), surface/force changes and loss of visibility clear contextual recipes. The default radius is **12 tiles** and is configurable per player. Existing per-player overrides are preserved when updating.
 
 ### Live experiments
 
@@ -139,5 +139,29 @@ mise run perf -- no-alt-needed construction --diagnostics ticks
 `mixed-remote` uses a save made with two real clients connected, independent nearby settings and two identical dense surfaces. It checks shared hover, remote-surface transitions, one viewer remaining active and final cleanup. The offline timings measure saved two-viewer simulation work, not network delivery.
 
 Fixtures are saved while an owned native client is connected; the offline benchmark preserves that viewer state. The observer verifies the engine's connected flag, but this is not a live network connection or multiplayer-latency measurement. No synthetic connected flag is assigned. Active cases include identical public-API driver work in primary and correctness lanes. The separate observer checks current recipe identity, duplicate/out-of-range icons, audience, fluid coverage and final cleanup; its bounded `no-alt-performance-frames.jsonl` records rendering counts. Checkpoints establish completion upper bounds, not exact physical-hover latency. Headless counts do not measure GPU cost. Saves retain their per-player settings, so changing only `mod-settings.dat` is not a valid mode switch. `dev/performance/prepare.lua` describes native fixture construction; the scenario manifest owns fixture hashes and minimum pre-save settling. Missing machine-specific budgets remain explicitly inconclusive.
+
+### Fleet workloads
+
+`prepare-fleet` creates a fixed base-game factory with a real connected standalone client at Low, then updates the checksum-pinned `fleet-active` and `fleet-control` scenarios. It requires the other three runtime workshop products, resolved from their own metadata; none is absorbed into this product's release dependencies.
+
+```sh
+mise run project -- no-alt-needed -- prepare-fleet --engine /absolute/path/to/standalone/factorio
+mise run perf -- no-alt-needed fleet-control --diagnostics ticks
+mise run perf -- no-alt-needed fleet-active --diagnostics ticks
+mise run perf -- no-alt-needed fleet-control --companion location-location-location --diagnostics ticks
+mise run perf -- no-alt-needed fleet-control --companion recipe-name-tooltip --diagnostics ticks
+mise run perf -- no-alt-needed fleet-control --companion reversed-underground-belt-detector --diagnostics ticks
+mise run perf -- no-alt-needed fleet-active --companion location-location-location --companion recipe-name-tooltip --companion reversed-underground-belt-detector --diagnostics ticks
+```
+
+Use the same explicit `--engine` for all measured variants when comparing a particular executable. `fleet-control` stages this product disabled; no companions means the engine-plus-driver control, while one companion isolates that product's runtime closure. The last command measures the actual combination, not a sum of separate means.
+
+Each scenario measures all 3,600 updates in three independent primary processes, with separate observer processes. Two 1,800-update cycles cover idle selection, constructing 1,000 reversed pairs, 1,200 dense updates, changing 121 recipes, clearing selection/opening the inventory, destroying the 4,000 belt entities and 121 machines, and rebuilding the machines. The dense interval covers the 1,080-tick overlap of the detector's 216-tick pulse and 60-tick alerts. The fixed factory also contains 484 modules, 121 filled pumps and a saved planner source highlight. It is an unpowered configuration workload, not a production-throughput or active planner-search benchmark.
+
+Observers check reciprocal belt pairing, warning coverage and cleanup, current nearby recipe identities and audience, recipe tooltip updates/removal, bounded pointer helpers, saved-plan highlights, and preservation of an unrelated chest, tooltip, rendering and chart tag. Checkpoints are completion upper bounds, not physical pointer latency. Tick diagnostics distinguish whole-update, script and GC cost without summing overlapping categories. Rendering counts and a saved connected flag are not GPU, live-network or desync evidence.
+
+The preparation readback supplies an exact `verify-fleet` command with its run ID and executable. It checks a fresh disk reload, then independently removes, saves and re-adds each runtime product in fresh owned server/client processes. Native startup explicitly re-charts the fixed viewing area and requires engine-confirmed visibility before selection; visibility saved earlier is not a permanent readiness guarantee. Selection is cleared before removal, as required by Recipe Name Tooltip's native-field contract. Re-adding the planner tests a newly created plan after the disabled save: Factorio does not preserve a removed mod's private storage, and this does not claim otherwise. These scripted native actions are not physical GUI-input evidence. Normal profiles and saves are never modified.
+
+Rebuild the fixture deliberately when its inputs change; preparation and lifecycle receipts reject source or engine drift. Regenerate before a new source-qualified lifecycle run, rather than bypassing the seal. Machine-specific performance acceptance remains uncalibrated until representative measurements support a budget.
 
 Independently authored first-party code, tests, translations and documentation are MIT licensed. Native Factorio artwork remains subject to Wube's terms. See [license.txt](license.txt).

@@ -150,6 +150,7 @@ test("changed workloads, hardware, instrumentation and incomplete samples are no
   for (const changed of [
     { ...next, scenario: { ...next.scenario, expected: { entities: 200 } } },
     { ...next, scenario: { ...next.scenario, ticks: 2400 } },
+    { ...next, scenario: { ...next.scenario, productEnabled: false } },
     { ...next, environment: { ...next.environment, cpu: "another CPU" } },
     { ...next, detail: "ticks" },
     { ...next, correctnessSha256: "d".repeat(64) },

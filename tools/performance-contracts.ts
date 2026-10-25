@@ -38,6 +38,7 @@ const PerformanceScenario = Schema.Struct({
   profile: TestProfile,
   language: Locale,
   dependencies: Schema.optionalKey(Schema.Array(ModId)),
+  productEnabled: Schema.optionalKey(Schema.Boolean),
   fixture: Schema.Struct({ file: RelativePath, sha256: Sha256 }),
   correctness: RelativePath,
   activity: Schema.NullOr(

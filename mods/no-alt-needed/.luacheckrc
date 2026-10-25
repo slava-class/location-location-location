@@ -37,6 +37,16 @@ files["dev/native-verification.lua"] = {
     },
 }
 files["dev/performance/**/*.lua"] = runtime
+-- This fixture executes in the planner's console context, not No ALT Needed's.
+files["dev/performance/fleet-planner.lua"] = {
+    std = "+workshop_runtime",
+    read_globals = {
+        storage = {
+            read_only = true,
+            fields = { location_location_location = { read_only = true, other_fields = true } },
+        },
+    },
+}
 files["dev/performance/pointer-*.lua"] = {
     std = "+workshop_runtime",
     read_globals = {

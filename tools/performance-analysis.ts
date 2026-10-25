@@ -59,6 +59,7 @@ function comparableInputs(value: typeof PerformanceResult.Type) {
     expected: value.scenario.expected,
     activity: value.scenario.activity,
     profile: value.scenario.profile,
+    productEnabled: value.scenario.productEnabled !== false,
     language: value.scenario.language,
     warmup: value.scenario.preparedWarmupTicks,
     ticks: value.scenario.ticks,

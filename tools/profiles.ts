@@ -285,7 +285,8 @@ export function prepareProfile(
         )
       : null;
     if (
-      (inputs.productEnabled === false && purpose !== "session") ||
+      (inputs.productEnabled === false &&
+        (purpose === "suite" || purpose === "package-smoke")) ||
       (inputs.dependencies ?? []).some(
         (name) => !project.development.verificationDependencies?.includes(name),
       )
@@ -294,7 +295,7 @@ export function prepareProfile(
         new BoundaryError({
           boundary: project.info.name,
           message:
-            "Extra roots must be declared verification dependencies; product removal is session-only",
+            "Extra roots must be declared verification dependencies; product removal requires a session or benchmark control",
         }),
       );
     if (project.locales.length !== 0 && !project.locales.includes(language))
@@ -425,7 +426,9 @@ export function prepareProfile(
       yield* fs.makeDirectory(observerDirectory);
       const observerDependencies = [
         `base >= ${project.info.factorio_version}.0`,
-        `${project.info.name} = ${project.info.version}`,
+        ...(inputs.productEnabled === false
+          ? []
+          : [`${project.info.name} = ${project.info.version}`]),
       ];
       if (purpose === "suite") {
         const framework = yield* dependencyPin("factorio-test");
